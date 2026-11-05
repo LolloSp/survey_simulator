@@ -1,0 +1,167 @@
+{
+  "version": 1,
+  "generated_at": "2026-11-05T19:34:07+00:00",
+  "sdmx_base_url": "https://esploradati.istat.it/SDMXWS/rest",
+  "license": {
+    "name": "Creative Commons Attribuzione 3.0 Italia (CC BY 3.0 IT)",
+    "url": "https://creativecommons.org/licenses/by/3.0/it/",
+    "attribution": "Fonte: ISTAT (www.istat.it), elaborazione synthsurvey",
+    "note": "I dati aggregati pubblicati da ISTAT possono essere riprodotti, distribuiti e adattati anche per fini commerciali citando la fonte."
+  },
+  "tables": {
+    "education_region_sex_ageclass": {
+      "name": "education_region_sex_ageclass",
+      "description": "Popolazione di 9 anni e più per regione, sesso, classe d'età e titolo di studio",
+      "source_name": "ISTAT, Censimento permanente della popolazione (dataflow DF_DCSS_ISTR_LAV_PEN_2_TV_1)",
+      "period": "2024",
+      "file": "education_region_sex_ageclass.csv",
+      "sha256": "68bf69047aa8cc45435ec002b98a32d4eb00e875f07e8521c8d421d173ac7d86",
+      "rows": 480,
+      "columns": [
+        "region_code",
+        "region",
+        "macro_area",
+        "sex",
+        "age_class",
+        "education",
+        "count"
+      ],
+      "raw": [
+        {
+          "dataflow": "DF_DCSS_ISTR_LAV_PEN_2_TV_1",
+          "key": "A.ITC1+ITC2+ITC4+ITC3+ITDA+ITD3+ITD4+ITD5+ITE1+ITE2+ITE3+ITE4+ITF1+ITF2+ITF3+ITF4+ITF5+ITF6+ITG1+ITG2.RESPOP_AV.M+F.Y9-24+Y25-49+Y50-64+Y_GE65.TOTAL.NED+PSE+LSE+USE_IF+BL+ML_RDD+ALL.99.ALL.ALL",
+          "url": "https://esploradati.istat.it/SDMXWS/rest/data/DF_DCSS_ISTR_LAV_PEN_2_TV_1/A.ITC1+ITC2+ITC4+ITC3+ITDA+ITD3+ITD4+ITD5+ITE1+ITE2+ITE3+ITE4+ITF1+ITF2+ITF3+ITF4+ITF5+ITF6+ITG1+ITG2.RESPOP_AV.M+F.Y9-24+Y25-49+Y50-64+Y_GE65.TOTAL.NED+PSE+LSE+USE_IF+BL+ML_RDD+ALL.99.ALL.ALL?startPeriod=2024&endPeriod=2024",
+          "file": "DF_DCSS_ISTR_LAV_PEN_2_TV_1/73a8d5a3021ce24b.csv",
+          "sha256": "159af6fe9f5d70c4d4ca337045c85b336d813cacf78222261f29c37edeef4938",
+          "fetched_at": "2026-11-05T19:33:02+00:00",
+          "from_cache": true
+        }
+      ],
+      "generated_at": "2026-11-05T19:34:07+00:00"
+    },
+    "education_sex_ageclass_national": {
+      "name": "education_sex_ageclass_national",
+      "description": "Popolazione di 15 anni e più per sesso, classe d'età e titolo di studio (Italia)",
+      "source_name": "ISTAT, Rilevazione sulle forze di lavoro (dataflow 150_908 e 152_928)",
+      "period": "2024",
+      "file": "education_sex_ageclass_national.csv",
+      "sha256": "9b59b4ca81fcc182abff56ca623d4c1124d944ac95c6516d32da4846f4ff5d5b",
+      "rows": 36,
+      "columns": [
+        "sex",
+        "age_class",
+        "education",
+        "count"
+      ],
+      "raw": [
+        {
+          "dataflow": "150_908_DF_DCCV_FORZLV1_2",
+          "key": "A.IT.FOR.1+2.Y15-24+Y25-34+Y35-44+Y45-54+Y55-64+Y65-89.13+7+11+99.TOTAL",
+          "url": "https://esploradati.istat.it/SDMXWS/rest/data/150_908_DF_DCCV_FORZLV1_2/A.IT.FOR.1+2.Y15-24+Y25-34+Y35-44+Y45-54+Y55-64+Y65-89.13+7+11+99.TOTAL?startPeriod=2024&endPeriod=2024",
+          "file": "150_908_DF_DCCV_FORZLV1_2/d9a3996461052c4f.csv",
+          "sha256": "0643b10f8120e6669ce2bbd722ed881c5da881e7516a631f8aaa559c4bc1b4d3",
+          "fetched_at": "2026-11-05T19:33:24+00:00",
+          "from_cache": true
+        },
+        {
+          "dataflow": "152_928_DF_DCCV_INATTIV1_2",
+          "key": "A.IT.INAC.1+2.Y15-24+Y25-34+Y35-44+Y45-54+Y55-64+Y65-89.13+7+11+99.TOTAL.IN.ALL.99",
+          "url": "https://esploradati.istat.it/SDMXWS/rest/data/152_928_DF_DCCV_INATTIV1_2/A.IT.INAC.1+2.Y15-24+Y25-34+Y35-44+Y45-54+Y55-64+Y65-89.13+7+11+99.TOTAL.IN.ALL.99?startPeriod=2024&endPeriod=2024",
+          "file": "152_928_DF_DCCV_INATTIV1_2/13a9c1e7926b1929.csv",
+          "sha256": "6c5bd046d119f0b39b5fa633679b28a371e9db0ecc82d289bcbaf2f98c2a0644",
+          "fetched_at": "2026-11-05T19:33:28+00:00",
+          "from_cache": true
+        }
+      ],
+      "generated_at": "2026-11-05T19:34:07+00:00"
+    },
+    "employment_region_sex_ageclass": {
+      "name": "employment_region_sex_ageclass",
+      "description": "Popolazione di 15 anni e più per regione, sesso, classe d'età e condizione professionale",
+      "source_name": "ISTAT, Censimento permanente della popolazione (dataflow DF_DCSS_ISTR_LAV_PEN_2_TV_3)",
+      "period": "2024",
+      "file": "employment_region_sex_ageclass.csv",
+      "sha256": "79c25f01eb1ca9a53f993fbf7569c997369ff4e62cebf6a9c0b0484c7b4e82d6",
+      "rows": 640,
+      "columns": [
+        "region_code",
+        "region",
+        "macro_area",
+        "sex",
+        "age_class",
+        "employment",
+        "count"
+      ],
+      "raw": [
+        {
+          "dataflow": "DF_DCSS_ISTR_LAV_PEN_2_TV_3",
+          "key": "A.ITC1+ITC2+ITC4+ITC3+ITDA+ITD3+ITD4+ITD5+ITE1+ITE2+ITE3+ITE4+ITF1+ITF2+ITF3+ITF4+ITF5+ITF6+ITG1+ITG2.RESPOP_AV.M+F.Y15-24+Y25-49+Y50-64+Y_GE65.TOTAL.ALL.1+12+24+5+4+7+99.ALL.ALL",
+          "url": "https://esploradati.istat.it/SDMXWS/rest/data/DF_DCSS_ISTR_LAV_PEN_2_TV_3/A.ITC1+ITC2+ITC4+ITC3+ITDA+ITD3+ITD4+ITD5+ITE1+ITE2+ITE3+ITE4+ITF1+ITF2+ITF3+ITF4+ITF5+ITF6+ITG1+ITG2.RESPOP_AV.M+F.Y15-24+Y25-49+Y50-64+Y_GE65.TOTAL.ALL.1+12+24+5+4+7+99.ALL.ALL?startPeriod=2024&endPeriod=2024",
+          "file": "DF_DCSS_ISTR_LAV_PEN_2_TV_3/e4d45405530721ea.csv",
+          "sha256": "c3c508badb83d33a2c5a9dee5edb6fa964489c6f479a994bfa302fc1f7b0f79c",
+          "fetched_at": "2026-11-05T19:33:21+00:00",
+          "from_cache": true
+        }
+      ],
+      "generated_at": "2026-11-05T19:34:07+00:00"
+    },
+    "firms_region_sector_size": {
+      "name": "firms_region_sector_size",
+      "description": "Imprese attive per regione, settore (ATECO 2007 accorpato) e classe di addetti",
+      "source_name": "ISTAT, Registro statistico delle imprese attive ASIA (dataflow 183_277)",
+      "period": "2024",
+      "file": "firms_region_sector_size.csv",
+      "sha256": "28ee614402dd5a84d05e990ecd6ad1a27565bf04e79f37e8fb82514705a40976",
+      "rows": 471,
+      "columns": [
+        "region_code",
+        "region",
+        "macro_area",
+        "sector",
+        "size_class",
+        "count"
+      ],
+      "raw": [
+        {
+          "dataflow": "183_277_DF_DICA_ASIAUE1P_5",
+          "key": "A.ITC1+ITC2+ITC4+ITC3+ITDA+ITD3+ITD4+ITD5+ITE1+ITE2+ITE3+ITE4+ITF1+ITF2+ITF3+ITF4+ITF5+ITF6+ITG1+ITG2.AENTN..W0_9+W10_49+W50_249+W_GE250.TOT.9.9",
+          "url": "https://esploradati.istat.it/SDMXWS/rest/data/183_277_DF_DICA_ASIAUE1P_5/A.ITC1+ITC2+ITC4+ITC3+ITDA+ITD3+ITD4+ITD5+ITE1+ITE2+ITE3+ITE4+ITF1+ITF2+ITF3+ITF4+ITF5+ITF6+ITG1+ITG2.AENTN..W0_9+W10_49+W50_249+W_GE250.TOT.9.9?startPeriod=2024&endPeriod=2024",
+          "file": "183_277_DF_DICA_ASIAUE1P_5/8ac486d354f371ab.csv",
+          "sha256": "471a355c86fbed2feedcf338128350d52f20af8becd42d3085200ecf3fa123eb",
+          "fetched_at": "2026-11-05T19:34:03+00:00",
+          "from_cache": true
+        }
+      ],
+      "generated_at": "2026-11-05T19:34:07+00:00"
+    },
+    "population_region_sex_age": {
+      "name": "population_region_sex_age",
+      "description": "Popolazione residente al 1° gennaio per regione, sesso ed età singola (18+)",
+      "source_name": "ISTAT, Popolazione residente al 1° gennaio (dataflow 22_289)",
+      "period": "2025",
+      "file": "population_region_sex_age.csv",
+      "sha256": "af91616ecedcd9ab04a1ebfb5d022a2a899f010bf220695801896e2ccffbf277",
+      "rows": 3320,
+      "columns": [
+        "region_code",
+        "region",
+        "macro_area",
+        "sex",
+        "age",
+        "count"
+      ],
+      "raw": [
+        {
+          "dataflow": "22_289_DF_DCIS_POPRES1_1",
+          "key": "A.ITC1+ITC2+ITC4+ITC3+ITDA+ITD3+ITD4+ITD5+ITE1+ITE2+ITE3+ITE4+ITF1+ITF2+ITF3+ITF4+ITF5+ITF6+ITG1+ITG2.JAN.1+2..99",
+          "url": "https://esploradati.istat.it/SDMXWS/rest/data/22_289_DF_DCIS_POPRES1_1/A.ITC1+ITC2+ITC4+ITC3+ITDA+ITD3+ITD4+ITD5+ITE1+ITE2+ITE3+ITE4+ITF1+ITF2+ITF3+ITF4+ITF5+ITF6+ITG1+ITG2.JAN.1+2..99?startPeriod=2025&endPeriod=2025",
+          "file": "22_289_DF_DCIS_POPRES1_1/5c469a4f5090e75f.csv",
+          "sha256": "9bc728c6265bfb9e8b3055852c8f01480f1fe66dd0379b7ffd759c64002fbd70",
+          "fetched_at": "2026-11-05T19:32:32+00:00",
+          "from_cache": true
+        }
+      ],
+      "generated_at": "2026-11-05T19:34:07+00:00"
+    }
+  }
+}

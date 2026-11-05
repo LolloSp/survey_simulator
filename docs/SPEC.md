@@ -355,7 +355,8 @@ Specifica completa: docs/SPEC.md. Leggila prima di ogni milestone.
 - Motore ibrido: rinviato a dopo la raccolta dei dati reali.
 - Interfaccia v1: solo riga di comando.
 - Distribuzione: prodotto proprietario in repository privato, per uso commerciale.
+- Dati ISTAT (M2): solo aggregati pubblici via API SDMX, niente microdati. Popolazione al 1° gennaio 2025, Censimento permanente al 31 dicembre 2024 per istruzione e condizione professionale, ASIA 2024 in ATECO 2007. Il reddito non è una variabile di quota: viene assegnato alla persona in M4. Le tavole normalizzate sono versionate in git con manifest e hash; i file grezzi no.
 
 **Questioni aperte**
 
-- Uso commerciale dei dati ISTAT all'interno di un prodotto proprietario: verificare i termini d'uso di ciascuna fonte.
+- ~~Uso commerciale dei dati ISTAT all'interno di un prodotto proprietario~~ Risolta in M2: i dati aggregati ISTAT sono rilasciati con licenza CC BY 3.0 IT, che ammette l'uso commerciale con citazione della fonte (vedi docs/methodology.md, sezione 1). Restano da verificare le condizioni d'uso della European Social Survey prima di M4.

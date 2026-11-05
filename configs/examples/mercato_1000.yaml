@@ -15,7 +15,7 @@ sample:
       filters:
         age: [18, 99]
         region: all
-      quotas: [sex, age_band, macro_area, education, employment, income_band]
+      quotas: [sex, age_band, macro_area, education, employment]
     pmi:
       share: 0.30
       source: istat_imprese

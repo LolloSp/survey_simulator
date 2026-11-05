@@ -26,7 +26,6 @@ def test_version() -> None:
 @pytest.mark.parametrize(
     "args",
     [
-        ["data", "fetch"],
         ["sample", "preview"],
         ["run"],
         ["run", "--pilot"],
@@ -73,3 +72,42 @@ def test_config_validate_errore(tmp_path) -> None:
     result = runner.invoke(app, ["config", "validate", str(rotta)])
     assert result.exit_code == 1
     assert "Configurazione non valida" in result.output
+
+
+def test_data_status_sul_repo() -> None:
+    from pathlib import Path
+
+    data_dir = Path(__file__).resolve().parents[1] / "data"
+    result = runner.invoke(app, ["data", "status", "--data-dir", str(data_dir)])
+    assert result.exit_code == 0, result.output
+    assert "Hash verificati" in result.output
+    assert "firms_region_sector_size" in result.output
+
+
+def test_data_status_senza_manifest(tmp_path) -> None:
+    result = runner.invoke(app, ["data", "status", "--data-dir", str(tmp_path)])
+    assert result.exit_code == 1
+    assert "Nessun manifest" in result.output
+
+
+def test_data_fetch_offline_senza_cache(tmp_path) -> None:
+    result = runner.invoke(
+        app,
+        [
+            "data",
+            "fetch",
+            "--offline",
+            "--data-dir",
+            str(tmp_path),
+            "--table",
+            "firms_region_sector_size",
+        ],
+    )
+    assert result.exit_code == 1
+    assert "offline" in result.output
+
+
+def test_data_fetch_tavola_sconosciuta(tmp_path) -> None:
+    result = runner.invoke(app, ["data", "fetch", "--data-dir", str(tmp_path), "--table", "nope"])
+    assert result.exit_code == 2
+    assert "Tavole sconosciute" in result.output

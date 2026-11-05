@@ -90,10 +90,100 @@ def config_validate(
             typer.secho(f"  - {w.location}: {w.message}", fg=typer.colors.YELLOW)
 
 
+DataDirOption = Annotated[
+    Path,
+    typer.Option("--data-dir", help="Cartella dati con le sottocartelle raw/ e processed/."),
+]
+
+
 @data_app.command("fetch")
-def data_fetch(config: ConfigOption = Path("config.yaml")) -> None:
-    """Scarica e normalizza le tabelle ISTAT indicate nella configurazione."""
-    _non_implementato("data fetch", "M2")
+def data_fetch(
+    config: Annotated[
+        Path | None,
+        typer.Option(
+            "--config",
+            "-c",
+            help="Config di progetto: limita le tavole alle sorgenti usate dai segmenti.",
+        ),
+    ] = None,
+    table: Annotated[
+        list[str] | None,
+        typer.Option("--table", "-t", help="Nome di una tavola da aggiornare (ripetibile)."),
+    ] = None,
+    offline: Annotated[
+        bool, typer.Option("--offline", help="Non usa la rete: rigenera solo dalla cache grezza.")
+    ] = False,
+    data_dir: DataDirOption = Path("data"),
+) -> None:
+    """Scarica le tavole ISTAT via SDMX, le normalizza e aggiorna il manifest delle fonti."""
+    from synthsurvey.population.istat import (
+        TABLES,
+        SdmxClient,
+        SdmxError,
+        fetch_tables,
+        tables_for_sources,
+    )
+    from synthsurvey.population.istat.normalize import NormalizeError
+
+    if table:
+        ignote = [t for t in table if t not in TABLES]
+        if ignote:
+            typer.secho(
+                f"Tavole sconosciute: {', '.join(ignote)}. Disponibili: {', '.join(TABLES)}",
+                fg=typer.colors.RED,
+                err=True,
+            )
+            raise typer.Exit(code=2)
+        specs = [TABLES[t] for t in table]
+    elif config is not None:
+        try:
+            loaded = load_config(config)
+        except ConfigError as exc:
+            typer.secho(str(exc), fg=typer.colors.RED, err=True)
+            raise typer.Exit(code=1) from None
+        sorgenti = [s.source for s in loaded.config.sample.segments.values()]
+        specs = tables_for_sources(sorgenti)
+    else:
+        specs = list(TABLES.values())
+
+    client = SdmxClient(data_dir / "raw", offline=offline)
+    processed = data_dir / "processed"
+    typer.echo(f"Tavole da aggiornare: {', '.join(s.name for s in specs)}")
+    try:
+        for spec in specs:
+            typer.echo(f"- {spec.name}: {spec.description} [{spec.period}]")
+            result = fetch_tables(client, [spec], processed)
+            entry = result.manifest.tables[spec.name]
+            cache = "cache" if all(r.from_cache for r in entry.raw) else "rete"
+            typer.echo(f"  {entry.rows} righe, {entry.file}, sorgente da {cache}")
+    except (SdmxError, NormalizeError) as exc:
+        typer.secho(f"Errore: {exc}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from None
+    typer.secho(f"Manifest aggiornato: {processed / 'manifest.json'}", fg=typer.colors.GREEN)
+
+
+@data_app.command("status")
+def data_status(data_dir: DataDirOption = Path("data")) -> None:
+    """Elenca le tavole nel manifest e verifica gli hash dei file."""
+    from synthsurvey.population.istat import read_manifest, verify_manifest
+
+    processed = data_dir / "processed"
+    manifest = read_manifest(processed)
+    if manifest is None:
+        typer.secho(f"Nessun manifest in {processed}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1)
+    typer.echo(f"Manifest generato il {manifest.generated_at} da {manifest.sdmx_base_url}")
+    typer.echo(f"Licenza: {manifest.license.get('name', '?')}")
+    for name, entry in manifest.tables.items():
+        typer.echo(f"- {name} [{entry.period}] {entry.rows} righe, {entry.file}")
+        typer.echo(f"  {entry.source_name}")
+    problemi = verify_manifest(processed, data_dir / "raw")
+    if problemi:
+        typer.secho("Problemi:", fg=typer.colors.RED, err=True)
+        for p in problemi:
+            typer.secho(f"  - {p}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1)
+    typer.secho("Hash verificati: tutto coerente.", fg=typer.colors.GREEN)
 
 
 @sample_app.command("preview")
