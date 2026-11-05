@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  qualita:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Installa Python e dipendenze
+        run: |
+          uv python install 3.12
+          uv sync --locked
+      - name: Lint
+        run: uv run ruff check .
+      - name: Formattazione
+        run: uv run ruff format --check .
+      - name: Tipi
+        run: uv run mypy
+      - name: Test
+        run: uv run pytest
+      - name: CLI
+        run: uv run synthsurvey --help

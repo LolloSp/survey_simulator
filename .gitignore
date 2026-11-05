@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Segreti e ambiente
+.env
+.env.*
+!.env.example
+
+# Dati e output
+data/raw/*
+!data/raw/.gitkeep
+runs/
+
+# Editor e sistema
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
