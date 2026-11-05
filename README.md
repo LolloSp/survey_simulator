@@ -12,7 +12,7 @@ Specifica completa: [docs/SPEC.md](docs/SPEC.md). Stato: **M0 – scheletro**.
 ```bash
 uv python install 3.12
 uv sync
-uv run synthsurvey --help          # su Windows con Smart App Control: uv run python -m synthsurvey --help
+uv run synthsurvey --help
 ```
 
 ## Sviluppo
@@ -20,7 +20,7 @@ uv run synthsurvey --help          # su Windows con Smart App Control: uv run py
 ```bash
 uv run pytest
 uv run ruff check . && uv run ruff format --check . && uv run mypy
-uv run python -m pre_commit install   # pre-commit.exe è bloccato da Smart App Control su Windows
+uv run pre-commit install
 ```
 
 Le chiavi API si leggono solo da variabili d'ambiente: copiare `.env.example`

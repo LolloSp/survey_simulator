@@ -24,12 +24,9 @@ Specifica completa: docs/SPEC.md. Leggila prima di ogni milestone.
 ## Comandi
 - uv run pytest
 - uv run ruff check . && uv run ruff format --check . && uv run mypy src
-- uv run synthsurvey --help  (su Windows con Smart App Control: uv run python -m synthsurvey --help)
+- uv run synthsurvey --help
 
 ## Ambiente
 - Sviluppo su Windows 11 (PowerShell); la CI gira su Linux.
   I percorsi passano sempre da pathlib, mai stringhe con separatori fissi.
 - Python 3.12 gestito da uv (`uv python install 3.12`).
-- Smart App Control blocca gli eseguibili non firmati che uv genera in
-  .venv/Scripts (synthsurvey.exe, pre-commit.exe). Usa sempre la forma
-  `uv run python -m <modulo>`; ruff, mypy e pytest non sono interessati.

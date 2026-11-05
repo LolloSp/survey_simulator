@@ -42,7 +42,7 @@ def test_comandi_non_implementati_escono_con_1(args: list[str]) -> None:
 
 
 def test_modulo_eseguibile() -> None:
-    """`python -m synthsurvey` deve funzionare (workaround per Smart App Control)."""
+    """`python -m synthsurvey` deve essere equivalente al comando `synthsurvey`."""
     import subprocess
     import sys
 
