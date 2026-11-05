@@ -1,0 +1,58 @@
+# 1000 rispondenti, ensemble di due modelli, segnali non verbali disattivati
+# per confrontare i risultati con e senza.
+
+project:
+  name: indagine-mercato-2026-1000
+  seed: 20261105
+
+sample:
+  total: 1000
+  allocation: quota
+  segments:
+    consumer:
+      share: 0.70
+      source: istat_individui
+      filters:
+        age: [18, 99]
+        region: all
+      quotas: [sex, age_band, macro_area, education, employment, income_band]
+    pmi:
+      share: 0.30
+      source: istat_imprese
+      filters:
+        employees: [1, 249]
+        sectors: all
+      quotas: [size_class, sector, macro_area]
+      oversample:
+        size_class: {micro: 0.4, piccola: 0.35, media: 0.25}
+      respondent_role: [titolare, responsabile_acquisti, amministratore, altro]
+
+questionnaire:
+  path: ../../questionnaires/examples/mercato_v1.yaml
+
+modes:
+  design: within_subject
+  enabled: [cawi, cati, capi]
+
+engine:
+  models:
+    - provider: anthropic
+      model: claude-sonnet-5-5
+    - provider: openai
+      model: gpt-5
+  temperature: 0.8
+  replicates: 3
+  randomize_option_order: true
+  nonverbal:
+    enabled: false
+    vocabulary: default
+
+run:
+  pilot: false
+  pilot_size: 15
+  frozen: false
+  budget_max_eur: 1500
+
+output:
+  formats: [parquet, csv]
+  dir: ../../runs

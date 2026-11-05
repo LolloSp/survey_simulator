@@ -100,6 +100,7 @@ engine:
 
 run:
   pilot: false
+  pilot_size: 12               # persone nel pilota (10-15 consigliate)
   frozen: false                # true blocca qualsiasi modifica
   budget_max_eur: 50
 
@@ -279,7 +280,7 @@ synthsurvey/
 └── tests/
 ```
 
-Comandi CLI previsti: `synthsurvey data fetch`, `synthsurvey sample preview`, `synthsurvey run --pilot`, `synthsurvey run`, `synthsurvey freeze`, `synthsurvey report`, `synthsurvey validate --real <file>`.
+Comandi CLI previsti: `synthsurvey config validate <file>`, `synthsurvey data fetch`, `synthsurvey sample preview`, `synthsurvey run --pilot`, `synthsurvey run`, `synthsurvey freeze`, `synthsurvey report`, `synthsurvey validate --real <file>`.
 
 ## Roadmap per milestone
 

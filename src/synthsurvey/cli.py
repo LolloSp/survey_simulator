@@ -11,6 +11,7 @@ from typing import Annotated
 import typer
 
 from synthsurvey import __version__
+from synthsurvey.config import ConfigError, estimate_interviews, load_config, segment_sizes
 
 app = typer.Typer(
     name="synthsurvey",
@@ -18,8 +19,10 @@ app = typer.Typer(
     no_args_is_help=True,
     add_completion=False,
 )
+config_app = typer.Typer(help="Validazione del file di configurazione.", no_args_is_help=True)
 data_app = typer.Typer(help="Gestione delle tabelle sorgente ISTAT.", no_args_is_help=True)
 sample_app = typer.Typer(help="Popolazione sintetica e campione.", no_args_is_help=True)
+app.add_typer(config_app, name="config")
 app.add_typer(data_app, name="data")
 app.add_typer(sample_app, name="sample")
 
@@ -57,6 +60,34 @@ def main(
     ] = False,
 ) -> None:
     """Simulatore di indagini su popolazione sintetica italiana."""
+
+
+@config_app.command("validate")
+def config_validate(
+    file: Annotated[Path, typer.Argument(help="File YAML di configurazione da validare.")],
+) -> None:
+    """Valida un file di configurazione: elenca errori e avvisi, stima il volume del run."""
+    try:
+        loaded = load_config(file)
+    except ConfigError as exc:
+        typer.secho(str(exc), fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from None
+
+    cfg = loaded.config
+    typer.secho(f"Configurazione valida: {loaded.path}", fg=typer.colors.GREEN)
+    typer.echo(f"Progetto: {cfg.project.name} (seed {cfg.project.seed})")
+    sizes = segment_sizes(cfg)
+    typer.echo("Segmenti: " + ", ".join(f"{n}={k}" for n, k in sizes.items()))
+    stima = estimate_interviews(cfg)
+    typer.echo(
+        f"Interviste previste: {stima.interviews} "
+        f"({stima.personas} persone x {stima.modes_per_persona} modalità "
+        f"x {stima.replicates} repliche x {stima.models} modelli)"
+    )
+    if loaded.warnings:
+        typer.secho(f"Avvisi ({len(loaded.warnings)}):", fg=typer.colors.YELLOW)
+        for w in loaded.warnings:
+            typer.secho(f"  - {w.location}: {w.message}", fg=typer.colors.YELLOW)
 
 
 @data_app.command("fetch")

@@ -1,0 +1,57 @@
+# 500 rispondenti con dimensioni esplicite per segmento e disegno between_subject,
+# utile a replicare il disegno di interviste reali in una sola modalità per persona.
+
+project:
+  name: indagine-mercato-2026-500
+  seed: 20261105
+
+sample:
+  total: 500
+  allocation: quota
+  segments:
+    consumer:
+      size: 350
+      source: istat_individui
+      filters:
+        age: [18, 80]
+        macro_area: [nord_ovest, nord_est, centro]
+      quotas: [sex, age_band, macro_area, education, employment, income_band]
+    pmi:
+      size: 150
+      source: istat_imprese
+      filters:
+        employees: [1, 249]
+        sectors: [industria, commercio, servizi_imprese]
+      quotas: [size_class, sector, macro_area]
+      oversample:
+        size_class: {micro: 0.4, piccola: 0.35, media: 0.25}
+      respondent_role: [titolare, responsabile_acquisti, amministratore]
+
+questionnaire:
+  path: ../../questionnaires/examples/mercato_v1.yaml
+
+modes:
+  design: between_subject
+  enabled: [cawi, cati, capi]
+  allocation: {cawi: 0.34, cati: 0.33, capi: 0.33}
+
+engine:
+  models:
+    - provider: anthropic
+      model: claude-sonnet-5-5
+  temperature: 0.8
+  replicates: 3
+  randomize_option_order: true
+  nonverbal:
+    enabled: true
+    vocabulary: default
+
+run:
+  pilot: false
+  pilot_size: 15
+  frozen: false
+  budget_max_eur: 250
+
+output:
+  formats: [parquet, csv, sav]
+  dir: ../../runs

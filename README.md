@@ -5,7 +5,7 @@ rispondenti coerente con i dati ISTAT e gli sottopone un questionario in tre
 modalità (CAWI, CATI, CAPI) tramite agenti LLM, producendo un dataset con pesi,
 paradati e codebook.
 
-Specifica completa: [docs/SPEC.md](docs/SPEC.md). Stato: **M0 – scheletro**.
+Specifica completa: [docs/SPEC.md](docs/SPEC.md). Stato: **M1 – configurazione**.
 
 ## Avvio rapido
 
@@ -13,6 +13,12 @@ Specifica completa: [docs/SPEC.md](docs/SPEC.md). Stato: **M0 – scheletro**.
 uv python install 3.12
 uv sync
 uv run synthsurvey --help
+```
+
+Validare una configurazione (esempi in `configs/examples/`):
+
+```bash
+uv run synthsurvey config validate configs/examples/mercato_100.yaml
 ```
 
 ## Sviluppo

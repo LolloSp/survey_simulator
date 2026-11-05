@@ -1,0 +1,27 @@
+# Questionario di esempio nel formato di docs/SPEC.md.
+# Il parser completo (routing con show_if, adattamento per modalità) arriva in M5;
+# per ora il file serve alle config di esempio, che ne verificano l'esistenza.
+
+id: mercato_v1
+language: it
+sections:
+  - id: s1
+    questions:
+      - id: q1
+        text: "Quanto è soddisfatto del suo attuale fornitore di energia?"
+        type: scale          # single | multi | scale | grid | open | numeric
+        scale: {min: 1, max: 10, labels: {1: "Per nulla", 10: "Del tutto"}}
+        sensitive: false
+        applies_to: [consumer, pmi]
+      - id: q2
+        text: "Qual è il motivo principale della sua insoddisfazione?"
+        type: single
+        options: ["Prezzo", "Servizio clienti", "Trasparenza della bolletta", "Altro", "Non so"]
+        show_if: "q1 <= 5"
+        applies_to: [consumer, pmi]
+      - id: q3
+        text: "Negli ultimi 12 mesi ha provato a cambiare fornitore?"
+        type: single
+        options: ["Sì, ho cambiato", "Ci ho provato ma non ho cambiato", "No", "Non so"]
+        sensitive: false
+        applies_to: [consumer, pmi]

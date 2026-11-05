@@ -54,3 +54,22 @@ def test_modulo_eseguibile() -> None:
     )
     assert result.returncode == 0
     assert __version__ in result.stdout
+
+
+def test_config_validate_ok() -> None:
+    from pathlib import Path
+
+    esempio = Path(__file__).resolve().parents[1] / "configs" / "examples" / "mercato_100.yaml"
+    result = runner.invoke(app, ["config", "validate", str(esempio)])
+    assert result.exit_code == 0, result.output
+    assert "Configurazione valida" in result.output
+    assert "consumer=70, pmi=30" in result.output
+    assert "Interviste previste: 900" in result.output
+
+
+def test_config_validate_errore(tmp_path) -> None:
+    rotta = tmp_path / "rotta.yaml"
+    rotta.write_text("project: {name: x, seed: 1}\n", encoding="utf-8")
+    result = runner.invoke(app, ["config", "validate", str(rotta)])
+    assert result.exit_code == 1
+    assert "Configurazione non valida" in result.output

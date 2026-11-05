@@ -1,0 +1,57 @@
+# Caso d'uso di riferimento: 100 rispondenti (70 consumer, 30 PMI).
+# Vedi docs/SPEC.md, sezione "Configurazione parametrica".
+
+project:
+  name: indagine-mercato-2026
+  seed: 20261105
+
+sample:
+  total: 100
+  allocation: quota            # quota | proportional
+  segments:
+    consumer:
+      share: 0.70              # oppure size: 70
+      source: istat_individui
+      filters:
+        age: [18, 99]
+        region: all
+      quotas: [sex, age_band, macro_area, education, employment]
+      oversample: {}
+    pmi:
+      share: 0.30
+      source: istat_imprese
+      filters:
+        employees: [1, 249]
+        sectors: all
+      quotas: [size_class, sector, macro_area]
+      oversample:
+        size_class: {micro: 0.4, piccola: 0.35, media: 0.25}
+      respondent_role: [titolare, responsabile_acquisti, amministratore]
+
+questionnaire:
+  path: ../../questionnaires/examples/mercato_v1.yaml
+
+modes:
+  design: within_subject       # within_subject | between_subject
+  enabled: [cawi, cati, capi]
+
+engine:
+  models:                      # più modelli = ensemble
+    - provider: anthropic
+      model: claude-sonnet-5-5   # da confermare nel pilota (M7)
+  temperature: 0.8
+  replicates: 3
+  randomize_option_order: true
+  nonverbal:
+    enabled: true              # solo CATI e CAPI
+    vocabulary: default
+
+run:
+  pilot: false
+  pilot_size: 12
+  frozen: false                # true blocca qualsiasi modifica
+  budget_max_eur: 50
+
+output:
+  formats: [parquet, csv, sav]
+  dir: ../../runs
