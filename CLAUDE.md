@@ -23,6 +23,7 @@ Specifica completa: docs/SPEC.md. Leggila prima di ogni milestone.
 
 ## Comandi
 - uv run pytest
+- uv run pytest --network  (aggiunge il test che chiama davvero l'API ISTAT)
 - uv run ruff check . && uv run ruff format --check . && uv run mypy src
 - uv run synthsurvey --help
 - uv run synthsurvey data status  (verifica hash delle tavole ISTAT; `data fetch` usa la rete)

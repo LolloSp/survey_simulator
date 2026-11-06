@@ -111,3 +111,42 @@ def test_data_fetch_tavola_sconosciuta(tmp_path) -> None:
     result = runner.invoke(app, ["data", "fetch", "--data-dir", str(tmp_path), "--table", "nope"])
     assert result.exit_code == 2
     assert "Tavole sconosciute" in result.output
+
+
+def test_data_fetch_offline_con_cache(tmp_path, monkeypatch) -> None:
+    """Percorso riuscito di `data fetch --offline`: cache precaricata dalle fixture."""
+    import dataclasses
+    import functools
+
+    import httpx
+
+    import synthsurvey.population.istat as istat
+    from tests.population.conftest import REGIONI_FIXTURE, dataflow_from_url, fixture_text
+
+    nome = "firms_region_sector_size"
+    spec = istat.TABLES[nome]
+    # Normalizzazione limitata alle regioni presenti nelle fixture.
+    monkeypatch.setitem(
+        istat.TABLES,
+        nome,
+        dataclasses.replace(
+            spec, normalize=functools.partial(spec.normalize, required_regions=REGIONI_FIXTURE)
+        ),
+    )
+    transport = httpx.MockTransport(
+        lambda r: httpx.Response(200, text=fixture_text(dataflow_from_url(str(r.url))))
+    )
+    client = istat.SdmxClient(tmp_path / "raw", transport=transport)
+    for req in spec.requests:
+        client.fetch_csv(req.dataflow, req.key, req.start, req.end)
+
+    result = runner.invoke(
+        app, ["data", "fetch", "--offline", "--data-dir", str(tmp_path), "--table", nome]
+    )
+    assert result.exit_code == 0, result.output
+    assert "sorgente da cache" in result.output
+    assert (tmp_path / "processed" / f"{nome}.csv").is_file()
+
+    status = runner.invoke(app, ["data", "status", "--data-dir", str(tmp_path)])
+    assert status.exit_code == 0, status.output
+    assert "Hash verificati" in status.output

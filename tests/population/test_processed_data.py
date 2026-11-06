@@ -72,3 +72,61 @@ def test_imprese_ordine_di_grandezza() -> None:
     assert sorted(df["sector"].unique().to_list()) == sorted(cat.SECTORS)
     assert set(df["size_class"].unique().to_list()) == {*cat.SIZE_CLASSES_PMI, cat.SIZE_CLASS_LARGE}
     assert 4_000_000 < df["count"].sum() < 5_500_000
+
+
+# --- coerenza fra tavole -------------------------------------------------------
+
+
+def test_censimento_15_piu_coerente_con_popolazione_18_piu() -> None:
+    """Per ogni regione la popolazione 15+ del censimento (31/12/2024) è poco sopra
+    quella 18+ al 1/1/2025: la differenza sono i 15-17enni, circa il 3% degli adulti."""
+    pop = tabella("population_region_sex_age").group_by("region").agg(pl.col("count").sum())
+    emp = tabella("employment_region_sex_ageclass").group_by("region").agg(pl.col("count").sum())
+    ratio = pop.join(emp, on="region", suffix="_emp").with_columns(
+        (pl.col("count_emp") / pl.col("count")).alias("ratio")
+    )
+    fuori = ratio.filter((pl.col("ratio") < 0.98) | (pl.col("ratio") > 1.08))
+    assert fuori.is_empty(), fuori
+
+
+def test_istruzione_9_piu_coerente_con_condizione_15_piu() -> None:
+    """Per ogni regione e sesso la popolazione 9+ (tavola istruzione) supera la 15+
+    (tavola condizione) della quota di 9-14enni, fra il 2% e il 12%."""
+    edu = (
+        tabella("education_region_sex_ageclass")
+        .group_by(["region", "sex"])
+        .agg(pl.col("count").sum())
+    )
+    emp = (
+        tabella("employment_region_sex_ageclass")
+        .group_by(["region", "sex"])
+        .agg(pl.col("count").sum())
+    )
+    ratio = edu.join(emp, on=["region", "sex"], suffix="_emp").with_columns(
+        (pl.col("count") / pl.col("count_emp")).alias("ratio")
+    )
+    fuori = ratio.filter((pl.col("ratio") < 1.02) | (pl.col("ratio") > 1.12))
+    assert fuori.is_empty(), fuori
+
+
+def test_forze_di_lavoro_nazionali_coerenti_con_censimento() -> None:
+    """Il totale 15+ delle Forze di lavoro (fino a 89 anni, popolazione in famiglia)
+    sta entro pochi punti dal totale 15+ del censimento, per sesso."""
+    nat = tabella("education_sex_ageclass_national").group_by("sex").agg(pl.col("count").sum())
+    emp = tabella("employment_region_sex_ageclass").group_by("sex").agg(pl.col("count").sum())
+    ratio = nat.join(emp, on="sex", suffix="_emp").with_columns(
+        (pl.col("count") / pl.col("count_emp")).alias("ratio")
+    )
+    fuori = ratio.filter((pl.col("ratio") < 0.93) | (pl.col("ratio") > 1.02))
+    assert fuori.is_empty(), fuori
+
+
+def test_imprese_per_macro_area_proporzionate_alla_popolazione() -> None:
+    """Imprese per 1000 adulti per macro-area: fra 60 e 130 ovunque (dato ISTAT ~95)."""
+    pop = tabella("population_region_sex_age").group_by("macro_area").agg(pl.col("count").sum())
+    firms = tabella("firms_region_sector_size").group_by("macro_area").agg(pl.col("count").sum())
+    ratio = pop.join(firms, on="macro_area", suffix="_firms").with_columns(
+        (pl.col("count_firms") / pl.col("count") * 1000).alias("per_mille")
+    )
+    fuori = ratio.filter((pl.col("per_mille") < 60) | (pl.col("per_mille") > 130))
+    assert fuori.is_empty(), fuori
