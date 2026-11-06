@@ -54,7 +54,7 @@ _CENSUS_EMP = "+".join(cl.EMPLOYMENT_CENSUS) + "+" + cl.EMPLOYMENT_CENSUS_TOTAL
 
 POPULATION = TableSpec(
     name="population_region_sex_age",
-    description="Popolazione residente al 1° gennaio per regione, sesso ed età singola (18+)",
+    description="Popolazione residente al 1° gennaio per regione, sesso ed età singola (15+)",
     source_name="ISTAT, Popolazione residente al 1° gennaio (dataflow 22_289)",
     period="2025",
     requests=(
@@ -138,6 +138,23 @@ EDUCATION_NATIONAL = TableSpec(
     columns=("sex", "age_class", "education", "count"),
 )
 
+EMPLOYED_NATIONAL = TableSpec(
+    name="employed_sex_ageclass_education_national",
+    description="Occupati di 15 anni e più per sesso, classe d'età e titolo di studio (Italia)",
+    source_name="ISTAT, Rilevazione sulle forze di lavoro, occupati (dataflow 150_938)",
+    period="2024",
+    requests=(
+        SdmxRequest(
+            dataflow="150_938_DF_DCCV_OCCUPATIT1_2",
+            key=f"A.IT.1+2.{_LFS_AGES}.{_LFS_EDU}.TOTAL.0010.0010.9.99.99.99.9.9",
+            start="2024",
+            end="2024",
+        ),
+    ),
+    normalize=nz.employed_sex_ageclass_education_national,
+    columns=("sex", "age_class", "education", "count"),
+)
+
 FIRMS = TableSpec(
     name="firms_region_sector_size",
     description="Imprese attive per regione, settore (ATECO 2007 accorpato) e classe di addetti",
@@ -156,7 +173,8 @@ FIRMS = TableSpec(
 )
 
 TABLES: dict[str, TableSpec] = {
-    t.name: t for t in (POPULATION, EDUCATION, EMPLOYMENT, EDUCATION_NATIONAL, FIRMS)
+    t.name: t
+    for t in (POPULATION, EDUCATION, EMPLOYMENT, EDUCATION_NATIONAL, EMPLOYED_NATIONAL, FIRMS)
 }
 
 # Tavole richieste da ciascuna sorgente del registro di configurazione.
@@ -166,6 +184,7 @@ TABLES_BY_SOURCE: dict[str, tuple[str, ...]] = {
         EDUCATION.name,
         EMPLOYMENT.name,
         EDUCATION_NATIONAL.name,
+        EMPLOYED_NATIONAL.name,
     ),
     "istat_imprese": (FIRMS.name,),
 }

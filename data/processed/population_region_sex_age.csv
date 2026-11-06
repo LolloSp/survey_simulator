@@ -1,4 +1,7 @@
 region_code,region,macro_area,sex,age,count
+ITC1,piemonte,nord_ovest,f,15,19280
+ITC1,piemonte,nord_ovest,f,16,19256
+ITC1,piemonte,nord_ovest,f,17,19357
 ITC1,piemonte,nord_ovest,f,18,19045
 ITC1,piemonte,nord_ovest,f,19,19071
 ITC1,piemonte,nord_ovest,f,20,19011
@@ -82,6 +85,9 @@ ITC1,piemonte,nord_ovest,f,97,1986
 ITC1,piemonte,nord_ovest,f,98,1318
 ITC1,piemonte,nord_ovest,f,99,840
 ITC1,piemonte,nord_ovest,f,100,1462
+ITC1,piemonte,nord_ovest,m,15,20399
+ITC1,piemonte,nord_ovest,m,16,20615
+ITC1,piemonte,nord_ovest,m,17,20716
 ITC1,piemonte,nord_ovest,m,18,20797
 ITC1,piemonte,nord_ovest,m,19,21101
 ITC1,piemonte,nord_ovest,m,20,21511
@@ -165,6 +171,9 @@ ITC1,piemonte,nord_ovest,m,97,512
 ITC1,piemonte,nord_ovest,m,98,318
 ITC1,piemonte,nord_ovest,m,99,179
 ITC1,piemonte,nord_ovest,m,100,252
+ITC2,valle_daosta,nord_ovest,f,15,579
+ITC2,valle_daosta,nord_ovest,f,16,600
+ITC2,valle_daosta,nord_ovest,f,17,581
 ITC2,valle_daosta,nord_ovest,f,18,599
 ITC2,valle_daosta,nord_ovest,f,19,577
 ITC2,valle_daosta,nord_ovest,f,20,605
@@ -248,6 +257,9 @@ ITC2,valle_daosta,nord_ovest,f,97,45
 ITC2,valle_daosta,nord_ovest,f,98,43
 ITC2,valle_daosta,nord_ovest,f,99,18
 ITC2,valle_daosta,nord_ovest,f,100,38
+ITC2,valle_daosta,nord_ovest,m,15,652
+ITC2,valle_daosta,nord_ovest,m,16,636
+ITC2,valle_daosta,nord_ovest,m,17,674
 ITC2,valle_daosta,nord_ovest,m,18,680
 ITC2,valle_daosta,nord_ovest,m,19,616
 ITC2,valle_daosta,nord_ovest,m,20,615
@@ -331,6 +343,9 @@ ITC2,valle_daosta,nord_ovest,m,97,12
 ITC2,valle_daosta,nord_ovest,m,98,7
 ITC2,valle_daosta,nord_ovest,m,99,7
 ITC2,valle_daosta,nord_ovest,m,100,3
+ITC3,liguria,nord_ovest,f,15,6516
+ITC3,liguria,nord_ovest,f,16,6588
+ITC3,liguria,nord_ovest,f,17,6215
 ITC3,liguria,nord_ovest,f,18,6523
 ITC3,liguria,nord_ovest,f,19,6422
 ITC3,liguria,nord_ovest,f,20,6522
@@ -414,6 +429,9 @@ ITC3,liguria,nord_ovest,f,97,932
 ITC3,liguria,nord_ovest,f,98,670
 ITC3,liguria,nord_ovest,f,99,442
 ITC3,liguria,nord_ovest,f,100,697
+ITC3,liguria,nord_ovest,m,15,6686
+ITC3,liguria,nord_ovest,m,16,6897
+ITC3,liguria,nord_ovest,m,17,7087
 ITC3,liguria,nord_ovest,m,18,7031
 ITC3,liguria,nord_ovest,m,19,7273
 ITC3,liguria,nord_ovest,m,20,7321
@@ -497,6 +515,9 @@ ITC3,liguria,nord_ovest,m,97,247
 ITC3,liguria,nord_ovest,m,98,161
 ITC3,liguria,nord_ovest,m,99,107
 ITC3,liguria,nord_ovest,m,100,121
+ITC4,lombardia,nord_ovest,f,15,49006
+ITC4,lombardia,nord_ovest,f,16,49154
+ITC4,lombardia,nord_ovest,f,17,48326
 ITC4,lombardia,nord_ovest,f,18,48508
 ITC4,lombardia,nord_ovest,f,19,47613
 ITC4,lombardia,nord_ovest,f,20,48380
@@ -580,6 +601,9 @@ ITC4,lombardia,nord_ovest,f,97,4022
 ITC4,lombardia,nord_ovest,f,98,2833
 ITC4,lombardia,nord_ovest,f,99,1892
 ITC4,lombardia,nord_ovest,f,100,3032
+ITC4,lombardia,nord_ovest,m,15,52206
+ITC4,lombardia,nord_ovest,m,16,52536
+ITC4,lombardia,nord_ovest,m,17,52144
 ITC4,lombardia,nord_ovest,m,18,53044
 ITC4,lombardia,nord_ovest,m,19,52641
 ITC4,lombardia,nord_ovest,m,20,53586
@@ -663,6 +687,9 @@ ITC4,lombardia,nord_ovest,m,97,996
 ITC4,lombardia,nord_ovest,m,98,640
 ITC4,lombardia,nord_ovest,m,99,386
 ITC4,lombardia,nord_ovest,m,100,437
+ITD3,veneto,nord_est,f,15,22928
+ITD3,veneto,nord_est,f,16,23513
+ITD3,veneto,nord_est,f,17,23307
 ITD3,veneto,nord_est,f,18,23253
 ITD3,veneto,nord_est,f,19,23055
 ITD3,veneto,nord_est,f,20,23399
@@ -746,6 +773,9 @@ ITD3,veneto,nord_est,f,97,2184
 ITD3,veneto,nord_est,f,98,1460
 ITD3,veneto,nord_est,f,99,987
 ITD3,veneto,nord_est,f,100,1498
+ITD3,veneto,nord_est,m,15,24466
+ITD3,veneto,nord_est,m,16,24938
+ITD3,veneto,nord_est,m,17,24696
 ITD3,veneto,nord_est,m,18,24975
 ITD3,veneto,nord_est,m,19,25263
 ITD3,veneto,nord_est,m,20,26009
@@ -829,6 +859,9 @@ ITD3,veneto,nord_est,m,97,552
 ITD3,veneto,nord_est,m,98,336
 ITD3,veneto,nord_est,m,99,181
 ITD3,veneto,nord_est,m,100,231
+ITD4,friuli_venezia_giulia,nord_est,f,15,5285
+ITD4,friuli_venezia_giulia,nord_est,f,16,5252
+ITD4,friuli_venezia_giulia,nord_est,f,17,5416
 ITD4,friuli_venezia_giulia,nord_est,f,18,5375
 ITD4,friuli_venezia_giulia,nord_est,f,19,5201
 ITD4,friuli_venezia_giulia,nord_est,f,20,5409
@@ -912,6 +945,9 @@ ITD4,friuli_venezia_giulia,nord_est,f,97,648
 ITD4,friuli_venezia_giulia,nord_est,f,98,506
 ITD4,friuli_venezia_giulia,nord_est,f,99,326
 ITD4,friuli_venezia_giulia,nord_est,f,100,530
+ITD4,friuli_venezia_giulia,nord_est,m,15,5606
+ITD4,friuli_venezia_giulia,nord_est,m,16,5659
+ITD4,friuli_venezia_giulia,nord_est,m,17,5631
 ITD4,friuli_venezia_giulia,nord_est,m,18,5813
 ITD4,friuli_venezia_giulia,nord_est,m,19,5845
 ITD4,friuli_venezia_giulia,nord_est,m,20,5909
@@ -995,6 +1031,9 @@ ITD4,friuli_venezia_giulia,nord_est,m,97,151
 ITD4,friuli_venezia_giulia,nord_est,m,98,96
 ITD4,friuli_venezia_giulia,nord_est,m,99,56
 ITD4,friuli_venezia_giulia,nord_est,m,100,82
+ITD5,emilia_romagna,nord_est,f,15,20991
+ITD5,emilia_romagna,nord_est,f,16,20826
+ITD5,emilia_romagna,nord_est,f,17,20700
 ITD5,emilia_romagna,nord_est,f,18,20584
 ITD5,emilia_romagna,nord_est,f,19,20301
 ITD5,emilia_romagna,nord_est,f,20,20471
@@ -1078,6 +1117,9 @@ ITD5,emilia_romagna,nord_est,f,97,2149
 ITD5,emilia_romagna,nord_est,f,98,1491
 ITD5,emilia_romagna,nord_est,f,99,1058
 ITD5,emilia_romagna,nord_est,f,100,1638
+ITD5,emilia_romagna,nord_est,m,15,22317
+ITD5,emilia_romagna,nord_est,m,16,22383
+ITD5,emilia_romagna,nord_est,m,17,22613
 ITD5,emilia_romagna,nord_est,m,18,22677
 ITD5,emilia_romagna,nord_est,m,19,22732
 ITD5,emilia_romagna,nord_est,m,20,22849
@@ -1161,6 +1203,9 @@ ITD5,emilia_romagna,nord_est,m,97,639
 ITD5,emilia_romagna,nord_est,m,98,381
 ITD5,emilia_romagna,nord_est,m,99,227
 ITD5,emilia_romagna,nord_est,m,100,340
+ITDA,trentino_alto_adige,nord_est,f,15,5449
+ITDA,trentino_alto_adige,nord_est,f,16,5594
+ITDA,trentino_alto_adige,nord_est,f,17,5450
 ITDA,trentino_alto_adige,nord_est,f,18,5515
 ITDA,trentino_alto_adige,nord_est,f,19,5527
 ITDA,trentino_alto_adige,nord_est,f,20,5657
@@ -1244,6 +1289,9 @@ ITDA,trentino_alto_adige,nord_est,f,97,442
 ITDA,trentino_alto_adige,nord_est,f,98,318
 ITDA,trentino_alto_adige,nord_est,f,99,198
 ITDA,trentino_alto_adige,nord_est,f,100,360
+ITDA,trentino_alto_adige,nord_est,m,15,5849
+ITDA,trentino_alto_adige,nord_est,m,16,5911
+ITDA,trentino_alto_adige,nord_est,m,17,5975
 ITDA,trentino_alto_adige,nord_est,m,18,6000
 ITDA,trentino_alto_adige,nord_est,m,19,6240
 ITDA,trentino_alto_adige,nord_est,m,20,6212
@@ -1327,6 +1375,9 @@ ITDA,trentino_alto_adige,nord_est,m,97,118
 ITDA,trentino_alto_adige,nord_est,m,98,72
 ITDA,trentino_alto_adige,nord_est,m,99,36
 ITDA,trentino_alto_adige,nord_est,m,100,69
+ITE1,toscana,centro,f,15,16443
+ITE1,toscana,centro,f,16,16719
+ITE1,toscana,centro,f,17,16647
 ITE1,toscana,centro,f,18,16686
 ITE1,toscana,centro,f,19,16635
 ITE1,toscana,centro,f,20,16637
@@ -1410,6 +1461,9 @@ ITE1,toscana,centro,f,97,1797
 ITE1,toscana,centro,f,98,1235
 ITE1,toscana,centro,f,99,867
 ITE1,toscana,centro,f,100,1430
+ITE1,toscana,centro,m,15,17479
+ITE1,toscana,centro,m,16,18292
+ITE1,toscana,centro,m,17,18260
 ITE1,toscana,centro,m,18,18354
 ITE1,toscana,centro,m,19,18656
 ITE1,toscana,centro,m,20,18774
@@ -1493,6 +1547,9 @@ ITE1,toscana,centro,m,97,545
 ITE1,toscana,centro,m,98,338
 ITE1,toscana,centro,m,99,193
 ITE1,toscana,centro,m,100,306
+ITE2,umbria,centro,f,15,3772
+ITE2,umbria,centro,f,16,4092
+ITE2,umbria,centro,f,17,3994
 ITE2,umbria,centro,f,18,3935
 ITE2,umbria,centro,f,19,3933
 ITE2,umbria,centro,f,20,3913
@@ -1576,6 +1633,9 @@ ITE2,umbria,centro,f,97,507
 ITE2,umbria,centro,f,98,332
 ITE2,umbria,centro,f,99,252
 ITE2,umbria,centro,f,100,331
+ITE2,umbria,centro,m,15,4111
+ITE2,umbria,centro,m,16,4205
+ITE2,umbria,centro,m,17,4346
 ITE2,umbria,centro,m,18,4326
 ITE2,umbria,centro,m,19,4370
 ITE2,umbria,centro,m,20,4265
@@ -1659,6 +1719,9 @@ ITE2,umbria,centro,m,97,150
 ITE2,umbria,centro,m,98,86
 ITE2,umbria,centro,m,99,44
 ITE2,umbria,centro,m,100,76
+ITE3,marche,centro,f,15,6926
+ITE3,marche,centro,f,16,6920
+ITE3,marche,centro,f,17,6859
 ITE3,marche,centro,f,18,6800
 ITE3,marche,centro,f,19,6803
 ITE3,marche,centro,f,20,6744
@@ -1742,6 +1805,9 @@ ITE3,marche,centro,f,97,766
 ITE3,marche,centro,f,98,565
 ITE3,marche,centro,f,99,360
 ITE3,marche,centro,f,100,590
+ITE3,marche,centro,m,15,7324
+ITE3,marche,centro,m,16,7459
+ITE3,marche,centro,m,17,7454
 ITE3,marche,centro,m,18,7435
 ITE3,marche,centro,m,19,7542
 ITE3,marche,centro,m,20,7766
@@ -1825,6 +1891,9 @@ ITE3,marche,centro,m,97,230
 ITE3,marche,centro,m,98,120
 ITE3,marche,centro,m,99,83
 ITE3,marche,centro,m,100,112
+ITE4,lazio,centro,f,15,27020
+ITE4,lazio,centro,f,16,27672
+ITE4,lazio,centro,f,17,27413
 ITE4,lazio,centro,f,18,27468
 ITE4,lazio,centro,f,19,26520
 ITE4,lazio,centro,f,20,26861
@@ -1908,6 +1977,9 @@ ITE4,lazio,centro,f,97,2158
 ITE4,lazio,centro,f,98,1531
 ITE4,lazio,centro,f,99,1074
 ITE4,lazio,centro,f,100,1827
+ITE4,lazio,centro,m,15,29044
+ITE4,lazio,centro,m,16,28957
+ITE4,lazio,centro,m,17,29440
 ITE4,lazio,centro,m,18,29524
 ITE4,lazio,centro,m,19,29038
 ITE4,lazio,centro,m,20,29492
@@ -1991,6 +2063,9 @@ ITE4,lazio,centro,m,97,665
 ITE4,lazio,centro,m,98,466
 ITE4,lazio,centro,m,99,247
 ITE4,lazio,centro,m,100,467
+ITF1,abruzzo,sud,f,15,5564
+ITF1,abruzzo,sud,f,16,5806
+ITF1,abruzzo,sud,f,17,5747
 ITF1,abruzzo,sud,f,18,5634
 ITF1,abruzzo,sud,f,19,5794
 ITF1,abruzzo,sud,f,20,5694
@@ -2074,6 +2149,9 @@ ITF1,abruzzo,sud,f,97,544
 ITF1,abruzzo,sud,f,98,388
 ITF1,abruzzo,sud,f,99,289
 ITF1,abruzzo,sud,f,100,487
+ITF1,abruzzo,sud,m,15,5987
+ITF1,abruzzo,sud,m,16,6191
+ITF1,abruzzo,sud,m,17,6136
 ITF1,abruzzo,sud,m,18,6221
 ITF1,abruzzo,sud,m,19,6306
 ITF1,abruzzo,sud,m,20,6571
@@ -2157,6 +2235,9 @@ ITF1,abruzzo,sud,m,97,193
 ITF1,abruzzo,sud,m,98,113
 ITF1,abruzzo,sud,m,99,73
 ITF1,abruzzo,sud,m,100,107
+ITF2,molise,sud,f,15,1112
+ITF2,molise,sud,f,16,1180
+ITF2,molise,sud,f,17,1236
 ITF2,molise,sud,f,18,1212
 ITF2,molise,sud,f,19,1235
 ITF2,molise,sud,f,20,1220
@@ -2240,6 +2321,9 @@ ITF2,molise,sud,f,97,164
 ITF2,molise,sud,f,98,120
 ITF2,molise,sud,f,99,67
 ITF2,molise,sud,f,100,137
+ITF2,molise,sud,m,15,1205
+ITF2,molise,sud,m,16,1346
+ITF2,molise,sud,m,17,1361
 ITF2,molise,sud,m,18,1406
 ITF2,molise,sud,m,19,1473
 ITF2,molise,sud,m,20,1510
@@ -2323,6 +2407,9 @@ ITF2,molise,sud,m,97,50
 ITF2,molise,sud,m,98,29
 ITF2,molise,sud,m,99,16
 ITF2,molise,sud,m,100,41
+ITF3,campania,sud,f,15,29120
+ITF3,campania,sud,f,16,29558
+ITF3,campania,sud,f,17,30207
 ITF3,campania,sud,f,18,30029
 ITF3,campania,sud,f,19,30494
 ITF3,campania,sud,f,20,31358
@@ -2406,6 +2493,9 @@ ITF3,campania,sud,f,97,1303
 ITF3,campania,sud,f,98,901
 ITF3,campania,sud,f,99,681
 ITF3,campania,sud,f,100,1150
+ITF3,campania,sud,m,15,30634
+ITF3,campania,sud,m,16,31009
+ITF3,campania,sud,m,17,32111
 ITF3,campania,sud,m,18,32835
 ITF3,campania,sud,m,19,33026
 ITF3,campania,sud,m,20,34101
@@ -2489,6 +2579,9 @@ ITF3,campania,sud,m,97,364
 ITF3,campania,sud,m,98,292
 ITF3,campania,sud,m,99,173
 ITF3,campania,sud,m,100,324
+ITF4,puglia,sud,f,15,18284
+ITF4,puglia,sud,f,16,18537
+ITF4,puglia,sud,f,17,18637
 ITF4,puglia,sud,f,18,19016
 ITF4,puglia,sud,f,19,19115
 ITF4,puglia,sud,f,20,20080
@@ -2572,6 +2665,9 @@ ITF4,puglia,sud,f,97,1351
 ITF4,puglia,sud,f,98,889
 ITF4,puglia,sud,f,99,582
 ITF4,puglia,sud,f,100,997
+ITF4,puglia,sud,m,15,19423
+ITF4,puglia,sud,m,16,19813
+ITF4,puglia,sud,m,17,20245
 ITF4,puglia,sud,m,18,20382
 ITF4,puglia,sud,m,19,21018
 ITF4,puglia,sud,m,20,21441
@@ -2655,6 +2751,9 @@ ITF4,puglia,sud,m,97,443
 ITF4,puglia,sud,m,98,281
 ITF4,puglia,sud,m,99,174
 ITF4,puglia,sud,m,100,274
+ITF5,basilicata,sud,f,15,2282
+ITF5,basilicata,sud,f,16,2360
+ITF5,basilicata,sud,f,17,2337
 ITF5,basilicata,sud,f,18,2408
 ITF5,basilicata,sud,f,19,2411
 ITF5,basilicata,sud,f,20,2636
@@ -2738,6 +2837,9 @@ ITF5,basilicata,sud,f,97,209
 ITF5,basilicata,sud,f,98,164
 ITF5,basilicata,sud,f,99,113
 ITF5,basilicata,sud,f,100,160
+ITF5,basilicata,sud,m,15,2500
+ITF5,basilicata,sud,m,16,2598
+ITF5,basilicata,sud,m,17,2684
 ITF5,basilicata,sud,m,18,2774
 ITF5,basilicata,sud,m,19,2774
 ITF5,basilicata,sud,m,20,2865
@@ -2821,6 +2923,9 @@ ITF5,basilicata,sud,m,97,92
 ITF5,basilicata,sud,m,98,53
 ITF5,basilicata,sud,m,99,31
 ITF5,basilicata,sud,m,100,49
+ITF6,calabria,sud,f,15,8558
+ITF6,calabria,sud,f,16,8885
+ITF6,calabria,sud,f,17,8728
 ITF6,calabria,sud,f,18,8983
 ITF6,calabria,sud,f,19,8877
 ITF6,calabria,sud,f,20,9128
@@ -2904,6 +3009,9 @@ ITF6,calabria,sud,f,97,649
 ITF6,calabria,sud,f,98,473
 ITF6,calabria,sud,f,99,324
 ITF6,calabria,sud,f,100,598
+ITF6,calabria,sud,m,15,9214
+ITF6,calabria,sud,m,16,9092
+ITF6,calabria,sud,m,17,9479
 ITF6,calabria,sud,m,18,9954
 ITF6,calabria,sud,m,19,9832
 ITF6,calabria,sud,m,20,10220
@@ -2987,6 +3095,9 @@ ITF6,calabria,sud,m,97,259
 ITF6,calabria,sud,m,98,178
 ITF6,calabria,sud,m,99,116
 ITF6,calabria,sud,m,100,205
+ITG1,sicilia,isole,f,15,23434
+ITG1,sicilia,isole,f,16,23926
+ITG1,sicilia,isole,f,17,23851
 ITG1,sicilia,isole,f,18,23910
 ITG1,sicilia,isole,f,19,24639
 ITG1,sicilia,isole,f,20,25034
@@ -3070,6 +3181,9 @@ ITG1,sicilia,isole,f,97,1368
 ITG1,sicilia,isole,f,98,1058
 ITG1,sicilia,isole,f,99,736
 ITG1,sicilia,isole,f,100,1167
+ITG1,sicilia,isole,m,15,24948
+ITG1,sicilia,isole,m,16,25633
+ITG1,sicilia,isole,m,17,26049
 ITG1,sicilia,isole,m,18,27239
 ITG1,sicilia,isole,m,19,27288
 ITG1,sicilia,isole,m,20,27695
@@ -3153,6 +3267,9 @@ ITG1,sicilia,isole,m,97,478
 ITG1,sicilia,isole,m,98,323
 ITG1,sicilia,isole,m,99,177
 ITG1,sicilia,isole,m,100,355
+ITG2,sardegna,isole,f,15,6432
+ITG2,sardegna,isole,f,16,6564
+ITG2,sardegna,isole,f,17,6577
 ITG2,sardegna,isole,f,18,6566
 ITG2,sardegna,isole,f,19,6541
 ITG2,sardegna,isole,f,20,6428
@@ -3236,6 +3353,9 @@ ITG2,sardegna,isole,f,97,658
 ITG2,sardegna,isole,f,98,491
 ITG2,sardegna,isole,f,99,304
 ITG2,sardegna,isole,f,100,547
+ITG2,sardegna,isole,m,15,7079
+ITG2,sardegna,isole,m,16,7004
+ITG2,sardegna,isole,m,17,6981
 ITG2,sardegna,isole,m,18,7143
 ITG2,sardegna,isole,m,19,7268
 ITG2,sardegna,isole,m,20,7139

@@ -14,6 +14,7 @@ EMP = "DF_DCSS_ISTR_LAV_PEN_2_TV_3"
 FOR = "150_908_DF_DCCV_FORZLV1_2"
 INAC = "152_928_DF_DCCV_INATTIV1_2"
 ASIA = "183_277_DF_DICA_ASIAUE1P_5"
+EMPLOYED = "150_938_DF_DCCV_OCCUPATIT1_2"
 
 
 def test_lettura_csv_sdmx_richiede_intestazione() -> None:
@@ -26,9 +27,9 @@ def test_popolazione() -> None:
     assert df.columns == ["region_code", "region", "macro_area", "sex", "age", "count"]
     assert df["region"].unique().sort().to_list() == ["piemonte", "sardegna"]
     assert df["sex"].unique().sort().to_list() == ["f", "m"]
-    assert df["age"].min() == 18
+    assert df["age"].min() == 15
     assert df["age"].max() == 100
-    assert df.height == 2 * 2 * 83
+    assert df.height == 2 * 2 * 86
     assert df["count"].dtype == pl.Int64
     # Valore letto dalla risposta ISTAT: maschi di 18 anni in Piemonte al 1° gennaio 2025.
     riga = df.filter(
@@ -118,3 +119,16 @@ def test_imprese() -> None:
     assert set(df["size_class"].unique().to_list()) <= {*cat.SIZE_CLASSES_PMI, cat.SIZE_CLASS_LARGE}
     micro = df.filter(pl.col("size_class") == "micro")["count"].sum()
     assert micro > 0.9 * df["count"].sum(), "le microimprese sono oltre il 90% del totale"
+
+
+def test_occupati_nazionali() -> None:
+    df = nz.employed_sex_ageclass_education_national([fixture_text(EMPLOYED)], "2024")
+    assert df.columns == ["sex", "age_class", "education", "count"]
+    assert df.height == 2 * 6 * 3
+    assert 22_000_000 < df["count"].sum() < 26_000_000
+    # Fra i 25-34enni gli occupati laureati sono più numerosi di quelli fino alla media.
+    giovani = (
+        df.filter(pl.col("age_class") == "25_34").group_by("education").agg(pl.col("count").sum())
+    )
+    valori = dict(zip(giovani["education"].to_list(), giovani["count"].to_list(), strict=True))
+    assert valori["laurea_o_oltre"] > valori["fino_media"]

@@ -95,7 +95,7 @@ def _finalize(df: pl.DataFrame, columns: list[str]) -> pl.DataFrame:
 def population_region_sex_age(
     texts: list[str], period: str, *, required_regions: Iterable[str] = cl.REGION_CODES
 ) -> pl.DataFrame:
-    """Popolazione residente al 1° gennaio per regione, sesso ed età singola (>= 18)."""
+    """Popolazione residente al 1° gennaio per regione, sesso ed età singola (>= 15)."""
     df = _obs_value(read_sdmx_csv(texts[0]))
     df = df.filter(
         (pl.col("DATA_TYPE") == "JAN")
@@ -115,7 +115,7 @@ def population_region_sex_age(
         .map_elements(lambda c: cl.age_from_code(c), return_dtype=pl.Int64)
         .alias("age")
     )
-    df = df.join(ages, on="AGE", how="inner").filter(pl.col("age") >= 18)
+    df = df.join(ages, on="AGE", how="inner").filter(pl.col("age") >= 15)
     if df.is_empty():
         raise NormalizeError("popolazione: nessuna riga per il periodo richiesto")
     df = df.rename({"value": "count"})
@@ -229,3 +229,30 @@ def firms_region_sector_size(
         pl.col("value").sum().alias("count")
     )
     return _finalize(out, [*REGION_COLUMNS, "sector", "size_class", "count"])
+
+
+def employed_sex_ageclass_education_national(
+    texts: list[str], period: str, *, required_regions: Iterable[str] = cl.REGION_CODES
+) -> pl.DataFrame:
+    """Occupati di 15 anni e più per sesso, classe d'età fine e titolo di studio (Italia).
+
+    Dalla Rilevazione sulle forze di lavoro, valori in migliaia riportati a persone.
+    Serve a dare all'IPF l'associazione fra istruzione e condizione professionale.
+    """
+    df = _obs_value(read_sdmx_csv(texts[0]))
+    df = df.filter(
+        (pl.col("REF_AREA") == "IT")
+        & (pl.col("CITIZENSHIP") == "TOTAL")
+        & (pl.col("TIME_PERIOD") == period)
+    )
+    df = _map(df, "SEX", cl.SEX_NUMERIC, "sex")
+    df = _map(df, "AGE", cl.AGE_CLASS_LFS, "age_class")
+    totali = df.filter(pl.col("EDU_LEV_HIGHEST") == cl.EDUCATION_LFS_TOTAL)
+    cat = _map(df, "EDU_LEV_HIGHEST", cl.EDUCATION_LFS, "education")
+    if cat.is_empty():
+        raise NormalizeError(f"occupati: nessuna riga per il periodo {period}")
+    _check_total(cat, totali, ["sex", "age_class"], "occupati")
+    out = cat.group_by(["sex", "age_class", "education"]).agg(
+        (pl.col("value").sum() * 1000).alias("count")
+    )
+    return _finalize(out, ["sex", "age_class", "education", "count"])

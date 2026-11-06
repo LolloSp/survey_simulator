@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-11-05T19:34:07+00:00",
+  "generated_at": "2026-11-06T08:05:39+00:00",
   "sdmx_base_url": "https://esploradati.istat.it/SDMXWS/rest",
   "license": {
     "name": "Creative Commons Attribuzione 3.0 Italia (CC BY 3.0 IT)",
@@ -75,6 +75,33 @@
       ],
       "generated_at": "2026-11-05T19:34:07+00:00"
     },
+    "employed_sex_ageclass_education_national": {
+      "name": "employed_sex_ageclass_education_national",
+      "description": "Occupati di 15 anni e più per sesso, classe d'età e titolo di studio (Italia)",
+      "source_name": "ISTAT, Rilevazione sulle forze di lavoro, occupati (dataflow 150_938)",
+      "period": "2024",
+      "file": "employed_sex_ageclass_education_national.csv",
+      "sha256": "2d0f043b4d772145b51c7205ec46a18ff977018df3ae496dbdf8fc53e30f1ca9",
+      "rows": 36,
+      "columns": [
+        "sex",
+        "age_class",
+        "education",
+        "count"
+      ],
+      "raw": [
+        {
+          "dataflow": "150_938_DF_DCCV_OCCUPATIT1_2",
+          "key": "A.IT.1+2.Y15-24+Y25-34+Y35-44+Y45-54+Y55-64+Y65-89.13+7+11+99.TOTAL.0010.0010.9.99.99.99.9.9",
+          "url": "https://esploradati.istat.it/SDMXWS/rest/data/150_938_DF_DCCV_OCCUPATIT1_2/A.IT.1+2.Y15-24+Y25-34+Y35-44+Y45-54+Y55-64+Y65-89.13+7+11+99.TOTAL.0010.0010.9.99.99.99.9.9?startPeriod=2024&endPeriod=2024",
+          "file": "150_938_DF_DCCV_OCCUPATIT1_2/60b3b246f165528e.csv",
+          "sha256": "7dbccf702fbd31f38afc419dc4c5eaa2b287c10062db94d3de315416db1165f9",
+          "fetched_at": "2026-11-06T08:05:39+00:00",
+          "from_cache": false
+        }
+      ],
+      "generated_at": "2026-11-06T08:05:39+00:00"
+    },
     "employment_region_sex_ageclass": {
       "name": "employment_region_sex_ageclass",
       "description": "Popolazione di 15 anni e più per regione, sesso, classe d'età e condizione professionale",
@@ -136,12 +163,12 @@
     },
     "population_region_sex_age": {
       "name": "population_region_sex_age",
-      "description": "Popolazione residente al 1° gennaio per regione, sesso ed età singola (18+)",
+      "description": "Popolazione residente al 1° gennaio per regione, sesso ed età singola (15+)",
       "source_name": "ISTAT, Popolazione residente al 1° gennaio (dataflow 22_289)",
       "period": "2025",
       "file": "population_region_sex_age.csv",
-      "sha256": "af91616ecedcd9ab04a1ebfb5d022a2a899f010bf220695801896e2ccffbf277",
-      "rows": 3320,
+      "sha256": "ba1ea5152afebc3cf34b3c4cd4fe1753b9a41895c20b1b280448d67e892fa381",
+      "rows": 3440,
       "columns": [
         "region_code",
         "region",
@@ -161,7 +188,7 @@
           "from_cache": true
         }
       ],
-      "generated_at": "2026-11-05T19:34:07+00:00"
+      "generated_at": "2026-11-06T08:05:35+00:00"
     }
   }
 }

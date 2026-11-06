@@ -34,10 +34,11 @@ scelti i dataflow qui sotto e con cui si aggiungono sorgenti nuove.
 
 | Tavola | Fonte ISTAT (dataflow) | Periodo | Dettaglio |
 | --- | --- | --- | --- |
-| `population_region_sex_age` | Popolazione residente al 1° gennaio (`22_289_DF_DCIS_POPRES1_1`) | 1° gennaio 2025 | regione × sesso × età singola 18-100+ |
+| `population_region_sex_age` | Popolazione residente al 1° gennaio (`22_289_DF_DCIS_POPRES1_1`) | 1° gennaio 2025 | regione × sesso × età singola 15-100+ |
 | `education_region_sex_ageclass` | Censimento permanente, istruzione (`DF_DCSS_ISTR_LAV_PEN_2_TV_1`) | 31 dicembre 2024 | regione × sesso × classe d'età (9-24, 25-49, 50-64, 65+) × titolo di studio |
 | `employment_region_sex_ageclass` | Censimento permanente, condizione professionale (`DF_DCSS_ISTR_LAV_PEN_2_TV_3`) | 31 dicembre 2024 | regione × sesso × classe d'età (15-24, 25-49, 50-64, 65+) × condizione |
 | `education_sex_ageclass_national` | Rilevazione sulle forze di lavoro, forze di lavoro + inattivi (`150_908_DF_DCCV_FORZLV1_2`, `152_928_DF_DCCV_INATTIV1_2`) | media 2024 | Italia × sesso × classe d'età decennale × titolo di studio |
+| `employed_sex_ageclass_education_national` | Rilevazione sulle forze di lavoro, occupati (`150_938_DF_DCCV_OCCUPATIT1_2`) | media 2024 | Italia × sesso × classe d'età decennale × titolo di studio |
 | `firms_region_sector_size` | Registro ASIA imprese attive (`183_277_DF_DICA_ASIAUE1P_5`) | 2024 | regione × settore × classe di addetti |
 
 Le date sono coerenti fra loro: popolazione al 1° gennaio 2025, censimento al

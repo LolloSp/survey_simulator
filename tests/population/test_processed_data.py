@@ -47,7 +47,8 @@ def test_tavole_regionali_coprono_tutte_le_regioni(name: str) -> None:
 
 def test_popolazione_ordine_di_grandezza() -> None:
     df = tabella("population_region_sex_age")
-    assert df.height == 20 * 2 * 83
+    assert df.height == 20 * 2 * 86
+    assert df["age"].min() == 15
     assert 45_000_000 < df["count"].sum() < 55_000_000
 
 
@@ -65,6 +66,24 @@ def test_istruzione_nazionale_completa() -> None:
     df = tabella("education_sex_ageclass_national")
     assert df.height == 2 * 6 * 3
     assert 45_000_000 < df["count"].sum() < 55_000_000
+
+
+def test_occupati_nazionali_completi() -> None:
+    df = tabella("employed_sex_ageclass_education_national")
+    assert df.height == 2 * 6 * 3
+    assert 22_000_000 < df["count"].sum() < 26_000_000
+    # Gli occupati per sesso ed età non superano la popolazione corrispondente.
+    pop = (
+        tabella("education_sex_ageclass_national")
+        .group_by(["sex", "age_class"])
+        .agg(pl.col("count").sum().alias("pop"))
+    )
+    occ = df.group_by(["sex", "age_class"]).agg(pl.col("count").sum().alias("occ"))
+    assert (
+        (occ.join(pop, on=["sex", "age_class"]).select(pl.col("occ") <= pl.col("pop")))
+        .to_series()
+        .all()
+    )
 
 
 def test_imprese_ordine_di_grandezza() -> None:
@@ -85,7 +104,7 @@ def test_censimento_15_piu_coerente_con_popolazione_18_piu() -> None:
     ratio = pop.join(emp, on="region", suffix="_emp").with_columns(
         (pl.col("count_emp") / pl.col("count")).alias("ratio")
     )
-    fuori = ratio.filter((pl.col("ratio") < 0.98) | (pl.col("ratio") > 1.08))
+    fuori = ratio.filter((pl.col("ratio") < 0.97) | (pl.col("ratio") > 1.03))
     assert fuori.is_empty(), fuori
 
 
@@ -122,8 +141,13 @@ def test_forze_di_lavoro_nazionali_coerenti_con_censimento() -> None:
 
 
 def test_imprese_per_macro_area_proporzionate_alla_popolazione() -> None:
-    """Imprese per 1000 adulti per macro-area: fra 60 e 130 ovunque (dato ISTAT ~95)."""
-    pop = tabella("population_region_sex_age").group_by("macro_area").agg(pl.col("count").sum())
+    """Imprese per 1000 adulti (18+) per macro-area: fra 60 e 130 ovunque (dato ISTAT ~95)."""
+    pop = (
+        tabella("population_region_sex_age")
+        .filter(pl.col("age") >= 18)
+        .group_by("macro_area")
+        .agg(pl.col("count").sum())
+    )
     firms = tabella("firms_region_sector_size").group_by("macro_area").agg(pl.col("count").sum())
     ratio = pop.join(firms, on="macro_area", suffix="_firms").with_columns(
         (pl.col("count_firms") / pl.col("count") * 1000).alias("per_mille")
