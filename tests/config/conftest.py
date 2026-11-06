@@ -42,7 +42,7 @@ def config_base() -> dict[str, Any]:
         "modes": {"design": "within_subject", "enabled": ["cawi", "cati", "capi"]},
         "engine": {
             "models": [{"provider": "anthropic", "model": "modello-di-prova"}],
-            "temperature": 0.8,
+            "effort": "low",
             "replicates": 3,
         },
         "run": {"pilot": False, "pilot_size": 12, "frozen": False, "budget_max_eur": 50},

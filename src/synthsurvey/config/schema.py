@@ -139,9 +139,21 @@ class ModesConfig(StrictModel):
         return self
 
 
+# Provider LLM noti: "anthropic" e "fake" sono implementati (M6); "openai" è
+# previsto per l'ensemble di M12 e la config lo accetta già.
+KNOWN_PROVIDERS: tuple[str, ...] = ("anthropic", "fake", "openai")
+
+
 class ModelSpec(StrictModel):
     provider: str = Field(min_length=1)
     model: str = Field(min_length=1)
+
+    @field_validator("provider")
+    @classmethod
+    def _provider_noto(cls, v: str) -> str:
+        if v not in KNOWN_PROVIDERS:
+            raise ValueError(f"provider '{v}' sconosciuto; noti: {', '.join(KNOWN_PROVIDERS)}")
+        return v
 
 
 class NonverbalConfig(StrictModel):
@@ -151,7 +163,15 @@ class NonverbalConfig(StrictModel):
 
 class EngineConfig(StrictModel):
     models: list[ModelSpec] = Field(min_length=1)
-    temperature: float = Field(default=0.8, ge=0, le=2)
+    # Temperatura: solo per provider che la supportano; i modelli Claude attuali
+    # la rifiutano e l'adapter la ignora con un avviso.
+    temperature: float | None = Field(default=None, ge=0, le=2)
+    effort: Literal["low", "medium", "high"] = "low"  # profondità di ragionamento
+    max_tokens: int = Field(default=1024, ge=16)  # per singola risposta
+    concurrency: int = Field(default=4, ge=1)  # chiamate LLM in parallelo
+    timeout_s: float = Field(default=120.0, gt=0)  # per singola chiamata
+    cache_dir: Path | None = None  # default: <output.dir>/.cache
+    eur_per_usd: float = Field(default=0.92, gt=0)  # cambio per il budget in euro
     replicates: int = Field(default=3, ge=1)
     randomize_option_order: bool = True
     nonverbal: NonverbalConfig = NonverbalConfig()

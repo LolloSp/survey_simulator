@@ -30,6 +30,7 @@ Specifica completa: docs/SPEC.md. Leggila prima di ogni milestone.
 - uv run synthsurvey sample preview --config configs/examples/mercato_100.yaml
 - uv run synthsurvey personas preview --config configs/examples/mercato_100.yaml --n 20
 - uv run synthsurvey questionnaire validate questionnaires/examples/mercato_v1.yaml --config configs/examples/mercato_100.yaml
+- uv run synthsurvey llm ping --config configs/examples/mercato_100.yaml  (una chiamata reale: costa, usa la chiave in .env)
 - uv run python scripts/istat_explore.py search <parola>  (ricognizione dataflow ISTAT)
 
 ## Ambiente

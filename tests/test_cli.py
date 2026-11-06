@@ -149,3 +149,26 @@ def test_data_fetch_offline_con_cache(tmp_path, monkeypatch) -> None:
     status = runner.invoke(app, ["data", "status", "--data-dir", str(tmp_path)])
     assert status.exit_code == 0, status.output
     assert "Hash verificati" in status.output
+
+
+def test_llm_prices() -> None:
+    result = runner.invoke(app, ["llm", "prices"])
+    assert result.exit_code == 0, result.output
+    assert "claude-opus-5-5" in result.output and "USD/MTok" in result.output
+
+
+def test_llm_ping_con_provider_finto(tmp_path) -> None:
+    import yaml
+
+    from tests.config.conftest import config_base
+
+    raw = config_base()
+    raw["engine"]["models"] = [{"provider": "fake", "model": "fake-1"}]
+    (tmp_path / "questionario.yaml").write_text("id: q\nsections: []\n", encoding="utf-8")
+    path = tmp_path / "config.yaml"
+    path.write_text(yaml.safe_dump(raw, allow_unicode=True), encoding="utf-8")
+    result = runner.invoke(app, ["llm", "ping", "--config", str(path)])
+    assert result.exit_code == 0, result.output
+    assert "Provider fake" in result.output and "costo 0.00000 USD" in result.output
+    fuori = runner.invoke(app, ["llm", "ping", "--config", str(path), "--model-index", "3"])
+    assert fuori.exit_code == 2

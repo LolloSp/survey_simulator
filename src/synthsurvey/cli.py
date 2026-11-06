@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Annotated
 
 import typer
+from dotenv import load_dotenv
 
 from synthsurvey import __version__
 from synthsurvey.config import ConfigError, estimate_interviews, load_config, segment_sizes
@@ -25,6 +26,9 @@ sample_app = typer.Typer(help="Popolazione sintetica e campione.", no_args_is_he
 personas_app = typer.Typer(
     help="Persone: attributi, stile di risposta, narrativa.", no_args_is_help=True
 )
+llm_app = typer.Typer(
+    help="Livello LLM: prezzi e verifica delle credenziali.", no_args_is_help=True
+)
 questionnaire_app = typer.Typer(
     help="Questionario: validazione e versioni per modalità.", no_args_is_help=True
 )
@@ -33,6 +37,7 @@ app.add_typer(data_app, name="data")
 app.add_typer(sample_app, name="sample")
 app.add_typer(personas_app, name="personas")
 app.add_typer(questionnaire_app, name="questionnaire")
+app.add_typer(llm_app, name="llm")
 
 ConfigOption = Annotated[
     Path,
@@ -68,6 +73,8 @@ def main(
     ] = False,
 ) -> None:
     """Simulatore di indagini su popolazione sintetica italiana."""
+    # Chiavi API solo da ambiente: .env (non versionato) viene caricato qui.
+    load_dotenv()
 
 
 @config_app.command("validate")
@@ -453,6 +460,77 @@ def questionnaire_export(
         for nome, h in hashes.items():
             typer.echo(f"{nome}  {h[:12]}")
     typer.secho(f"Esportato in {out}", fg=typer.colors.GREEN)
+
+
+@llm_app.command("prices")
+def llm_prices() -> None:
+    """Mostra la tabella prezzi dei modelli (dollari per milione di token)."""
+    from synthsurvey.llm import load_prices
+
+    table = load_prices()
+    typer.echo(
+        f"Prezzi aggiornati al {table.updated} ({table.currency}/MTok), fonte {table.source}"
+    )
+    typer.echo(f"{'modello':22} {'input':>8} {'output':>8} {'cache w':>8} {'cache r':>8}")
+    for name, p in table.models.items():
+        typer.echo(
+            f"{name:22} {p.input:8.2f} {p.output:8.2f} {p.cache_write:8.3f} {p.cache_read:8.3f}"
+        )
+
+
+@llm_app.command("ping")
+def llm_ping(
+    config: ConfigOption = Path("config.yaml"),
+    model_index: Annotated[
+        int, typer.Option("--model-index", help="Quale modello di engine.models usare (da 0).")
+    ] = 0,
+) -> None:
+    """Una sola chiamata reale al provider per verificare credenziali, modello e costo."""
+    import asyncio
+
+    from synthsurvey.llm import LLMError, LLMRequest, Message, make_pool
+
+    try:
+        cfg = load_config(config).config
+    except ConfigError as exc:
+        typer.secho(str(exc), fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from None
+    if model_index >= len(cfg.engine.models):
+        typer.secho("model-index fuori dalla lista engine.models", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=2)
+    spec = cfg.engine.models[model_index]
+    schema = {
+        "type": "object",
+        "properties": {"ok": {"type": "boolean"}, "modello": {"type": "string"}},
+        "required": ["ok", "modello"],
+        "additionalProperties": False,
+    }
+    request = LLMRequest(
+        system="Sei un assistente di prova. Rispondi solo nel formato richiesto.",
+        messages=(Message("user", "Conferma che funzioni e indica il tuo nome di modello."),),
+        schema=schema,
+        max_tokens=64,
+        effort=cfg.engine.effort,
+        variant="ping",
+    )
+    try:
+        pool = make_pool(spec, cfg, use_cache=False)
+        response = asyncio.run(pool.complete(request))
+    except LLMError as exc:
+        typer.secho(f"Errore: {exc}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from None
+    stats = pool.stats.as_dict()
+    typer.secho(f"Provider {spec.provider}, modello {response.model}: ok", fg=typer.colors.GREEN)
+    typer.echo(f"Risposta: {response.text}")
+    typer.echo(
+        f"Token: {stats['input_tokens']} in, {stats['output_tokens']} out, "
+        f"cache {stats['cache_read_tokens']} letti / {stats['cache_write_tokens']} scritti; "
+        f"latenza {response.latency_ms} ms; costo {stats['cost_usd']:.5f} USD"
+    )
+    if response.refused:
+        typer.secho(
+            "Attenzione: il modello ha rifiutato la richiesta di prova.", fg=typer.colors.YELLOW
+        )
 
 
 @app.command("run")

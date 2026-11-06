@@ -71,8 +71,16 @@ def _resolve_paths(config: SynthSurveyConfig, base_dir: Path) -> SynthSurveyConf
     personas = config.personas
     if personas.priors_path is not None:
         personas = personas.model_copy(update={"priors_path": assoluto(personas.priors_path)})
+    engine = config.engine
+    if engine.cache_dir is not None:
+        engine = engine.model_copy(update={"cache_dir": assoluto(engine.cache_dir)})
     return config.model_copy(
-        update={"questionnaire": questionnaire, "output": output, "personas": personas}
+        update={
+            "questionnaire": questionnaire,
+            "output": output,
+            "personas": personas,
+            "engine": engine,
+        }
     )
 
 

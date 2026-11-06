@@ -111,12 +111,13 @@ def test_parse_config_in_memoria(base: dict[str, Any]) -> None:
 
 def test_default_applicati(base: dict[str, Any], carica: Carica) -> None:
     del base["output"]
-    del base["engine"]["temperature"]
+    base["engine"].pop("temperature", None)
     del base["engine"]["replicates"]
     del base["run"]["pilot_size"]
     cfg = carica(base).config
     assert [f.value for f in cfg.output.formats] == ["parquet", "csv", "sav"]
-    assert cfg.engine.temperature == 0.8
+    assert cfg.engine.temperature is None
+    assert cfg.engine.effort == "low" and cfg.engine.concurrency == 4
     assert cfg.engine.replicates == 3
     assert cfg.engine.randomize_option_order is True
     assert cfg.engine.nonverbal.enabled is True

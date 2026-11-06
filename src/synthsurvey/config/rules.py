@@ -329,6 +329,23 @@ def rule_modes_allocation_unused(config: SynthSurveyConfig) -> list[Issue]:
     return []
 
 
+def rule_temperature_unsupported(config: SynthSurveyConfig) -> list[Issue]:
+    """I modelli Claude attuali rifiutano `temperature`: l'adapter la ignora."""
+    if config.engine.temperature is None:
+        return []
+    anthropic = [m.model for m in config.engine.models if m.provider == "anthropic"]
+    if not anthropic:
+        return []
+    return [
+        _warn(
+            "engine.temperature",
+            f"ignorata dal provider anthropic ({', '.join(anthropic)}): i modelli Claude "
+            "attuali non accettano il parametro; la variabilità fra repliche viene dal "
+            "modello e da engine.effort",
+        )
+    ]
+
+
 def rule_pilot_size(config: SynthSurveyConfig) -> list[Issue]:
     """Il pilota non può essere più grande del campione."""
     if config.run.pilot_size > config.sample.total:
@@ -347,6 +364,7 @@ RULES: tuple[Rule, ...] = (
     rule_impossible_combinations,
     rule_small_cells,
     rule_modes_allocation_unused,
+    rule_temperature_unsupported,
     rule_pilot_size,
 )
 

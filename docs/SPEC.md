@@ -93,9 +93,15 @@ modes:
 
 engine:
   models:                      # piu modelli = ensemble
-    - provider: anthropic
-      model: <da definire>
-  temperature: 0.8
+    - provider: anthropic      # anthropic | fake (test) | openai (M12)
+      model: claude-opus-5-5   # default; Sonnet 5.5 e Haiku 5.5 per contenere i costi
+  effort: low                  # low | medium | high: profondità di ragionamento del modello
+  max_tokens: 1024             # per singola risposta
+  concurrency: 4               # chiamate in parallelo
+  timeout_s: 120
+  cache_dir: null              # default <output.dir>/.cache
+  eur_per_usd: 0.92            # cambio per il budget in euro
+  temperature: null            # solo per provider che la supportano: i modelli Claude attuali la rifiutano
   replicates: 3
   randomize_option_order: true
   nonverbal:

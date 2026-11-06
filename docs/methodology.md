@@ -7,10 +7,11 @@ implementa (vedi Roadmap in [SPEC.md](SPEC.md)).
 2. Generazione della popolazione: IPF/raking, quote, pesi (M3)
 3. Costruzione delle persone: atteggiamenti, stile di risposta, narrativa (M4)
 4. Adattamento del questionario per modalità (M5)
-5. Simulazione delle modalità ed effetti attesi dalla letteratura (M7, M8)
-6. Segnali non verbali: vocabolario e limiti interpretativi (M8)
-7. Disegno, repliche, ensemble, congelamento (M9)
-8. Metriche di validazione ex post (M11)
+5. Livello LLM: client, cache, costi (M6): sotto
+6. Simulazione delle modalità ed effetti attesi dalla letteratura (M7, M8)
+7. Segnali non verbali: vocabolario e limiti interpretativi (M8)
+8. Disegno, repliche, ensemble, congelamento (M9)
+9. Metriche di validazione ex post (M11)
 
 ## 1. Fonti ISTAT e versionamento delle tabelle
 
@@ -371,3 +372,55 @@ rivedere a mano prima del congelamento; il file sorgente e le versioni
 esportate hanno un hash SHA-256 che il manifest del run registrerà in M9.
 L'importazione del questionario grezzo (Word, PDF, Excel) con un agente LLM
 è prevista nella milestone M6b.
+
+## 5. Livello LLM: client, cache, costi
+
+### Interfaccia
+
+Tutto il sistema parla con i provider attraverso `LLMClient`
+(`synthsurvey.llm`): una `LLMRequest` con system prompt, messaggi, schema
+JSON facoltativo per la risposta strutturata, `max_tokens`, `effort` e una
+`variant`; una `LLMResponse` con testo, oggetto validato, token (ingresso,
+uscita, cache letta e scritta), modello, latenza, motivo di stop, rifiuto e
+id della richiesta. I provider sono `anthropic` (SDK ufficiale, client
+asincrono) e `fake` (test e run a secco); `openai` è accettato dalla config
+per l'ensemble di M12.
+
+### Scelte dell'adapter Anthropic
+
+- Risposte strutturate con `output_config.format` (JSON Schema) e
+  validazione lato client; una risposta non conforme viene richiesta una
+  seconda volta prima di fallire.
+- Profondità di ragionamento con `output_config.effort` (`low` di default:
+  rispondere a un questionario non richiede ragionamento profondo e costa
+  meno). I modelli Claude attuali rifiutano `temperature`: la variabilità
+  fra repliche viene dal modello stesso, e la config segnala il campo come
+  ignorato.
+- Prompt caching del system prompt: la narrativa della persona resta uguale
+  per tutte le domande di un'intervista.
+- Fallback lato server sui rifiuti di sicurezza (`fallbacks="default"`):
+  una domanda sensibile rifiutata dal modello principale viene rigirata al
+  modello di riserva scelto da Anthropic; il rifiuto residuo è registrato
+  (`refused`) e non fa fallire l'intervista. Haiku non lo supporta.
+- Retry su errori di rete, 429 e 5xx delegati all'SDK; la chiave API arriva
+  solo da `ANTHROPIC_API_KEY` (file `.env` non versionato).
+
+### Cache e riproducibilità
+
+La cache su disco (`<output.dir>/.cache` o `engine.cache_dir`) indicizza le
+risposte per hash SHA-256 della richiesta completa: provider, modello,
+system prompt, messaggi, schema, `effort`, `max_tokens` e `variant`. La
+variante distingue le repliche di una stessa intervista, altrimenti
+identiche: senza, la cache restituirebbe la stessa risposta a tutte. Un run
+ripetuto con gli stessi prompt non chiama il provider e restituisce le
+stesse risposte, condizione necessaria per il congelamento di M9. I rifiuti
+non vengono messi in cache.
+
+### Concorrenza e costi
+
+`LLMPool` applica cache, semaforo di concorrenza (`engine.concurrency`),
+timeout per chiamata e contatori: richieste, hit di cache, chiamate reali,
+errori, rifiuti, token e costo. I prezzi sono in `llm/prices.yaml`,
+versionato con data e fonte; il costo per risposta usa le quattro categorie
+di token e `engine.eur_per_usd` lo converte in euro per il confronto con
+`run.budget_max_eur` in M9.
