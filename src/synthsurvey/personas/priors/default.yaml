@@ -1,0 +1,117 @@
+# Priori per gli attributi delle persone SENZA fonte ISTAT.
+#
+# Ogni tratto e ogni dimensione dello stile di risposta è un valore in [0, 1]
+# estratto da una Beta con media = base + somma dei modificatori (troncata a
+# [0.05, 0.95]) e concentrazione fissa (a + b). I modificatori sono ipotesi
+# dichiarate, tratte dalla letteratura sui bias di risposta e sul comportamento
+# di consumo; nel codebook e nelle persone questi attributi portano la
+# provenienza "ipotesi". Il file può essere sostituito da config
+# (personas.priors_path).
+version: 1
+
+traits:
+  sensibilita_prezzo:
+    description: Quanto il prezzo pesa nelle scelte d'acquisto
+    base: 0.55
+    concentration: 10
+    modifiers:
+      income_quintile: {"1": 0.20, "2": 0.10, "3": 0.00, "4": -0.10, "5": -0.20}
+      economic_judgement: {insufficienti: 0.12, scarse: 0.06, adeguate: 0.00, ottime: -0.10}
+  fedelta_marca:
+    description: Tendenza a restare con marche e fornitori abituali
+    base: 0.50
+    concentration: 8
+    modifiers:
+      age_band: {"18_24": -0.12, "25_34": -0.08, "35_44": -0.03, "45_54": 0.03, "55_64": 0.08, "65_plus": 0.12}
+      internet: {quotidiano: -0.05, occasionale: 0.03, mai: 0.08}
+  propensione_rischio:
+    description: Disponibilità a scelte nuove o incerte
+    base: 0.45
+    concentration: 8
+    modifiers:
+      age_band: {"18_24": 0.15, "25_34": 0.10, "35_44": 0.04, "45_54": -0.02, "55_64": -0.08, "65_plus": -0.14}
+      sex: {m: 0.04, f: -0.04}
+      income_quintile: {"1": -0.05, "2": -0.03, "3": 0.00, "4": 0.03, "5": 0.06}
+  apertura_novita:
+    description: Interesse per prodotti, servizi e tecnologie nuove
+    base: 0.50
+    concentration: 8
+    modifiers:
+      age_band: {"18_24": 0.14, "25_34": 0.10, "35_44": 0.05, "45_54": 0.00, "55_64": -0.08, "65_plus": -0.15}
+      education: {fino_media: -0.08, diploma: 0.00, laurea_o_oltre: 0.08}
+      internet: {quotidiano: 0.06, occasionale: -0.04, mai: -0.15}
+
+response_style:
+  acquiescenza:
+    description: Tendenza a concordare con le affermazioni proposte
+    base: 0.40
+    concentration: 10
+    modifiers:
+      education: {fino_media: 0.12, diploma: 0.00, laurea_o_oltre: -0.10}
+      age_band: {"18_24": -0.02, "25_34": -0.03, "35_44": -0.02, "45_54": 0.00, "55_64": 0.04, "65_plus": 0.10}
+  desiderabilita_sociale:
+    description: Tendenza a dare risposte socialmente apprezzate
+    base: 0.45
+    concentration: 10
+    modifiers:
+      age_band: {"18_24": -0.05, "25_34": -0.03, "35_44": 0.00, "45_54": 0.02, "55_64": 0.05, "65_plus": 0.08}
+      religion: {settimanale: 0.08, saltuaria: 0.02, mai: -0.05}
+      education: {fino_media: 0.05, diploma: 0.00, laurea_o_oltre: -0.05}
+  non_so:
+    description: Propensione a rispondere "non so" o a non rispondere
+    base: 0.30
+    concentration: 10
+    modifiers:
+      education: {fino_media: 0.12, diploma: 0.00, laurea_o_oltre: -0.10}
+      age_band: {"18_24": 0.02, "25_34": 0.00, "35_44": -0.02, "45_54": -0.02, "55_64": 0.02, "65_plus": 0.10}
+      political_info: {quotidiana: -0.08, settimanale: -0.03, saltuaria: 0.03, mai: 0.10}
+  tempo_disponibile:
+    description: Tempo e pazienza che dedica a un'intervista
+    base: 0.50
+    concentration: 8
+    modifiers:
+      employment: {occupato: -0.12, in_cerca: 0.05, pensionato: 0.18, altro_inattivo: 0.08}
+      age_band: {"18_24": -0.05, "25_34": -0.08, "35_44": -0.10, "45_54": -0.05, "55_64": 0.05, "65_plus": 0.10}
+  loquacita:
+    description: Quanto si dilunga nelle risposte aperte
+    base: 0.50
+    concentration: 8
+    modifiers:
+      education: {fino_media: -0.08, diploma: 0.00, laurea_o_oltre: 0.10}
+      sex: {m: -0.02, f: 0.02}
+      political_info: {quotidiana: 0.08, settimanale: 0.03, saltuaria: -0.02, mai: -0.08}
+
+# Imprese: modificatori aggiuntivi dello stile di risposta per ruolo e classe.
+firm_response_style:
+  tempo_disponibile:
+    respondent_role: {titolare: -0.10, amministratore: -0.05, responsabile_acquisti: 0.00, altro: 0.05}
+    size_class: {micro: -0.05, piccola: 0.00, media: 0.03}
+  desiderabilita_sociale:
+    respondent_role: {titolare: 0.08, amministratore: 0.04, responsabile_acquisti: 0.00, altro: 0.00}
+
+# Ruolo del rispondente per classe di addetti (quote); la config può
+# restringere i ruoli ammessi, le quote vengono rinormalizzate.
+respondent_roles:
+  micro: {titolare: 0.85, amministratore: 0.10, responsabile_acquisti: 0.03, altro: 0.02}
+  piccola: {titolare: 0.55, amministratore: 0.25, responsabile_acquisti: 0.15, altro: 0.05}
+  media: {titolare: 0.25, amministratore: 0.35, responsabile_acquisti: 0.30, altro: 0.10}
+
+# Rispondente d'impresa: sesso ed età non sono nel campione (l'unità è l'impresa).
+firm_respondent:
+  female_share: {titolare: 0.28, amministratore: 0.35, responsabile_acquisti: 0.40, altro: 0.45}
+  age_range: {titolare: [30, 70], amministratore: [30, 65], responsabile_acquisti: [28, 62], altro: [25, 62]}
+
+# Pesi per combinare i quintili di reddito del principale percettore:
+# gli occupati si dividono in indipendenti e dipendenti (Forze di lavoro 2024, circa).
+income:
+  employed_split: {indipendente: 0.22, dipendente: 0.78}
+  education_split: {"3": 0.45, "4": 0.55}   # peso dei codici ISTAT 3 e 4 dentro fino_media
+
+# Addetti dentro la classe: estrazione log-uniforme fra i limiti.
+employees:
+  micro: [1, 9]
+  piccola: [10, 49]
+  media: [50, 249]
+
+coherence:
+  max_attempts: 10

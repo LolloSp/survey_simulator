@@ -5,7 +5,7 @@ rispondenti coerente con i dati ISTAT e gli sottopone un questionario in tre
 modalità (CAWI, CATI, CAPI) tramite agenti LLM, producendo un dataset con pesi,
 paradati e codebook.
 
-Specifica completa: [docs/SPEC.md](docs/SPEC.md). Stato: **M3 – popolazione e campione**.
+Specifica completa: [docs/SPEC.md](docs/SPEC.md). Stato: **M4 – persone**.
 
 ## Avvio rapido
 
@@ -33,6 +33,12 @@ Costruire e ispezionare il campione (quote, celle piccole, pesi):
 
 ```bash
 uv run synthsurvey sample preview --config configs/examples/mercato_100.yaml --out runs/preview
+```
+
+Generare le persone (attributi, stile di risposta, narrativa) e salvarle per revisione:
+
+```bash
+uv run synthsurvey personas preview --config configs/examples/mercato_100.yaml --n 20 --out runs/personas
 ```
 
 ## Sviluppo

@@ -68,7 +68,12 @@ def _resolve_paths(config: SynthSurveyConfig, base_dir: Path) -> SynthSurveyConf
         update={"path": assoluto(config.questionnaire.path)}
     )
     output = config.output.model_copy(update={"dir": assoluto(config.output.dir)})
-    return config.model_copy(update={"questionnaire": questionnaire, "output": output})
+    personas = config.personas
+    if personas.priors_path is not None:
+        personas = personas.model_copy(update={"priors_path": assoluto(personas.priors_path)})
+    return config.model_copy(
+        update={"questionnaire": questionnaire, "output": output, "personas": personas}
+    )
 
 
 def parse_config(raw: dict[str, Any], path: Path = Path("<memoria>")) -> SynthSurveyConfig:
@@ -90,6 +95,9 @@ def validate_config(config: SynthSurveyConfig, path: Path = Path("<memoria>")) -
                 f"file non trovato: {config.questionnaire.path}",
             )
         )
+    priors = config.personas.priors_path
+    if priors is not None and priors.is_absolute() and not priors.is_file():
+        issues.append(Issue(Level.ERROR, "personas.priors_path", f"file non trovato: {priors}"))
     errori = [i for i in issues if i.level is Level.ERROR]
     if errori:
         raise ConfigError(path, errori)

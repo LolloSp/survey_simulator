@@ -22,9 +22,13 @@ app = typer.Typer(
 config_app = typer.Typer(help="Validazione del file di configurazione.", no_args_is_help=True)
 data_app = typer.Typer(help="Gestione delle tabelle sorgente ISTAT.", no_args_is_help=True)
 sample_app = typer.Typer(help="Popolazione sintetica e campione.", no_args_is_help=True)
+personas_app = typer.Typer(
+    help="Persone: attributi, stile di risposta, narrativa.", no_args_is_help=True
+)
 app.add_typer(config_app, name="config")
 app.add_typer(data_app, name="data")
 app.add_typer(sample_app, name="sample")
+app.add_typer(personas_app, name="personas")
 
 ConfigOption = Annotated[
     Path,
@@ -278,6 +282,93 @@ def sample_preview(
             json.dumps(diagnostics, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
         )
         typer.echo(f"\nSalvati {out / 'sample.csv'} e {out / 'sample_diagnostics.json'}")
+
+
+@personas_app.command("preview")
+def personas_preview(
+    config: ConfigOption = Path("config.yaml"),
+    pilot: Annotated[
+        bool, typer.Option("--pilot", help="Usa run.pilot_size invece di sample.total.")
+    ] = False,
+    n: Annotated[
+        int | None,
+        typer.Option("--n", help="Numero di persone da generare (sostituisce il totale)."),
+    ] = None,
+    out: Annotated[
+        Path | None,
+        typer.Option("--out", help="Cartella per personas.json, personas.csv e personas.md."),
+    ] = None,
+    data_dir: DataDirOption = Path("data"),
+) -> None:
+    """Costruisce campione e persone; mostra distribuzioni, provenienze e avvisi."""
+    import json
+    from collections import Counter
+
+    from synthsurvey.personas import build_personas, personas_markdown
+    from synthsurvey.population.quotas import QuotaError
+    from synthsurvey.population.sample import build_sample
+    from synthsurvey.population.tables import TablesError, load_tables
+
+    try:
+        loaded = load_config(config)
+    except ConfigError as exc:
+        typer.secho(str(exc), fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from None
+    cfg = loaded.config
+    n_total = n if n is not None else (cfg.run.pilot_size if pilot else None)
+    processed = data_dir / "processed"
+    try:
+        tables = load_tables(processed)
+        sample = build_sample(cfg, processed, n_total=n_total, tables=tables)
+        result = build_personas(sample, cfg, tables, processed_dir=processed)
+    except (TablesError, QuotaError) as exc:
+        typer.secho(f"Errore: {exc}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from None
+
+    typer.secho(
+        f"Persone per {cfg.project.name} (seed {cfg.project.seed}): {len(result.personas)}",
+        fg=typer.colors.GREEN,
+    )
+    frame = result.frame
+    for segment in sorted(frame["segment"].unique().to_list()):
+        sub = frame.filter(frame["segment"] == segment)
+        typer.echo(f"\n== {segment}: {sub.height} persone")
+        for col in ("trust", "internet", "political_info", "economic_judgement", "income_quintile"):
+            conte = Counter(sub[col].to_list())
+            dettagli = ", ".join(
+                f"{k}={v}" for k, v in sorted(conte.items(), key=lambda kv: str(kv[0]))
+            )
+            typer.echo(f"  {col}: {dettagli}")
+        if sub["respondent_role"].drop_nulls().len() > 0:
+            conte = Counter(sub["respondent_role"].drop_nulls().to_list())
+            typer.echo(
+                "  respondent_role: " + ", ".join(f"{k}={v}" for k, v in sorted(conte.items()))
+            )
+    typer.echo(
+        "\nProvenienze: "
+        + ", ".join(f"{k}={v}" for k, v in sorted(result.diagnostics["provenienze"].items()))
+    )
+    if result.diagnostics["riestrazioni"]:
+        typer.echo(
+            "Riestrazioni per coerenza: "
+            + ", ".join(f"{k} ({v})" for k, v in result.diagnostics["riestrazioni"].items())
+        )
+    if result.warnings:
+        typer.secho(f"\nAvvisi ({len(result.warnings)}):", fg=typer.colors.YELLOW)
+        for w in result.warnings:
+            typer.secho(f"  - {w}", fg=typer.colors.YELLOW)
+    if out is not None:
+        out.mkdir(parents=True, exist_ok=True)
+        (out / "personas.json").write_text(
+            json.dumps(
+                [p.model_dump(mode="json") for p in result.personas], indent=2, ensure_ascii=False
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        frame.write_csv(out / "personas.csv")
+        (out / "personas.md").write_text(personas_markdown(result.personas), encoding="utf-8")
+        typer.echo(f"\nSalvati personas.json, personas.csv e personas.md in {out}")
 
 
 @app.command("run")

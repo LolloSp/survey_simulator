@@ -82,6 +82,10 @@ sample:
 questionnaire:
   path: questionnaires/mercato_v1.yaml
 
+personas:
+  priors_path: null            # YAML con i priori dei tratti senza fonte ISTAT (default nel pacchetto)
+  include_names: true          # nome di battesimo nella narrativa
+
 modes:
   design: within_subject       # within_subject | between_subject
   enabled: [cawi, cati, capi]
@@ -130,7 +134,7 @@ output:
 ### 2. Costruzione delle persone
 
 - **Livello demografico:** dalle quote (età, sesso, area, istruzione, lavoro, reddito; per le PMI anche settore, dimensione e ruolo del rispondente).
-- **Livello atteggiamenti:** valori e opinioni assegnati in modo coerente con il profilo, usando indagini pubbliche (ad esempio European Social Survey per l'Italia) come riferimento distributivo.
+- **Livello atteggiamenti:** valori e opinioni assegnati in modo coerente con il profilo, usando indagini pubbliche ISTAT (Aspetti della vita quotidiana) come riferimento distributivo; la European Social Survey è esclusa per licenza non commerciale.
 - **Stile di risposta:** propensione all'acquiescenza, alla desiderabilità sociale, alla risposta "non so", tempo disponibile. Serve a far emergere gli effetti di modalità.
 - **Narrativa:** il profilo viene reso in una breve descrizione in italiano, usata come system prompt dell'agente rispondente.
 
@@ -357,6 +361,7 @@ Specifica completa: docs/SPEC.md. Leggila prima di ogni milestone.
 - Distribuzione: prodotto proprietario in repository privato, per uso commerciale.
 - Dati ISTAT (M2): solo aggregati pubblici via API SDMX, niente microdati. Popolazione al 1° gennaio 2025, Censimento permanente al 31 dicembre 2024 per istruzione e condizione professionale, ASIA 2024 in ATECO 2007. Il reddito non è una variabile di quota: viene assegnato alla persona in M4. Le tavole normalizzate sono versionate in git con manifest e hash; i file grezzi no.
 - Popolazione sintetica (M3): congiunta degli individui su regione × sesso × gruppo d'età quinquennale × istruzione × condizione via IPF, vincoli dal censimento e marginale esatto dalla popolazione residente, Forze di lavoro come seed (gradiente per età e associazione istruzione-condizione). Con sovracampionamento i target delle altre quote vengono dalla popolazione di disegno; i pesi riportano alla popolazione reale e dichiarano le variabili non ricostruibili. `allocation: proportional` usa le popolazioni filtrate.
+- Persone (M4): la European Social Survey è CC BY-NC-SA (solo uso non commerciale) e non viene usata; atteggiamenti da Aspetti della vita quotidiana, reddito da EU-SILC aggregata, imprese dal Censimento permanente delle imprese, tutti ISTAT. I tratti senza fonte (prezzo, marca, rischio, novità) e lo stile di risposta sono priori dichiarati in YAML, sostituibili da config, marcati "ipotesi" in persona, narrativa e codebook. Nomi di battesimo da lista curata, disattivabili (`personas.include_names`).
 
 **Questioni aperte**
 

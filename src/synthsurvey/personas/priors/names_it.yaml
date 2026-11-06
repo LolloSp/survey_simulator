@@ -1,0 +1,21 @@
+# Nomi di battesimo per sesso e decennio di nascita. Lista curata sui nomi più
+# diffusi in Italia per coorte (ordine di grandezza, non frequenze esatte):
+# serve solo a rendere credibile l'impersonazione. Provenienza: ipotesi.
+version: 1
+decades: [1940, 1950, 1960, 1970, 1980, 1990, 2000]
+f:
+  1940: [Maria, Anna, Giuseppina, Rosa, Angela, Teresa, Lucia, Carmela, Francesca, Giovanna, Antonietta, Rita]
+  1950: [Maria, Anna, Carla, Franca, Giuseppina, Luciana, Gabriella, Rosanna, Paola, Marisa, Rita, Graziella]
+  1960: [Patrizia, Daniela, Paola, Laura, Anna, Maria, Antonella, Roberta, Cristina, Monica, Stefania, Simona]
+  1970: [Alessandra, Barbara, Monica, Laura, Cristina, Francesca, Daniela, Claudia, Silvia, Elena, Sabrina, Paola]
+  1980: [Francesca, Valentina, Elisa, Chiara, Federica, Silvia, Giulia, Alessia, Sara, Elena, Laura, Ilaria]
+  1990: [Giulia, Chiara, Francesca, Sara, Martina, Alessia, Federica, Elisa, Valentina, Elena, Silvia, Marta]
+  2000: [Giulia, Sara, Martina, Chiara, Alessia, Francesca, Giorgia, Alice, Aurora, Elisa, Sofia, Gaia]
+m:
+  1940: [Giuseppe, Giovanni, Antonio, Mario, Luigi, Francesco, Angelo, Vincenzo, Pietro, Salvatore, Carlo, Franco]
+  1950: [Giuseppe, Giovanni, Antonio, Mario, Franco, Luigi, Francesco, Roberto, Salvatore, Paolo, Bruno, Sergio]
+  1960: [Roberto, Giuseppe, Marco, Antonio, Paolo, Maurizio, Massimo, Stefano, Giovanni, Fabio, Claudio, Luca]
+  1970: [Marco, Andrea, Luca, Stefano, Alessandro, Massimo, Fabio, Giuseppe, Roberto, Paolo, Davide, Simone]
+  1980: [Andrea, Marco, Alessandro, Luca, Matteo, Francesco, Davide, Simone, Stefano, Federico, Giuseppe, Daniele]
+  1990: [Andrea, Francesco, Alessandro, Matteo, Lorenzo, Luca, Marco, Davide, Simone, Federico, Riccardo, Mattia]
+  2000: [Francesco, Alessandro, Andrea, Lorenzo, Matteo, Mattia, Gabriele, Riccardo, Leonardo, Tommaso, Luca, Davide]

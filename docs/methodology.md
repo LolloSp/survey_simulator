@@ -232,3 +232,84 @@ nella diagnostica.
   popolazione pesano 95/4.6/0.6, i pesi delle microimprese superano di 17
   volte quelli delle medie: è la conseguenza voluta del disegno, che va
   tenuta presente nell'analisi (deff intorno a 2.3).
+
+## 3. Costruzione delle persone
+
+### Fonti e provenienza
+
+La European Social Survey, indicata nella specifica come riferimento per gli
+atteggiamenti, è distribuita con licenza CC BY-NC-SA 4.0, solo per uso non
+commerciale: non viene usata. Gli atteggiamenti vengono dall'indagine ISTAT
+Aspetti della vita quotidiana (fiducia negli altri, soddisfazione per la
+vita, uso di internet, informazione politica, pratica religiosa), il
+giudizio sulle risorse economiche dall'AVQ famiglie per regione, il reddito
+da EU-SILC aggregata, le caratteristiche delle imprese dal Censimento
+permanente delle imprese 2022. Ogni attributo porta la propria provenienza
+(`campione`, `istat`, `istat_proxy`, `ipotesi`): il codebook in
+[codebook_personas.md](codebook_personas.md) elenca campo per campo valori e
+fonte.
+
+### Assegnazione
+
+Gli attributi ISTAT sono estratti dalla distribuzione condizionata al
+profilo: sesso, classe d'età e titolo di studio per l'AVQ, regione per il
+giudizio economico, settore e classe di addetti per le imprese. Il reddito
+combina tre distribuzioni marginali EU-SILC (quintile dato il titolo, la
+condizione e la regione del principale percettore) con l'ipotesi di
+indipendenza, P(q | t, c, r) ∝ P(q | t) P(q | c) P(q | r) / P(q)². Le
+correlazioni fra atteggiamenti oltre la demografia non sono modellate:
+fiducia e soddisfazione, ad esempio, sono indipendenti a parità di profilo.
+
+Gli attributi senza fonte (sensibilità al prezzo, fedeltà alla marca,
+propensione al rischio, apertura al nuovo, e le cinque dimensioni dello
+stile di risposta) sono estratti da distribuzioni Beta con media pari a una
+base più modificatori per categoria e concentrazione fissa, dichiarati nel
+file `personas/priors/default.yaml`. I modificatori seguono la letteratura
+sui bias di risposta: acquiescenza e "non so" crescono al diminuire del
+titolo di studio e con l'età, la desiderabilità sociale con l'età e la
+pratica religiosa, il tempo disponibile è maggiore per pensionati e
+inattivi. Sono ipotesi, e la config può sostituire il file.
+
+Per le imprese l'unità campionata è l'impresa: il rispondente riceve ruolo
+(quote per classe di addetti, ristrette dai ruoli ammessi in config),
+numero di addetti (log-uniforme nella classe), sesso ed età (quote e
+intervalli per ruolo, ipotesi), titolo di studio dalla distribuzione
+nazionale per sesso ed età. Relazioni con altre imprese e obiettivi
+strategici vengono dal censimento; per le microimprese gli obiettivi sono
+quelli delle imprese 10-49 addetti, con provenienza `istat_proxy`.
+
+### Coerenza
+
+Le combinazioni implausibili fra attributi assegnati in questa fase
+(soddisfazione minima con risorse ottime, mai su internet con apertura al
+nuovo altissima, giovane in cerca di lavoro nel quintile più alto,
+responsabile acquisti in un'impresa con meno di cinque addetti) provocano
+una nuova estrazione con lo stesso generatore, fino a dieci tentativi. Le
+combinazioni rare ereditate dal campione (pensionato sotto i 50 anni) non
+si toccano, perché le quote del campione sono vincolanti, ma vengono
+contate negli avvisi.
+
+### Narrativa
+
+Il template Jinja2 `agents/prompts/persona_it.j2`, versionato con hash,
+rende il profilo in un testo in terza persona di 100-200 parole: nome di
+battesimo coerente con sesso e decennio di nascita (lista curata,
+disattivabile), vita quotidiana, atteggiamenti, modo di rispondere espresso
+come comportamento e mai come numero. Il testo è il system prompt
+dell'agente rispondente.
+
+### Riproducibilità
+
+Le persone usano un ramo del seed di progetto separato da quello del
+campione (`SeedSequence([seed, 4])`, un generatore per unità): cambiare i
+priori non cambia il campione e viceversa. Ogni persona registra gli hash
+del template, del file dei priori e delle tavole ISTAT usate.
+
+### Limiti
+
+- Indipendenza condizionale fra atteggiamenti, e fra reddito e
+  atteggiamenti, a parità di demografia.
+- Classi d'età AVQ larghe e inclusive dei minorenni nella classe più giovane.
+- Sesso, età e ruolo del rispondente d'impresa sono ipotesi, non dati.
+- I tratti di consumo e lo stile di risposta sono interamente ipotesi:
+  servono a far emergere effetti di modalità credibili, non a misurare.

@@ -183,12 +183,20 @@ class OutputConfig(StrictModel):
         return v
 
 
+class PersonasConfig(StrictModel):
+    """Opzioni per la costruzione delle persone (M4)."""
+
+    priors_path: Path | None = None  # sostituisce i priori di default (YAML)
+    include_names: bool = True  # nome di battesimo nella narrativa
+
+
 class SynthSurveyConfig(StrictModel):
     """Radice della configurazione di progetto."""
 
     project: ProjectConfig
     sample: SampleConfig
     questionnaire: QuestionnaireConfig
+    personas: PersonasConfig = PersonasConfig()
     modes: ModesConfig
     engine: EngineConfig
     run: RunConfig
