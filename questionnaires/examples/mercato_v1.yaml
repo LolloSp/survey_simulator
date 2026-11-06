@@ -1,27 +1,94 @@
-# Questionario di esempio nel formato di docs/SPEC.md.
-# Il parser completo (routing con show_if, adattamento per modalità) arriva in M5;
-# per ora il file serve alle config di esempio, che ne verificano l'esistenza.
-
+# Questionario di esempio nel formato di docs/SPEC.md: copre tutti i tipi di
+# domanda, il routing con show_if, griglie, randomizzazione e "non so".
 id: mercato_v1
 language: it
+version: "1.1"
 sections:
   - id: s1
+    title: Fornitura di energia
     questions:
       - id: q1
         text: "Quanto è soddisfatto del suo attuale fornitore di energia?"
-        type: scale          # single | multi | scale | grid | open | numeric
+        type: scale
         scale: {min: 1, max: 10, labels: {1: "Per nulla", 10: "Del tutto"}}
-        sensitive: false
-        applies_to: [consumer, pmi]
+        dont_know: true
+        page: 1
       - id: q2
         text: "Qual è il motivo principale della sua insoddisfazione?"
         type: single
-        options: ["Prezzo", "Servizio clienti", "Trasparenza della bolletta", "Altro", "Non so"]
+        options: ["Prezzo", "Servizio clienti", "Trasparenza della bolletta", "Altro"]
+        randomize: true
+        fixed_last: ["Altro"]
+        dont_know: true
         show_if: "q1 <= 5"
-        applies_to: [consumer, pmi]
+        page: 2
       - id: q3
         text: "Negli ultimi 12 mesi ha provato a cambiare fornitore?"
         type: single
-        options: ["Sì, ho cambiato", "Ci ho provato ma non ho cambiato", "No", "Non so"]
+        options: ["Sì, ho cambiato", "Ci ho provato ma non ho cambiato", "No"]
+        dont_know: true
+        page: 2
+      - id: q4
+        text: "Quali di questi canali ha usato per informarsi sulle offerte?"
+        type: multi
+        options: ["Sito del fornitore", "Comparatori online", "Passaparola", "Punto vendita", "Pubblicità", "Nessuno"]
+        max_choices: 3
+        randomize: true
+        fixed_last: ["Nessuno"]
+        show_if: "q3 in [\"Sì, ho cambiato\", \"Ci ho provato ma non ho cambiato\"]"
+        page: 3
+  - id: s2
+    title: Giudizi
+    questions:
+      - id: q5
+        text: "Quanto è d'accordo con le seguenti affermazioni?"
+        type: grid
+        items:
+          - {id: a, text: "Le bollette sono facili da capire"}
+          - {id: b, text: "Cambiare fornitore è semplice"}
+          - {id: c, text: "Le offerte sono trasparenti"}
+        scale: {min: 1, max: 5, labels: {1: "Per niente d'accordo", 5: "Del tutto d'accordo"}}
+        dont_know: true
+        page: 4
+      - id: q6
+        text: "Quanto spende in media al mese per l'energia?"
+        type: numeric
+        min: 0
+        max: 5000
+        unit: "euro"
+        dont_know: true
+        page: 5
+      - id: q7
+        text: "Ha qualche suggerimento per il suo fornitore?"
+        type: open
+        show_if: "answered(q1) and q1 <= 7"
+        page: 5
+  - id: s3
+    title: Imprese
+    questions:
+      - id: q8
+        text: "Nella sua impresa chi decide il fornitore di energia?"
+        type: single
+        options: ["Il titolare", "L'amministrazione", "Un consulente esterno", "Altro"]
+        fixed_last: ["Altro"]
+        applies_to: [pmi]
         sensitive: false
-        applies_to: [consumer, pmi]
+        page: 6
+      - id: q9
+        text: "Negli ultimi tre anni la spesa energetica dell'impresa è..."
+        type: single
+        options: ["Aumentata molto", "Aumentata un po'", "Rimasta stabile", "Diminuita"]
+        applies_to: [pmi]
+        dont_know: true
+        show_if: "q8 != \"Un consulente esterno\""
+        page: 6
+      - id: q10
+        text: "Qual è il suo reddito familiare netto mensile, in euro?"
+        type: numeric
+        min: 0
+        max: 50000
+        unit: "euro"
+        sensitive: true
+        dont_know: true
+        applies_to: [consumer]
+        page: 7

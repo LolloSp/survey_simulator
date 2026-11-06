@@ -199,21 +199,55 @@ Ogni entità ha uno schema tipizzato (Pydantic) e viene serializzata in JSON o P
 ```yaml
 id: mercato_v1
 language: it
+version: "1.0"
 sections:
   - id: s1
+    title: Fornitura di energia
     questions:
       - id: q1
         text: "Quanto è soddisfatto del suo attuale fornitore di energia?"
         type: scale          # single | multi | scale | grid | open | numeric
         scale: {min: 1, max: 10, labels: {1: "Per nulla", 10: "Del tutto"}}
         sensitive: false
-        applies_to: [consumer, pmi]
+        applies_to: [consumer, pmi]   # omesso = tutti i segmenti
+        dont_know: true      # "non so" gestito per modalità (vedi sotto)
+        page: 1              # pagina CAWI (facoltativo)
       - id: q2
         text: "..."
         type: single
-        options: ["...", "...", "Non so"]
+        options: ["...", "...", "Altro"]
+        randomize: true      # ordine delle opzioni casuale per intervista
+        fixed_last: ["Altro"]  # voci che restano in coda
         show_if: "q1 <= 5"
+      - id: q4
+        type: multi
+        options: ["...", "..."]
+        max_choices: 3
+      - id: q5
+        type: grid
+        items: [{id: a, text: "..."}, {id: b, text: "..."}]
+        scale: {min: 1, max: 5}   # oppure options (colonne)
+      - id: q6
+        type: numeric
+        min: 0
+        max: 5000
+        unit: euro
 ```
+
+Il questionario è un **dato di input** che cambia a ogni progetto: il codice non ne conosce il contenuto e gli agenti lo leggono a runtime nella versione adattata alla modalità. `show_if` usa un linguaggio di espressioni valutato senza `eval`: confronti con risposte precedenti (`q1 <= 5`, `q2 == "Prezzo"`, `q3 in ["a", "b"]`, `q4 contains "x"` per le multiple, `q5.a >= 4` per gli item di griglia), `and`, `or`, `not`, parentesi e `answered(q)`. Una risposta assente o "non so" rende falso ogni confronto che la riguarda.
+
+**Regole di adattamento per modalità**
+
+| | CAWI | CATI | CAPI |
+| --- | --- | --- | --- |
+| Presentazione | pagine (`page`), tutte le opzioni visibili | una domanda alla volta, opzioni lette in sequenza | come CATI, cartellino per scale e liste oltre 4 opzioni |
+| Griglie | intere | spezzate in una domanda per item, scala ripetuta | intere, con cartellino |
+| Scale lunghe | etichette complete | letti solo gli estremi | cartellino con etichette |
+| "Non so" (`dont_know`) | opzione mostrata in coda | non letto, accettato se spontaneo | non letto, accettato se spontaneo |
+| Randomizzazione | per intervista, se `randomize` e `engine.randomize_option_order` | idem, sulle opzioni lette | idem |
+| Domande sensibili | nessuna nota | nota all'intervistatore | nota all'intervistatore |
+
+Le versioni generate si esportano in YAML e Markdown per la revisione manuale prima del congelamento.
 
 **Persona**
 
@@ -295,8 +329,9 @@ Ogni milestone è un blocco consegnabile e testabile, pensato per una o poche se
 3. **M2 – Dati ISTAT.** Loader per le tabelle consumer e imprese, normalizzazione, manifest delle fonti. *Fatto quando:* le tabelle sono riproducibili da script e versionate con hash.
 4. **M3 – Popolazione e campione.** IPF, estrazione per quote, sovracampionamento, pesi, controllo celle piccole, `sample preview`. *Fatto quando:* i marginali del campione rispettano le quote e i pesi ricostruiscono i marginali ISTAT.
 5. **M4 – Persone.** Atteggiamenti, stile di risposta, narrativa in italiano. *Fatto quando:* 20 persone di esempio sono revisionate a mano e coerenti.
-6. **M5 – Questionario.** Parser, routing con `show_if`, adattamento automatico per modalità. *Fatto quando:* il questionario reale viene caricato e le tre versioni sono esportabili per revisione.
+6. **M5 – Questionario.** Parser, routing con `show_if`, adattamento automatico per modalità. *Fatto quando:* un questionario reale nel formato strutturato viene caricato e le tre versioni sono esportabili per revisione.
 7. **M6 – Livello LLM.** Client astratto, primo adapter, cache, retry, conteggio costi. *Fatto quando:* i test girano con un client finto, senza chiamate reali.
+    - **M6b – Importazione del questionario.** Comando `synthsurvey questionnaire import <file>`: estrazione del testo da Word, PDF, Excel o testo con librerie dedicate; un agente importatore (prompt in `agents/prompts/`) produce lo YAML strutturato con output vincolato allo schema di M5, compreso il routing dedotto dalle istruzioni di salto; validazione automatica con nuovo giro dell'agente sugli errori; rapporto di importazione in Markdown con le incertezze da rivedere. La revisione umana resta obbligatoria prima del congelamento. *Fatto quando:* un questionario reale in Word o PDF produce uno YAML valido con un rapporto revisionabile.
 8. **M7 – Modalità CAWI.** Agente rispondente, una pagina alla volta, randomizzazione delle opzioni. *Fatto quando:* un pilota da 10 persone produce risposte valide.
 9. **M8 – Modalità CATI e CAPI.** Agente intervistatore, dialogo, cartellini, trascrizioni. *Fatto quando:* le stesse 10 persone completano entrambe le modalità.
 10. **M9 – Runner.** Disegno within/between, repliche, concorrenza, stima costi, budget, congelamento. *Fatto quando:* un run da 100 × 3 modalità × 3 repliche completa e può essere congelato.
@@ -361,6 +396,7 @@ Specifica completa: docs/SPEC.md. Leggila prima di ogni milestone.
 - Distribuzione: prodotto proprietario in repository privato, per uso commerciale.
 - Dati ISTAT (M2): solo aggregati pubblici via API SDMX, niente microdati. Popolazione al 1° gennaio 2025, Censimento permanente al 31 dicembre 2024 per istruzione e condizione professionale, ASIA 2024 in ATECO 2007. Il reddito non è una variabile di quota: viene assegnato alla persona in M4. Le tavole normalizzate sono versionate in git con manifest e hash; i file grezzi no.
 - Popolazione sintetica (M3): congiunta degli individui su regione × sesso × gruppo d'età quinquennale × istruzione × condizione via IPF, vincoli dal censimento e marginale esatto dalla popolazione residente, Forze di lavoro come seed (gradiente per età e associazione istruzione-condizione). Con sovracampionamento i target delle altre quote vengono dalla popolazione di disegno; i pesi riportano alla popolazione reale e dichiarano le variabili non ricostruibili. `allocation: proportional` usa le popolazioni filtrate.
+- Questionario (M5): il questionario cambia a ogni progetto ed è un dato di input, mai nel codice; il formato YAML strutturato è il contratto per routing, randomizzazione, codebook e dataset. L'importazione del questionario grezzo (Word, PDF, Excel) fa parte del prodotto con un agente LLM e revisione umana obbligatoria (milestone M6b).
 - Persone (M4): la European Social Survey è CC BY-NC-SA (solo uso non commerciale) e non viene usata; atteggiamenti da Aspetti della vita quotidiana, reddito da EU-SILC aggregata, imprese dal Censimento permanente delle imprese, tutti ISTAT. I tratti senza fonte (prezzo, marca, rischio, novità) e lo stile di risposta sono priori dichiarati in YAML, sostituibili da config, marcati "ipotesi" in persona, narrativa e codebook. Nomi di battesimo da lista curata, disattivabili (`personas.include_names`).
 
 **Questioni aperte**

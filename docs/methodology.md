@@ -313,3 +313,61 @@ del template, del file dei priori e delle tavole ISTAT usate.
 - Sesso, età e ruolo del rispondente d'impresa sono ipotesi, non dati.
 - I tratti di consumo e lo stile di risposta sono interamente ipotesi:
   servono a far emergere effetti di modalità credibili, non a misurare.
+
+## 4. Adattamento del questionario per modalità
+
+### Formato sorgente
+
+Il questionario è un dato di input in YAML (schema in
+`synthsurvey.questionnaire.schema`): sezioni e domande con tipo (`single`,
+`multi`, `scale`, `grid`, `open`, `numeric`), opzioni, scala con etichette,
+item di griglia, limiti numerici, `applies_to`, `show_if`, `dont_know`,
+`randomize` con `fixed_last`, `page`. La validazione raccoglie tutti gli
+errori insieme: struttura per tipo, id unici, opzioni non vuote, scale
+coerenti, espressioni di routing che citano solo domande precedenti con
+valori ammessi, segmenti esistenti nella configurazione.
+
+### Routing
+
+Le espressioni `show_if` sono valutate da un parser proprio, senza `eval`:
+confronti con risposte precedenti (`q1 <= 5`, `q2 == "Prezzo"`,
+`q3 in [...]`, `q4 contains "x"` per le multiple, `q5.a >= 4` per gli item
+di griglia), `and`, `or`, `not`, parentesi e `answered(q)`. Una risposta
+assente, "non so" o non applicabile rende falso ogni confronto: una
+domanda condizionata a una risposta mancante viene saltata, come farebbe un
+sistema CAWI. `next_question` restituisce la prossima domanda applicabile
+al segmento e non ancora risposta; `route` ricostruisce il percorso
+completo a posteriori.
+
+### Versioni per modalità
+
+Dal questionario sorgente si generano tre versioni con regole esplicite
+(tabella in SPEC.md):
+
+- **CAWI**: pagine (`page`, altrimenti una domanda per pagina), opzioni
+  tutte visibili, "non so" come opzione in coda, griglie intere, scale con
+  etichette complete.
+- **CATI**: una domanda alla volta; le opzioni di singole e multiple sono
+  lette in sequenza ("Le leggo le possibili risposte: ..."); le scale sono
+  presentate per gli estremi ("da 1 a 10, dove 1 significa ... e 10
+  significa ..."); le griglie sono spezzate in una domanda per item, con la
+  scala letta al primo e una nota per ripeterla; "non so" non viene letto e
+  si accetta solo se spontaneo; note all'intervistatore per domande
+  sensibili e multiple.
+- **CAPI**: come CATI, ma scale, griglie e liste con più di quattro opzioni
+  usano il cartellino, segnalato nel testo e nella nota; le griglie restano
+  intere perché il cartellino le sostiene.
+
+Ogni domanda adattata conserva `source_id` e, per gli item spezzati,
+`item_id`, così le risposte si ricompongono nel dataset lungo. L'ordine
+delle opzioni per ogni intervista è deciso dal runner con `option_order`:
+mescola solo se la domanda è `randomize`, la config lo consente
+(`engine.randomize_option_order`) e tiene in coda le voci `fixed_last`.
+
+### Revisione e congelamento
+
+`synthsurvey questionnaire export` scrive YAML e Markdown per modalità, da
+rivedere a mano prima del congelamento; il file sorgente e le versioni
+esportate hanno un hash SHA-256 che il manifest del run registrerà in M9.
+L'importazione del questionario grezzo (Word, PDF, Excel) con un agente LLM
+è prevista nella milestone M6b.

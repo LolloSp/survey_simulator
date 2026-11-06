@@ -25,10 +25,14 @@ sample_app = typer.Typer(help="Popolazione sintetica e campione.", no_args_is_he
 personas_app = typer.Typer(
     help="Persone: attributi, stile di risposta, narrativa.", no_args_is_help=True
 )
+questionnaire_app = typer.Typer(
+    help="Questionario: validazione e versioni per modalità.", no_args_is_help=True
+)
 app.add_typer(config_app, name="config")
 app.add_typer(data_app, name="data")
 app.add_typer(sample_app, name="sample")
 app.add_typer(personas_app, name="personas")
+app.add_typer(questionnaire_app, name="questionnaire")
 
 ConfigOption = Annotated[
     Path,
@@ -88,10 +92,26 @@ def config_validate(
         f"({stima.personas} persone x {stima.modes_per_persona} modalità "
         f"x {stima.replicates} repliche x {stima.models} modelli)"
     )
-    if loaded.warnings:
-        typer.secho(f"Avvisi ({len(loaded.warnings)}):", fg=typer.colors.YELLOW)
-        for w in loaded.warnings:
+    from synthsurvey.questionnaire import QuestionnaireError, load_questionnaire
+
+    try:
+        lq = load_questionnaire(cfg.questionnaire.path, cfg)
+        typer.echo(
+            f"Questionario: {lq.questionnaire.id} v{lq.questionnaire.version}, "
+            f"{len(lq.questionnaire.questions)} domande, valido"
+        )
+        loaded_warnings = list(loaded.warnings)
+        extra = [f"questionnaire: {w}" for w in lq.warnings]
+    except QuestionnaireError as exc:
+        typer.secho(str(exc), fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from None
+    if loaded_warnings or extra:
+        n_avvisi = len(loaded_warnings) + len(extra)
+        typer.secho(f"Avvisi ({n_avvisi}):", fg=typer.colors.YELLOW)
+        for w in loaded_warnings:
             typer.secho(f"  - {w.location}: {w.message}", fg=typer.colors.YELLOW)
+        for e in extra:
+            typer.secho(f"  - {e}", fg=typer.colors.YELLOW)
 
 
 DataDirOption = Annotated[
@@ -369,6 +389,70 @@ def personas_preview(
         frame.write_csv(out / "personas.csv")
         (out / "personas.md").write_text(personas_markdown(result.personas), encoding="utf-8")
         typer.echo(f"\nSalvati personas.json, personas.csv e personas.md in {out}")
+
+
+@questionnaire_app.command("validate")
+def questionnaire_validate(
+    file: Annotated[Path, typer.Argument(help="File YAML del questionario.")],
+    config: Annotated[
+        Path | None,
+        typer.Option("--config", "-c", help="Config di progetto per controllare i segmenti."),
+    ] = None,
+) -> None:
+    """Valida il questionario: schema, routing e, con la config, i segmenti citati."""
+    from synthsurvey.questionnaire import Mode, QuestionnaireError, adapt, load_questionnaire
+
+    cfg = None
+    if config is not None:
+        try:
+            cfg = load_config(config).config
+        except ConfigError as exc:
+            typer.secho(str(exc), fg=typer.colors.RED, err=True)
+            raise typer.Exit(code=1) from None
+    try:
+        loaded = load_questionnaire(file, cfg)
+    except QuestionnaireError as exc:
+        typer.secho(str(exc), fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from None
+    q = loaded.questionnaire
+    typer.secho(f"Questionario valido: {loaded.path} ({q.id} v{q.version})", fg=typer.colors.GREEN)
+    typer.echo(
+        f"Sezioni: {len(q.sections)}, domande: {len(q.questions)}, hash {loaded.sha256[:12]}"
+    )
+    for mode in Mode:
+        typer.echo(f"  {mode.value}: {len(adapt(q, mode).questions)} domande presentate")
+    if loaded.warnings:
+        typer.secho(f"Avvisi ({len(loaded.warnings)}):", fg=typer.colors.YELLOW)
+        for w in loaded.warnings:
+            typer.secho(f"  - {w}", fg=typer.colors.YELLOW)
+
+
+@questionnaire_app.command("export")
+def questionnaire_export(
+    file: Annotated[Path, typer.Argument(help="File YAML del questionario.")],
+    out: Annotated[Path, typer.Option("--out", help="Cartella di destinazione.")],
+    mode: Annotated[str, typer.Option("--mode", help="cawi, cati, capi oppure all.")] = "all",
+) -> None:
+    """Esporta le versioni per modalità in YAML e Markdown per la revisione."""
+    from synthsurvey.questionnaire import (
+        Mode,
+        QuestionnaireError,
+        adapt,
+        export,
+        load_questionnaire,
+    )
+
+    try:
+        loaded = load_questionnaire(file)
+    except QuestionnaireError as exc:
+        typer.secho(str(exc), fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from None
+    modalita = list(Mode) if mode == "all" else [Mode(mode)]
+    for m in modalita:
+        hashes = export(adapt(loaded.questionnaire, m), out)
+        for nome, h in hashes.items():
+            typer.echo(f"{nome}  {h[:12]}")
+    typer.secho(f"Esportato in {out}", fg=typer.colors.GREEN)
 
 
 @app.command("run")
