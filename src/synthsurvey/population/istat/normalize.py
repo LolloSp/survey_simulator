@@ -95,7 +95,7 @@ def _finalize(df: pl.DataFrame, columns: list[str]) -> pl.DataFrame:
 def population_region_sex_age(
     texts: list[str], period: str, *, required_regions: Iterable[str] = cl.REGION_CODES
 ) -> pl.DataFrame:
-    """Popolazione residente al 1° gennaio per regione, sesso ed età singola (>= 15)."""
+    """Popolazione residente al 1° gennaio per regione, sesso ed età singola (tutte le età)."""
     df = _obs_value(read_sdmx_csv(texts[0]))
     df = df.filter(
         (pl.col("DATA_TYPE") == "JAN")
@@ -115,7 +115,7 @@ def population_region_sex_age(
         .map_elements(lambda c: cl.age_from_code(c), return_dtype=pl.Int64)
         .alias("age")
     )
-    df = df.join(ages, on="AGE", how="inner").filter(pl.col("age") >= 15)
+    df = df.join(ages, on="AGE", how="inner").filter(pl.col("age") >= 0)
     if df.is_empty():
         raise NormalizeError("popolazione: nessuna riga per il periodo richiesto")
     df = df.rename({"value": "count"})

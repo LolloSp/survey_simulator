@@ -356,6 +356,7 @@ Specifica completa: docs/SPEC.md. Leggila prima di ogni milestone.
 - Interfaccia v1: solo riga di comando.
 - Distribuzione: prodotto proprietario in repository privato, per uso commerciale.
 - Dati ISTAT (M2): solo aggregati pubblici via API SDMX, niente microdati. Popolazione al 1° gennaio 2025, Censimento permanente al 31 dicembre 2024 per istruzione e condizione professionale, ASIA 2024 in ATECO 2007. Il reddito non è una variabile di quota: viene assegnato alla persona in M4. Le tavole normalizzate sono versionate in git con manifest e hash; i file grezzi no.
+- Popolazione sintetica (M3): congiunta degli individui su regione × sesso × gruppo d'età quinquennale × istruzione × condizione via IPF, vincoli dal censimento e marginale esatto dalla popolazione residente, Forze di lavoro come seed (gradiente per età e associazione istruzione-condizione). Con sovracampionamento i target delle altre quote vengono dalla popolazione di disegno; i pesi riportano alla popolazione reale e dichiarano le variabili non ricostruibili. `allocation: proportional` usa le popolazioni filtrate.
 
 **Questioni aperte**
 

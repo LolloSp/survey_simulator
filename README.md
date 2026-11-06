@@ -5,7 +5,7 @@ rispondenti coerente con i dati ISTAT e gli sottopone un questionario in tre
 modalità (CAWI, CATI, CAPI) tramite agenti LLM, producendo un dataset con pesi,
 paradati e codebook.
 
-Specifica completa: [docs/SPEC.md](docs/SPEC.md). Stato: **M2 – dati ISTAT**.
+Specifica completa: [docs/SPEC.md](docs/SPEC.md). Stato: **M3 – popolazione e campione**.
 
 ## Avvio rapido
 
@@ -27,6 +27,12 @@ Scaricare e verificare le tavole ISTAT (le tavole normalizzate sono già nel rep
 uv run synthsurvey data fetch            # tutte le tavole, cache in data/raw/
 uv run synthsurvey data fetch --offline  # rigenera dalla cache senza rete
 uv run synthsurvey data status           # elenco e verifica degli hash
+```
+
+Costruire e ispezionare il campione (quote, celle piccole, pesi):
+
+```bash
+uv run synthsurvey sample preview --config configs/examples/mercato_100.yaml --out runs/preview
 ```
 
 ## Sviluppo

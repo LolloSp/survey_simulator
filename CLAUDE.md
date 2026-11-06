@@ -27,6 +27,7 @@ Specifica completa: docs/SPEC.md. Leggila prima di ogni milestone.
 - uv run ruff check . && uv run ruff format --check . && uv run mypy src
 - uv run synthsurvey --help
 - uv run synthsurvey data status  (verifica hash delle tavole ISTAT; `data fetch` usa la rete)
+- uv run synthsurvey sample preview --config configs/examples/mercato_100.yaml
 - uv run python scripts/istat_explore.py search <parola>  (ricognizione dataflow ISTAT)
 
 ## Ambiente

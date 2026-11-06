@@ -27,9 +27,9 @@ def test_popolazione() -> None:
     assert df.columns == ["region_code", "region", "macro_area", "sex", "age", "count"]
     assert df["region"].unique().sort().to_list() == ["piemonte", "sardegna"]
     assert df["sex"].unique().sort().to_list() == ["f", "m"]
-    assert df["age"].min() == 15
+    assert df["age"].min() == 0
     assert df["age"].max() == 100
-    assert df.height == 2 * 2 * 86
+    assert df.height == 2 * 2 * 101
     assert df["count"].dtype == pl.Int64
     # Valore letto dalla risposta ISTAT: maschi di 18 anni in Piemonte al 1° gennaio 2025.
     riga = df.filter(

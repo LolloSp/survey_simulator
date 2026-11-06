@@ -187,9 +187,97 @@ def data_status(data_dir: DataDirOption = Path("data")) -> None:
 
 
 @sample_app.command("preview")
-def sample_preview(config: ConfigOption = Path("config.yaml")) -> None:
-    """Mostra marginali e celle di quota del campione senza generare persone."""
-    _non_implementato("sample preview", "M3")
+def sample_preview(
+    config: ConfigOption = Path("config.yaml"),
+    pilot: Annotated[
+        bool, typer.Option("--pilot", help="Usa run.pilot_size invece di sample.total.")
+    ] = False,
+    out: Annotated[
+        Path | None,
+        typer.Option("--out", help="Cartella in cui salvare sample.csv e sample_diagnostics.json."),
+    ] = None,
+    data_dir: DataDirOption = Path("data"),
+) -> None:
+    """Costruisce il campione e mostra per segmento quote, celle piccole, conteggi e pesi."""
+    import json
+
+    from synthsurvey.population.quotas import QuotaError
+    from synthsurvey.population.sample import build_sample
+    from synthsurvey.population.tables import TablesError
+
+    try:
+        loaded = load_config(config)
+    except ConfigError as exc:
+        typer.secho(str(exc), fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from None
+    cfg = loaded.config
+    n_total = cfg.run.pilot_size if pilot else None
+    try:
+        result = build_sample(cfg, data_dir / "processed", n_total=n_total)
+    except (TablesError, QuotaError) as exc:
+        typer.secho(f"Errore: {exc}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from None
+
+    typer.secho(
+        f"Campione per {result.project} (seed {result.seed}): {result.units.height} unità"
+        + (" [pilota]" if pilot else ""),
+        fg=typer.colors.GREEN,
+    )
+    typer.echo(
+        f"IPF individui: {result.ipf_iterations} iterazioni, residuo {result.ipf_max_rel_error:.1e}"
+    )
+    diagnostics: dict[str, object] = {
+        "project": result.project,
+        "seed": result.seed,
+        "pilot": pilot,
+        "units": result.units.height,
+        "segments": {},
+        "warnings": result.warnings,
+    }
+    for name, seg in result.segments.items():
+        typer.echo(
+            f"\n== {name} ({seg.source}): n={seg.n}, "
+            f"popolazione filtrata {seg.population_total:,.0f}"
+        )
+        seg_diag: dict[str, object] = {
+            "n": seg.n,
+            "population_total": seg.population_total,
+            "swaps": seg.draw.swaps,
+            "max_deviation": seg.draw.max_deviation,
+            "weights": seg.weights.summary(),
+            "quotas": {},
+        }
+        for t in seg.targets:
+            etichetta = " (sovracampionata)" if t.oversampled else ""
+            typer.echo(f"  {t.variable}{etichetta}:")
+            for c in t.targets:
+                typer.echo(
+                    f"    {c:<20} popolazione {t.population_shares[c]:6.1%}  "
+                    f"target {t.targets[c]:4d}  ottenuto {seg.draw.achieved[t.variable][c]:4d}"
+                )
+            seg_diag["quotas"][t.variable] = {  # type: ignore[index]
+                "population_shares": t.population_shares,
+                "targets": t.targets,
+                "achieved": seg.draw.achieved[t.variable],
+                "oversampled": t.oversampled,
+            }
+        s = seg.weights.summary()
+        typer.echo(
+            f"  pesi: min {s['min']:.2f}, mediana {s['median']:.2f}, max {s['max']:.2f}, "
+            f"deff {s['deff']:.2f}"
+        )
+        diagnostics["segments"][name] = seg_diag  # type: ignore[index]
+    if result.warnings:
+        typer.secho(f"\nAvvisi ({len(result.warnings)}):", fg=typer.colors.YELLOW)
+        for w in result.warnings:
+            typer.secho(f"  - {w}", fg=typer.colors.YELLOW)
+    if out is not None:
+        out.mkdir(parents=True, exist_ok=True)
+        result.units.write_csv(out / "sample.csv")
+        (out / "sample_diagnostics.json").write_text(
+            json.dumps(diagnostics, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+        )
+        typer.echo(f"\nSalvati {out / 'sample.csv'} e {out / 'sample_diagnostics.json'}")
 
 
 @app.command("run")

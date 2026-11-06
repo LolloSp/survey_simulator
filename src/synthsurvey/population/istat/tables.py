@@ -54,7 +54,7 @@ _CENSUS_EMP = "+".join(cl.EMPLOYMENT_CENSUS) + "+" + cl.EMPLOYMENT_CENSUS_TOTAL
 
 POPULATION = TableSpec(
     name="population_region_sex_age",
-    description="Popolazione residente al 1° gennaio per regione, sesso ed età singola (15+)",
+    description="Popolazione residente al 1° gennaio per regione, sesso ed età singola (0-100+)",
     source_name="ISTAT, Popolazione residente al 1° gennaio (dataflow 22_289)",
     period="2025",
     requests=(

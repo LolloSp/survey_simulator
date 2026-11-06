@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-11-06T08:05:39+00:00",
+  "generated_at": "2026-11-06T08:09:45+00:00",
   "sdmx_base_url": "https://esploradati.istat.it/SDMXWS/rest",
   "license": {
     "name": "Creative Commons Attribuzione 3.0 Italia (CC BY 3.0 IT)",
@@ -163,12 +163,12 @@
     },
     "population_region_sex_age": {
       "name": "population_region_sex_age",
-      "description": "Popolazione residente al 1° gennaio per regione, sesso ed età singola (15+)",
+      "description": "Popolazione residente al 1° gennaio per regione, sesso ed età singola, tutte le età)",
       "source_name": "ISTAT, Popolazione residente al 1° gennaio (dataflow 22_289)",
       "period": "2025",
       "file": "population_region_sex_age.csv",
-      "sha256": "ba1ea5152afebc3cf34b3c4cd4fe1753b9a41895c20b1b280448d67e892fa381",
-      "rows": 3440,
+      "sha256": "38857f4b117fa6c4d5f2ff338e82c802671a752604bc88d0d122e1d2be20d774",
+      "rows": 4040,
       "columns": [
         "region_code",
         "region",
@@ -188,7 +188,7 @@
           "from_cache": true
         }
       ],
-      "generated_at": "2026-11-06T08:05:35+00:00"
+      "generated_at": "2026-11-06T08:09:45+00:00"
     }
   }
 }

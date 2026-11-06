@@ -26,7 +26,6 @@ def test_version() -> None:
 @pytest.mark.parametrize(
     "args",
     [
-        ["sample", "preview"],
         ["run"],
         ["run", "--pilot"],
         ["freeze", "runs/x"],

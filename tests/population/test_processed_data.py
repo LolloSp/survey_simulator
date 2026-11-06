@@ -47,9 +47,10 @@ def test_tavole_regionali_coprono_tutte_le_regioni(name: str) -> None:
 
 def test_popolazione_ordine_di_grandezza() -> None:
     df = tabella("population_region_sex_age")
-    assert df.height == 20 * 2 * 86
-    assert df["age"].min() == 15
-    assert 45_000_000 < df["count"].sum() < 55_000_000
+    assert df.height == 20 * 2 * 101
+    assert df["age"].min() == 0
+    assert 55_000_000 < df["count"].sum() < 62_000_000
+    assert 45_000_000 < df.filter(pl.col("age") >= 18)["count"].sum() < 55_000_000
 
 
 def test_istruzione_e_condizione_complete() -> None:
@@ -99,7 +100,12 @@ def test_imprese_ordine_di_grandezza() -> None:
 def test_censimento_15_piu_coerente_con_popolazione_18_piu() -> None:
     """Per ogni regione la popolazione 15+ del censimento (31/12/2024) è poco sopra
     quella 18+ al 1/1/2025: la differenza sono i 15-17enni, circa il 3% degli adulti."""
-    pop = tabella("population_region_sex_age").group_by("region").agg(pl.col("count").sum())
+    pop = (
+        tabella("population_region_sex_age")
+        .filter(pl.col("age") >= 15)
+        .group_by("region")
+        .agg(pl.col("count").sum())
+    )
     emp = tabella("employment_region_sex_ageclass").group_by("region").agg(pl.col("count").sum())
     ratio = pop.join(emp, on="region", suffix="_emp").with_columns(
         (pl.col("count_emp") / pl.col("count")).alias("ratio")
