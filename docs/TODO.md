@@ -11,6 +11,15 @@ decisione umana. Una riga per voce; si cancella quando è chiusa.
   `src/synthsurvey/personas/coherence.py`. Finché non è fatta, M4 è
   implementata ma non chiusa secondo il criterio della SPEC. Aperta il
   6 novembre 2026, si procede intanto con M5 per decisione del responsabile.
+- [ ] **M6, prova dal vivo del provider**: con `ANTHROPIC_API_KEY` in `.env`
+  lanciare `uv run synthsurvey llm ping --config configs/examples/mercato_100.yaml`
+  e verificare credenziali, modello, formato strutturato e costo.
+- [ ] **M6b, importazione dal vivo**: lanciare `questionnaire import` sul Word di
+  esempio `questionnaires/examples/mercato_v1.docx` e poi su un questionario
+  vero del caso di riferimento; leggere il rapporto `.import.md`, correggere lo
+  YAML a mano e confrontarlo con `questionnaires/examples/mercato_v1.yaml`.
+  Esiti possibili: ritocchi al prompt `questionnaire_import_it.j2`. Finché non è
+  fatta, M6b è implementata ma non chiusa secondo il criterio della SPEC.
 - [ ] **M5, questionario reale**: caricare il questionario già pronto del
   caso di riferimento in `questionnaires/` e verificare che le tre versioni
   per modalità siano esportabili per revisione (criterio di M5).

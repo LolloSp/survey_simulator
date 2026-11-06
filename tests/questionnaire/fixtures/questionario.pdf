@@ -1,0 +1,63 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [4 0 R 6 0 R] /Count 2 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents 5 0 R >>
+endobj
+5 0 obj
+<< /Length 364 >>
+stream
+BT
+/F1 11 Tf
+16 TL
+50 780 Td
+(Indagine sulla mobilit‡ urbana) Tj
+T* (D1. Con quale mezzo si sposta pi˘ spesso per andare al lavoro?) Tj
+T* (- Auto propria) Tj
+T* (- Mezzi pubblici) Tj
+T* (- Bicicletta o a piedi) Tj
+T* (- Non lavoro fuori casa) Tj
+T* (Se Non lavoro fuori casa, passare alla D3.) Tj
+T* (D2. Quanti minuti impiega in media? Indicare un numero.) Tj
+ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents 7 0 R >>
+endobj
+7 0 obj
+<< /Length 185 >>
+stream
+BT
+/F1 11 Tf
+16 TL
+50 780 Td
+(D3. Quanto Ë soddisfatto dei trasporti pubblici della sua citt‡?) Tj
+T* (Scala da 1 \(per nulla\) a 5 \(del tutto\). Ammesso non so.) Tj
+T* (Grazie.) Tj
+ET
+endstream
+endobj
+xref
+0 8
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000127 00000 n 
+0000000224 00000 n 
+0000000350 00000 n 
+0000000765 00000 n 
+0000000891 00000 n 
+trailer
+<< /Size 8 /Root 1 0 R >>
+startxref
+1127
+%%EOF

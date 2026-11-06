@@ -462,6 +462,130 @@ def questionnaire_export(
     typer.secho(f"Esportato in {out}", fg=typer.colors.GREEN)
 
 
+@questionnaire_app.command("import")
+def questionnaire_import(
+    file: Annotated[
+        Path, typer.Argument(help="Questionario grezzo: .docx, .pdf, .xlsx, .txt, .md.")
+    ],
+    config: ConfigOption = Path("config.yaml"),
+    out: Annotated[
+        Path | None,
+        typer.Option("--out", help="YAML di destinazione (default: accanto al sorgente)."),
+    ] = None,
+    report_path: Annotated[
+        Path | None,
+        typer.Option("--report", help="Rapporto Markdown (default: <out>.import.md)."),
+    ] = None,
+    rounds: Annotated[
+        int, typer.Option("--rounds", min=0, help="Giri di correzione dopo il primo.")
+    ] = 2,
+    effort: Annotated[
+        str, typer.Option("--effort", help="Profondità di ragionamento: low, medium, high.")
+    ] = "high",
+    max_tokens: Annotated[
+        int, typer.Option("--max-tokens", min=1024, help="Token massimi per risposta.")
+    ] = 16_000,
+    model_index: Annotated[
+        int, typer.Option("--model-index", help="Quale modello di engine.models usare (da 0).")
+    ] = 0,
+    use_cache: Annotated[
+        bool, typer.Option("--cache/--no-cache", help="Riusa le risposte in cache.")
+    ] = True,
+) -> None:
+    """Trascrive un questionario grezzo in YAML con un agente LLM e scrive il rapporto.
+
+    Esce con 0 se lo YAML è valido, con 2 se è stato scritto ma resta da correggere.
+    La revisione umana è comunque obbligatoria.
+    """
+    import asyncio
+    from typing import cast
+
+    from synthsurvey.llm import LLMError, make_pool
+    from synthsurvey.llm.client import Effort
+    from synthsurvey.questionnaire import (
+        ExtractionError,
+        extract_text,
+        import_questionnaire,
+        render_report,
+        to_source_yaml,
+    )
+
+    if effort not in ("low", "medium", "high"):
+        typer.secho("--effort deve essere low, medium o high", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=2)
+    try:
+        cfg = load_config(config).config
+    except ConfigError as exc:
+        typer.secho(str(exc), fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from None
+    if model_index >= len(cfg.engine.models):
+        typer.secho("model-index fuori dalla lista engine.models", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=2)
+    try:
+        doc = extract_text(file)
+    except ExtractionError as exc:
+        typer.secho(f"Errore di estrazione: {exc}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from None
+    typer.echo(f"Testo estratto da {doc.path.name}: {doc.chars} caratteri")
+    for w in doc.warnings:
+        typer.secho(f"Avviso: {w}", fg=typer.colors.YELLOW)
+    spec = cfg.engine.models[model_index]
+    try:
+        pool = make_pool(spec, cfg, use_cache=use_cache)
+        result = asyncio.run(
+            import_questionnaire(
+                doc,
+                pool,
+                config=cfg,
+                effort=cast(Effort, effort),
+                max_tokens=max_tokens,
+                max_rounds=rounds,
+            )
+        )
+    except LLMError as exc:
+        typer.secho(f"Errore LLM: {exc}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from None
+    yaml_path = out if out is not None else file.with_suffix(".yaml")
+    if not result.valid and result.raw is not None:
+        yaml_path = yaml_path.with_name(yaml_path.stem + ".draft.yaml")
+    md_path = report_path if report_path is not None else yaml_path.with_suffix(".import.md")
+    if result.raw is not None:
+        yaml_path.parent.mkdir(parents=True, exist_ok=True)
+        yaml_path.write_text(to_source_yaml(result.raw, result), encoding="utf-8")
+    md_path.parent.mkdir(parents=True, exist_ok=True)
+    md_path.write_text(
+        render_report(result, yaml_path=yaml_path if result.raw is not None else None),
+        encoding="utf-8",
+    )
+    s = result.stats.as_dict()
+    typer.echo(
+        f"Giri {len(result.rounds)}, chiamate {s['calls']}, cache {s['cache_hits']}, "
+        f"costo {s['cost_usd']:.4f} USD"
+    )
+    typer.echo(f"Rapporto: {md_path}")
+    if result.valid:
+        q = result.questionnaire
+        assert q is not None
+        typer.secho(
+            f"YAML valido: {yaml_path} ({q.id}, {len(q.sections)} sezioni, "
+            f"{len(q.questions)} domande). Da revisionare prima dell'uso.",
+            fg=typer.colors.GREEN,
+        )
+        return
+    if result.raw is not None:
+        typer.secho(
+            f"Bozza NON valida salvata in {yaml_path}: {len(result.errors)} errori da "
+            "correggere a mano (vedi rapporto).",
+            fg=typer.colors.YELLOW,
+            err=True,
+        )
+    else:
+        typer.secho(
+            "Nessuna bozza prodotta: " + "; ".join(result.errors), fg=typer.colors.RED, err=True
+        )
+    raise typer.Exit(code=2)
+
+
 @llm_app.command("prices")
 def llm_prices() -> None:
     """Mostra la tabella prezzi dei modelli (dollari per milione di token)."""

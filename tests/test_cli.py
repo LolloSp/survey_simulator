@@ -172,3 +172,92 @@ def test_llm_ping_con_provider_finto(tmp_path) -> None:
     assert "Provider fake" in result.output and "costo 0.00000 USD" in result.output
     fuori = runner.invoke(app, ["llm", "ping", "--config", str(path), "--model-index", "3"])
     assert fuori.exit_code == 2
+
+
+def _config_finta(tmp_path, responder=None, monkeypatch=None):
+    import yaml
+
+    from tests.config.conftest import config_base
+
+    raw = config_base()
+    raw["engine"]["models"] = [{"provider": "fake", "model": "fake-1"}]
+    raw["output"]["dir"] = str(tmp_path / "runs")
+    (tmp_path / "questionario.yaml").write_text("id: q\nsections: []\n", encoding="utf-8")
+    path = tmp_path / "config.yaml"
+    path.write_text(yaml.safe_dump(raw, allow_unicode=True), encoding="utf-8")
+    if responder is not None and monkeypatch is not None:
+        from synthsurvey.llm import FakeLLMClient, registry
+
+        monkeypatch.setattr(
+            registry, "make_client", lambda spec, cfg: FakeLLMClient(spec.model, responder)
+        )
+    return path
+
+
+def test_questionnaire_import_valido(tmp_path, monkeypatch) -> None:
+    import yaml
+
+    from tests.questionnaire.draft_example import bozza
+
+    cfg = _config_finta(tmp_path, lambda r: bozza(), monkeypatch)
+    sorgente = tmp_path / "grezzo.txt"
+    sorgente.write_text("D1. Quanto soddisfatto? scala 1-10\n", encoding="utf-8")
+    out = tmp_path / "out" / "energia.yaml"
+    result = runner.invoke(
+        app, ["questionnaire", "import", str(sorgente), "--config", str(cfg), "--out", str(out)]
+    )
+    assert result.exit_code == 0, result.output
+    assert "YAML valido" in result.output and "8 domande" in result.output
+    assert out.is_file() and (tmp_path / "out" / "energia.import.md").is_file()
+    assert yaml.safe_load(out.read_text(encoding="utf-8"))["id"] == "energia_2026"
+    # Lo YAML prodotto passa `questionnaire validate` con la stessa config.
+    valid = runner.invoke(app, ["questionnaire", "validate", str(out), "--config", str(cfg)])
+    assert valid.exit_code == 0, valid.output
+
+
+def test_questionnaire_import_bozza_non_valida(tmp_path, monkeypatch) -> None:
+    from tests.questionnaire.draft_example import bozza_rotta
+
+    cfg = _config_finta(tmp_path, lambda r: bozza_rotta(), monkeypatch)
+    sorgente = tmp_path / "grezzo.md"
+    sorgente.write_text("D1. Domanda\n", encoding="utf-8")
+    result = runner.invoke(
+        app,
+        ["questionnaire", "import", str(sorgente), "--config", str(cfg), "--rounds", "0"],
+    )
+    assert result.exit_code == 2, result.output
+    assert "NON valida" in result.output and "1 errori" in result.output
+    assert (tmp_path / "grezzo.draft.yaml").is_file()
+    assert (tmp_path / "grezzo.draft.import.md").is_file()
+
+
+def test_questionnaire_import_senza_bozza(tmp_path) -> None:
+    # Il client finto di default riempie lo schema con segnaposto non conformi alla bozza.
+    cfg = _config_finta(tmp_path)
+    sorgente = tmp_path / "grezzo.md"
+    sorgente.write_text("D1. Domanda\n", encoding="utf-8")
+    result = runner.invoke(
+        app, ["questionnaire", "import", str(sorgente), "-c", str(cfg), "--rounds", "1"]
+    )
+    assert result.exit_code == 2, result.output
+    assert "Nessuna bozza prodotta" in result.output and "Giri 2" in result.output
+    assert not (tmp_path / "grezzo.draft.yaml").exists()
+    assert (tmp_path / "grezzo.import.md").is_file()
+
+
+def test_questionnaire_import_errori_di_input(tmp_path) -> None:
+    cfg = _config_finta(tmp_path)
+    manca = runner.invoke(
+        app, ["questionnaire", "import", str(tmp_path / "x.docx"), "-c", str(cfg)]
+    )
+    assert manca.exit_code == 1 and "Errore di estrazione" in manca.output
+    sorgente = tmp_path / "g.txt"
+    sorgente.write_text("D1.\n", encoding="utf-8")
+    effort = runner.invoke(
+        app, ["questionnaire", "import", str(sorgente), "-c", str(cfg), "--effort", "max"]
+    )
+    assert effort.exit_code == 2 and "--effort" in effort.output
+    idx = runner.invoke(
+        app, ["questionnaire", "import", str(sorgente), "-c", str(cfg), "--model-index", "5"]
+    )
+    assert idx.exit_code == 2

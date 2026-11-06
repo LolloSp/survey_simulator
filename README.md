@@ -5,7 +5,7 @@ rispondenti coerente con i dati ISTAT e gli sottopone un questionario in tre
 modalità (CAWI, CATI, CAPI) tramite agenti LLM, producendo un dataset con pesi,
 paradati e codebook.
 
-Specifica completa: [docs/SPEC.md](docs/SPEC.md). Stato: **M6 – livello LLM**.
+Specifica completa: [docs/SPEC.md](docs/SPEC.md). Stato: **M6b – importazione del questionario**.
 
 ## Avvio rapido
 
@@ -46,6 +46,12 @@ Validare un questionario ed esportare le versioni per modalità (CAWI, CATI, CAP
 ```bash
 uv run synthsurvey questionnaire validate questionnaires/examples/mercato_v1.yaml --config configs/examples/mercato_100.yaml
 uv run synthsurvey questionnaire export questionnaires/examples/mercato_v1.yaml --out runs/questionario
+```
+
+Importare un questionario grezzo (Word, PDF, Excel o testo) con l'agente LLM, poi rivedere a mano lo YAML e il rapporto `.import.md` (chiamate reali, chiave da `.env`):
+
+```bash
+uv run synthsurvey questionnaire import questionnaires/examples/mercato_v1.docx --config configs/examples/mercato_100.yaml --out runs/importato/mercato_v1.yaml
 ```
 
 Verificare credenziali e prezzi del provider LLM (una chiamata reale, chiave da `.env`):

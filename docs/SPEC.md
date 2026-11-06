@@ -290,6 +290,7 @@ Python è la scelta naturale: ecosistema statistico maturo, SDK per tutti i prin
 | Campionamento | Implementazione IPF propria o libreria dedicata, numpy |
 | LLM | Interfaccia astratta `LLMClient` con adapter per provider; chiamate async con limiti di concorrenza e retry |
 | Cache | Cache su disco delle chiamate LLM indicizzata per hash del prompt (riproducibilità e risparmio) |
+| Importazione del questionario | python-docx, pypdf, openpyxl per l'estrazione del testo; agente LLM con output vincolato a uno schema di bozza, convertito nel formato YAML |
 | CLI | Typer |
 | Report | Jinja2 + grafici statici (matplotlib o plotly) in HTML |
 | Qualità | pytest, ruff, mypy, pre-commit, GitHub Actions |
@@ -373,6 +374,7 @@ Specifica completa: docs/SPEC.md. Leggila prima di ogni milestone.
 - uv run pytest
 - uv run ruff check . && uv run mypy src
 - uv run synthsurvey --help
+- uv run synthsurvey questionnaire import <file> --config <config> --out <yaml>
 ```
 
 **Come impostare ogni sessione**
@@ -403,6 +405,7 @@ Specifica completa: docs/SPEC.md. Leggila prima di ogni milestone.
 - Dati ISTAT (M2): solo aggregati pubblici via API SDMX, niente microdati. Popolazione al 1° gennaio 2025, Censimento permanente al 31 dicembre 2024 per istruzione e condizione professionale, ASIA 2024 in ATECO 2007. Il reddito non è una variabile di quota: viene assegnato alla persona in M4. Le tavole normalizzate sono versionate in git con manifest e hash; i file grezzi no.
 - Popolazione sintetica (M3): congiunta degli individui su regione × sesso × gruppo d'età quinquennale × istruzione × condizione via IPF, vincoli dal censimento e marginale esatto dalla popolazione residente, Forze di lavoro come seed (gradiente per età e associazione istruzione-condizione). Con sovracampionamento i target delle altre quote vengono dalla popolazione di disegno; i pesi riportano alla popolazione reale e dichiarano le variabili non ricostruibili. `allocation: proportional` usa le popolazioni filtrate.
 - Questionario (M5): il questionario cambia a ogni progetto ed è un dato di input, mai nel codice; il formato YAML strutturato è il contratto per routing, randomizzazione, codebook e dataset. L'importazione del questionario grezzo (Word, PDF, Excel) fa parte del prodotto con un agente LLM e revisione umana obbligatoria (milestone M6b).
+- Importazione del questionario (M6b): il modello non scrive direttamente lo YAML di M5 ma una bozza con schema JSON adatto all'output strutturato (tutti i campi espliciti, etichette di scala come lista di coppie, nessun vincolo numerico o di pattern); la bozza è convertita e validata con il parser di M5 e gli errori tornano al modello per al massimo due giri di correzione. L'import usa `effort: high` e 16.000 token di uscita di default, indipendenti dall'`engine` delle interviste. Una bozza ancora non valida viene salvata come `.draft.yaml` con il rapporto degli errori. Niente OCR: un PDF scansionato viene rifiutato.
 - Persone (M4): la European Social Survey è CC BY-NC-SA (solo uso non commerciale) e non viene usata; atteggiamenti da Aspetti della vita quotidiana, reddito da EU-SILC aggregata, imprese dal Censimento permanente delle imprese, tutti ISTAT. I tratti senza fonte (prezzo, marca, rischio, novità) e lo stile di risposta sono priori dichiarati in YAML, sostituibili da config, marcati "ipotesi" in persona, narrativa e codebook. Nomi di battesimo da lista curata, disattivabili (`personas.include_names`).
 
 **Questioni aperte**

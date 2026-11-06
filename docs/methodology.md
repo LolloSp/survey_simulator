@@ -370,8 +370,40 @@ mescola solo se la domanda è `randomize`, la config lo consente
 `synthsurvey questionnaire export` scrive YAML e Markdown per modalità, da
 rivedere a mano prima del congelamento; il file sorgente e le versioni
 esportate hanno un hash SHA-256 che il manifest del run registrerà in M9.
-L'importazione del questionario grezzo (Word, PDF, Excel) con un agente LLM
-è prevista nella milestone M6b.
+
+### Importazione del questionario grezzo (M6b)
+
+`synthsurvey questionnaire import <file>` parte da un documento Word, PDF,
+Excel o di testo. L'estrazione (`synthsurvey.questionnaire.extract`) è
+deliberatamente semplice: paragrafi, elenchi e tabelle nell'ordine del
+documento, marcatori di pagina per i PDF e di foglio per Excel, hash del
+file sorgente. Non c'è OCR: un PDF senza livello di testo viene rifiutato.
+
+L'agente importatore (prompt `agents/prompts/questionnaire_import_it.j2`)
+riceve il testo e risponde con una bozza vincolata a uno schema JSON: lo
+stesso contenuto del formato YAML, ma con tutti i campi espliciti e le
+etichette di scala come lista di coppie, perché l'output strutturato dei
+provider non ammette chiavi intere, campi facoltativi impliciti o vincoli
+numerici. Il prompt descrive il formato, la sintassi di `show_if` e, punto
+centrale, la traduzione delle istruzioni di salto in prosa ("se No passare
+alla D5") in condizioni di visibilità sulle domande dipendenti. Oltre al
+questionario il modello restituisce note di incertezza tipizzate (routing,
+tipo, opzioni, testo, ipotesi, parti non trascritte) che finiscono nel
+rapporto.
+
+La bozza è convertita nel dizionario YAML e validata con il parser di M5 e
+con la configurazione (segmenti citati). Gli errori tornano al modello nella
+stessa conversazione per un numero limitato di giri (due di default); se
+restano, lo YAML viene salvato come bozza e gli errori elencati nel rapporto.
+Il rapporto Markdown riporta provenienza e hash, modello e costo, la tabella
+delle domande con il riferimento nel documento, le note dell'agente e una
+lista di controllo. La revisione umana resta obbligatoria: l'importazione
+produce un punto di partenza verificabile, non un questionario finito.
+
+Il caso di prova è `questionnaires/examples/mercato_v1.docx`, un Word scritto
+come lo scriverebbe un istituto, con salti in prosa, griglia in tabella e
+note per l'intervistatore; la prova dal vivo con il modello reale è
+registrata in `docs/TODO.md` finché non è eseguita.
 
 ## 5. Livello LLM: client, cache, costi
 
