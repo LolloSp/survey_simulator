@@ -69,6 +69,31 @@ produce un nuovo manifest.
   addetti medi annui), `piccola` 10-49, `media` 50-249, `grande` 250+. Le PMI
   usano le prime tre; `grande` resta disponibile per una futura sorgente.
 
+### Tavole per le persone (M4)
+
+Per atteggiamenti, reddito e caratteristiche delle imprese il registro
+comprende altre dieci tavole, tutte nazionali salvo dove indicato:
+
+| Tavola | Fonte ISTAT (dataflow) | Periodo | Dettaglio |
+| --- | --- | --- | --- |
+| `trust_sex_ageclass_education` | Aspetti della vita quotidiana (`83_63_DF_DCCV_AVQ_PERSONE_124`) | 2024 | sesso x classe d'età (14-24, 25-44, 45-64, 65+) x titolo x fiducia negli altri |
+| `life_satisfaction_sex_ageclass_education` | AVQ (`..._138`) | 2024 | idem x punteggio 0-10 |
+| `internet_sex_ageclass_education` | AVQ (`..._236`) | 2024 | idem (6-24) x quotidiano, occasionale, mai |
+| `political_info_sex_ageclass_education` | AVQ (`..._109`) | 2024 | idem x quotidiana, settimanale, saltuaria, mai |
+| `religion_sex_ageclass_education` | AVQ (`..._134`, totale da `..._236`) | 2024 | idem (6-24) x settimanale, saltuaria (residuo), mai |
+| `economic_judgement_region` | AVQ famiglie (`82_87_DF_DCCV_AVQ_FAMIGLIE_14`) | 2024 | regione x giudizio sulle risorse economiche |
+| `income_quintile_main_earner` | EU-SILC (`32_38_DF_DCCV_QUINTOREDD_5`) | 2024 | quintile di reddito equivalente per titolo e per condizione del principale percettore |
+| `income_quintile_region` | EU-SILC (`32_38_DF_DCCV_QUINTOREDD_6`) | 2024 | quintile per regione (Trentino-Alto Adige = media delle due province) |
+| `firm_relations_sector_size` | Censimento permanente imprese (`742_1106_DF_DCSI_CPI_RELAZIONI_6`) | 2022 | settore x classe (3-9, 10-49, 50-249) x imprese con relazioni |
+| `firm_objectives_sector_size` | Censimento permanente imprese (`742_1102_DF_DCSI_CPI_CONTROLLO_22`) | 2022 | settore x classe (10-49, 50-249) x obiettivi strategici perseguiti |
+
+Le tavole AVQ usano i valori assoluti (migliaia di persone) così i livelli di
+istruzione ISTAT 3 e 4 si sommano in `fino_media`; le classi d'età 14-24 e
+6-24 includono minorenni e vengono usate per i 18-24enni come approssimazione.
+Il censimento delle imprese copre solo le imprese con 3 e più addetti e gli
+obiettivi strategici solo quelle con 10 e più: per le microimprese valgono
+come proxy, dichiarata nella provenienza degli attributi.
+
 ### Controlli di coerenza
 
 Ogni normalizzazione verifica che la somma delle categorie coincida con il

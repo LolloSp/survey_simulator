@@ -32,7 +32,11 @@ def specs_su_fixture() -> list[TableSpec]:
 
 
 def test_tavole_per_sorgente() -> None:
-    assert [t.name for t in tables_for_sources(["istat_imprese"])] == ["firms_region_sector_size"]
+    assert [t.name for t in tables_for_sources(["istat_imprese"])] == [
+        "firms_region_sector_size",
+        "firm_relations_sector_size",
+        "firm_objectives_sector_size",
+    ]
     tutte = tables_for_sources(["istat_individui", "istat_imprese", "istat_individui"])
     assert len(tutte) == len(TABLES)
     assert tables_for_sources(["ignota"]) == []
@@ -49,14 +53,19 @@ def test_fetch_scrive_tavole_e_manifest(
 
     assert result.manifest_path == processed / MANIFEST_NAME
     assert sorted(result.updated) == sorted(TABLES)
-    assert len(chiamate) == sum(len(s.requests) for s in TABLES.values())
+    # Richieste distinte: la stessa richiesta condivisa da due tavole va in cache.
+    distinte = {(r.dataflow, r.key) for spec in TABLES.values() for r in spec.requests}
+    assert len(chiamate) == len(distinte)
     for spec in TABLES.values():
         entry = result.manifest.tables[spec.name]
         assert (processed / entry.file).is_file()
         assert entry.columns == list(spec.columns)
         assert entry.period == spec.period
         assert entry.rows == pl.read_csv(processed / entry.file).height > 0
-        assert all(not r.from_cache for r in entry.raw)
+        # Solo la richiesta condivisa (internet, riusata dalla pratica religiosa) viene dalla cache.
+        assert all(
+            not r.from_cache or r.dataflow == "83_63_DF_DCCV_AVQ_PERSONE_236" for r in entry.raw
+        )
         assert all(r.dataflow == q.dataflow for r, q in zip(entry.raw, spec.requests, strict=True))
     assert "ISTAT" in result.manifest.license["attribution"]
     assert verify_manifest(processed, tmp_path / "raw") == []

@@ -160,3 +160,62 @@ def test_imprese_per_macro_area_proporzionate_alla_popolazione() -> None:
     )
     fuori = ratio.filter((pl.col("per_mille") < 60) | (pl.col("per_mille") > 130))
     assert fuori.is_empty(), fuori
+
+
+# --- tavole per le persone (M4) ---------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("name", "categorie"),
+    [
+        ("trust_sex_ageclass_education", ["diffida", "si_fida"]),
+        ("internet_sex_ageclass_education", ["mai", "occasionale", "quotidiano"]),
+        (
+            "political_info_sex_ageclass_education",
+            ["mai", "quotidiana", "saltuaria", "settimanale"],
+        ),
+        ("religion_sex_ageclass_education", ["mai", "saltuaria", "settimanale"]),
+    ],
+)
+def test_atteggiamenti_completi(name: str, categorie: list[str]) -> None:
+    df = tabella(name)
+    assert sorted(df["category"].unique().to_list()) == categorie
+    assert sorted(df["education"].unique().to_list()) == sorted(cat.EDUCATION)
+    assert df["age_class"].n_unique() == 4
+    assert df.height == 2 * 4 * 3 * len(categorie)
+    assert (df["count"] >= 0).all()
+    # Ogni cella demografica ha almeno una categoria con persone.
+    per_cella = df.group_by(["sex", "age_class", "education"]).agg(pl.col("count").sum())
+    assert (per_cella["count"] > 0).all()
+
+
+def test_soddisfazione_completa() -> None:
+    df = tabella("life_satisfaction_sex_ageclass_education")
+    assert df.height == 2 * 4 * 3 * 11
+    media = (df["category"].cast(pl.Float64) * df["count"]).sum() / df["count"].sum()
+    assert 6.5 < media < 8.0
+
+
+def test_giudizio_economico_e_quintili_regionali() -> None:
+    ej = tabella("economic_judgement_region")
+    assert sorted(ej["region"].unique().to_list()) == sorted(cat.REGIONS)
+    assert ej.height == 20 * 4
+    ir = tabella("income_quintile_region")
+    assert sorted(ir["region"].unique().to_list()) == sorted(cat.REGIONS)
+    somme = ir.group_by("region").agg(pl.col("share").sum())
+    assert ((somme["share"] - 1).abs() < 0.02).all()
+
+
+def test_quintili_principale_percettore() -> None:
+    df = tabella("income_quintile_main_earner")
+    assert df.height == 9 * 5
+    assert sorted(df["dimension"].unique().to_list()) == ["education", "employment"]
+
+
+def test_tavole_imprese_censimento() -> None:
+    rel = tabella("firm_relations_sector_size")
+    assert rel.height == 6 * 3
+    assert (rel["with_relations"] <= rel["total"]).all()
+    obj = tabella("firm_objectives_sector_size")
+    assert obj.height == 6 * 2 * 6
+    assert (obj["pursued"] <= obj["total"]).all()

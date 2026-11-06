@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-11-06T08:09:45+00:00",
+  "generated_at": "2026-11-06T09:25:51+00:00",
   "sdmx_base_url": "https://esploradati.istat.it/SDMXWS/rest",
   "license": {
     "name": "Creative Commons Attribuzione 3.0 Italia (CC BY 3.0 IT)",
@@ -9,6 +9,34 @@
     "note": "I dati aggregati pubblicati da ISTAT possono essere riprodotti, distribuiti e adattati anche per fini commerciali citando la fonte."
   },
   "tables": {
+    "economic_judgement_region": {
+      "name": "economic_judgement_region",
+      "description": "Giudizio delle famiglie sulle risorse economiche per regione",
+      "source_name": "ISTAT, Aspetti della vita quotidiana, famiglie (dataflow 82_87)",
+      "period": "2024",
+      "file": "economic_judgement_region.csv",
+      "sha256": "b051bebd3a1a43c12844c6a1d3d92187bbd9fd4833334326759def13e7c3adaf",
+      "rows": 80,
+      "columns": [
+        "region_code",
+        "region",
+        "macro_area",
+        "category",
+        "count"
+      ],
+      "raw": [
+        {
+          "dataflow": "82_87_DF_DCCV_AVQ_FAMIGLIE_14",
+          "key": "A.ITC1+ITC2+ITC4+ITC3+ITDA+ITD3+ITD4+ITD5+ITE1+ITE2+ITE3+ITE4+ITF1+ITF2+ITF3+ITF4+ITF5+ITF6+ITG1+ITG2.HOUS_EC_RESVG+HOUS_EC_RESAD+HOUS_EC_RESSC+HOUS_EC_RESAS.THV.TOT",
+          "url": "https://esploradati.istat.it/SDMXWS/rest/data/82_87_DF_DCCV_AVQ_FAMIGLIE_14/A.ITC1+ITC2+ITC4+ITC3+ITDA+ITD3+ITD4+ITD5+ITE1+ITE2+ITE3+ITE4+ITF1+ITF2+ITF3+ITF4+ITF5+ITF6+ITG1+ITG2.HOUS_EC_RESVG+HOUS_EC_RESAD+HOUS_EC_RESSC+HOUS_EC_RESAS.THV.TOT?startPeriod=2024&endPeriod=2024",
+          "file": "82_87_DF_DCCV_AVQ_FAMIGLIE_14/17ddcdb8a8238beb.csv",
+          "sha256": "eced7b6a913b54503f1fcd8f04dfb502416310ac894780e6a908a90eb01a3a1b",
+          "fetched_at": "2026-11-06T09:22:06+00:00",
+          "from_cache": false
+        }
+      ],
+      "generated_at": "2026-11-06T09:22:06+00:00"
+    },
     "education_region_sex_ageclass": {
       "name": "education_region_sex_ageclass",
       "description": "Popolazione di 9 anni e più per regione, sesso, classe d'età e titolo di studio",
@@ -132,6 +160,61 @@
       ],
       "generated_at": "2026-11-05T19:34:07+00:00"
     },
+    "firm_objectives_sector_size": {
+      "name": "firm_objectives_sector_size",
+      "description": "Imprese con 10+ addetti e imprese che hanno perseguito obiettivi strategici, per settore e classe",
+      "source_name": "ISTAT, Censimento permanente delle imprese 2022 (dataflow 742_1102)",
+      "period": "2022",
+      "file": "firm_objectives_sector_size.csv",
+      "sha256": "616fb0bad2e1c2ef911fe43bbdad1e908441ca6576d4162d1b9b89ba3fc18944",
+      "rows": 72,
+      "columns": [
+        "sector",
+        "size_class",
+        "objective",
+        "total",
+        "pursued"
+      ],
+      "raw": [
+        {
+          "dataflow": "742_1102_DF_DCSI_CPI_CONTROLLO_22",
+          "key": "A.IT.AENTN10M.B+C+D+E+F+G+H+I+J+K+L+M+N+P+Q+R+S.W10_19+W20_49+W50_99+W100_249.ALL.ALL.ALL.TOT.INCRINVNEWTEC+ACCESMARKSEG+RANGEGOODSERV+INCRACTABR+ACTSOCENV+DEFCOMPPOS+ALL.OBJPURSUED+ALL.ALL",
+          "url": "https://esploradati.istat.it/SDMXWS/rest/data/742_1102_DF_DCSI_CPI_CONTROLLO_22/A.IT.AENTN10M.B+C+D+E+F+G+H+I+J+K+L+M+N+P+Q+R+S.W10_19+W20_49+W50_99+W100_249.ALL.ALL.ALL.TOT.INCRINVNEWTEC+ACCESMARKSEG+RANGEGOODSERV+INCRACTABR+ACTSOCENV+DEFCOMPPOS+ALL.OBJPURSUED+ALL.ALL?startPeriod=2022&endPeriod=2022",
+          "file": "742_1102_DF_DCSI_CPI_CONTROLLO_22/c4c2e20fc183e99f.csv",
+          "sha256": "d0edd19868a896302caf38f7e045b2261d4fef0ccfcb6dd4b93b4d784ba3e203",
+          "fetched_at": "2026-11-06T09:23:05+00:00",
+          "from_cache": false
+        }
+      ],
+      "generated_at": "2026-11-06T09:23:05+00:00"
+    },
+    "firm_relations_sector_size": {
+      "name": "firm_relations_sector_size",
+      "description": "Imprese con 3+ addetti e imprese con relazioni con altre imprese, per settore e classe",
+      "source_name": "ISTAT, Censimento permanente delle imprese 2022 (dataflow 742_1106)",
+      "period": "2022",
+      "file": "firm_relations_sector_size.csv",
+      "sha256": "df86b718aa561b28210355ba1b35864f1b09b2a236342f9a63b01f19a7ddeb54",
+      "rows": 18,
+      "columns": [
+        "sector",
+        "size_class",
+        "total",
+        "with_relations"
+      ],
+      "raw": [
+        {
+          "dataflow": "742_1106_DF_DCSI_CPI_RELAZIONI_6",
+          "key": "A.IT.AENTN3M+AENTN3M_RELAT.B+C+D+E+F+G+H+I+J+K+L+M+N+P+Q+R+S.W3_9+W10_19+W20_49+W50_99+W100_249.ALL.ALL.ALL.ALL.TOT.TOT.TOT.0010.ALL",
+          "url": "https://esploradati.istat.it/SDMXWS/rest/data/742_1106_DF_DCSI_CPI_RELAZIONI_6/A.IT.AENTN3M+AENTN3M_RELAT.B+C+D+E+F+G+H+I+J+K+L+M+N+P+Q+R+S.W3_9+W10_19+W20_49+W50_99+W100_249.ALL.ALL.ALL.ALL.TOT.TOT.TOT.0010.ALL?startPeriod=2022&endPeriod=2022",
+          "file": "742_1106_DF_DCSI_CPI_RELAZIONI_6/9ebdba1240cf430f.csv",
+          "sha256": "17ee521c011c1f574ba60eee67dacfa0a7c0d621b0979322ae2a5102a5aa7f54",
+          "fetched_at": "2026-11-06T09:22:51+00:00",
+          "from_cache": false
+        }
+      ],
+      "generated_at": "2026-11-06T09:22:51+00:00"
+    },
     "firms_region_sector_size": {
       "name": "firms_region_sector_size",
       "description": "Imprese attive per regione, settore (ATECO 2007 accorpato) e classe di addetti",
@@ -161,6 +244,146 @@
       ],
       "generated_at": "2026-11-05T19:34:07+00:00"
     },
+    "income_quintile_main_earner": {
+      "name": "income_quintile_main_earner",
+      "description": "Famiglie per quintile di reddito equivalente, per titolo di studio e condizione del principale percettore (Italia)",
+      "source_name": "ISTAT, Reddito e condizioni di vita EU-SILC (dataflow 32_38)",
+      "period": "2024",
+      "file": "income_quintile_main_earner.csv",
+      "sha256": "681532db83578672c73bb6ef5bb98091fcd548069e091e26a1caba3179dbd11d",
+      "rows": 45,
+      "columns": [
+        "dimension",
+        "code",
+        "category",
+        "quintile",
+        "share"
+      ],
+      "raw": [
+        {
+          "dataflow": "32_38_DF_DCCV_QUINTOREDD_5",
+          "key": "A.IT.REDD_QUINTO.10.1+2+3+4+5.1.99.99.9.9.9.9..",
+          "url": "https://esploradati.istat.it/SDMXWS/rest/data/32_38_DF_DCCV_QUINTOREDD_5/A.IT.REDD_QUINTO.10.1+2+3+4+5.1.99.99.9.9.9.9..?startPeriod=2024&endPeriod=2024",
+          "file": "32_38_DF_DCCV_QUINTOREDD_5/662e29e8ce80dd97.csv",
+          "sha256": "9bad8f1ae5c225b18cb3c1ce94715c346b8726dc120317cf419b98b4b7201ca0",
+          "fetched_at": "2026-11-06T09:22:12+00:00",
+          "from_cache": false
+        }
+      ],
+      "generated_at": "2026-11-06T09:22:12+00:00"
+    },
+    "income_quintile_region": {
+      "name": "income_quintile_region",
+      "description": "Famiglie per quintile di reddito equivalente, per regione",
+      "source_name": "ISTAT, Reddito e condizioni di vita EU-SILC (dataflow 32_38)",
+      "period": "2024",
+      "file": "income_quintile_region.csv",
+      "sha256": "72b039016eb3f7b499367e3d82c42e30ffd8ee009fdf9a87cc20df0a5e05a12f",
+      "rows": 100,
+      "columns": [
+        "region_code",
+        "region",
+        "macro_area",
+        "quintile",
+        "share"
+      ],
+      "raw": [
+        {
+          "dataflow": "32_38_DF_DCCV_QUINTOREDD_6",
+          "key": "A.ITC1+ITC2+ITC4+ITC3+ITD3+ITD4+ITD5+ITE1+ITE2+ITE3+ITE4+ITF1+ITF2+ITF3+ITF4+ITF5+ITF6+ITG1+ITG2+ITD1+ITD2.REDD_QUINTO.10.1+2+3+4+5.1.99.99.9.9.9.9.99.99",
+          "url": "https://esploradati.istat.it/SDMXWS/rest/data/32_38_DF_DCCV_QUINTOREDD_6/A.ITC1+ITC2+ITC4+ITC3+ITD3+ITD4+ITD5+ITE1+ITE2+ITE3+ITE4+ITF1+ITF2+ITF3+ITF4+ITF5+ITF6+ITG1+ITG2+ITD1+ITD2.REDD_QUINTO.10.1+2+3+4+5.1.99.99.9.9.9.9.99.99?startPeriod=2024&endPeriod=2024",
+          "file": "32_38_DF_DCCV_QUINTOREDD_6/02fb5235cdcfaf68.csv",
+          "sha256": "7fad221de8adb3189f8d1a960cc34a7681aa6ff9cdbf907a8eed9699a12c6cca",
+          "fetched_at": "2026-11-06T09:22:36+00:00",
+          "from_cache": true
+        }
+      ],
+      "generated_at": "2026-11-06T09:25:51+00:00"
+    },
+    "internet_sex_ageclass_education": {
+      "name": "internet_sex_ageclass_education",
+      "description": "Uso di internet per frequenza, per sesso, classe d'età e titolo di studio",
+      "source_name": "ISTAT, Aspetti della vita quotidiana (dataflow 83_63)",
+      "period": "2024",
+      "file": "internet_sex_ageclass_education.csv",
+      "sha256": "bbb2c1adea7bcbfc48e8ac7081d6bfa638c92a6382f687fefe0a7798c20848d4",
+      "rows": 72,
+      "columns": [
+        "sex",
+        "age_class",
+        "education",
+        "category",
+        "count"
+      ],
+      "raw": [
+        {
+          "dataflow": "83_63_DF_DCCV_AVQ_PERSONE_236",
+          "key": "A.IT.6_INTTUTTI+6_INT_1P_SETT+6_INT_QV_MESE+6_INT_QV_ANNO+6_INTNO.THV.1+2.Y6-24+Y25-44+Y45-64+Y_GE65.3+4+7+11.99",
+          "url": "https://esploradati.istat.it/SDMXWS/rest/data/83_63_DF_DCCV_AVQ_PERSONE_236/A.IT.6_INTTUTTI+6_INT_1P_SETT+6_INT_QV_MESE+6_INT_QV_ANNO+6_INTNO.THV.1+2.Y6-24+Y25-44+Y45-64+Y_GE65.3+4+7+11.99?startPeriod=2024&endPeriod=2024",
+          "file": "83_63_DF_DCCV_AVQ_PERSONE_236/132448dfef825e43.csv",
+          "sha256": "b31822997fd5f06c6be94deece17dd4c144cc0bc7c93a1fcc8389276373b54aa",
+          "fetched_at": "2026-11-06T09:21:55+00:00",
+          "from_cache": false
+        }
+      ],
+      "generated_at": "2026-11-06T09:21:55+00:00"
+    },
+    "life_satisfaction_sex_ageclass_education": {
+      "name": "life_satisfaction_sex_ageclass_education",
+      "description": "Soddisfazione per la vita (0-10) per sesso, classe d'età e titolo di studio",
+      "source_name": "ISTAT, Aspetti della vita quotidiana (dataflow 83_63)",
+      "period": "2024",
+      "file": "life_satisfaction_sex_ageclass_education.csv",
+      "sha256": "0b5683a860846135b0b1cee337fc0aa591bc1bab8e0a30a7947f9243f2e8287f",
+      "rows": 264,
+      "columns": [
+        "sex",
+        "age_class",
+        "education",
+        "category",
+        "count"
+      ],
+      "raw": [
+        {
+          "dataflow": "83_63_DF_DCCV_AVQ_PERSONE_138",
+          "key": "A.IT.14_SAT_LIFE_0+14_SAT_LIFE_1+14_SAT_LIFE_2+14_SAT_LIFE_3+14_SAT_LIFE_4+14_SAT_LIFE_5+14_SAT_LIFE_6+14_SAT_LIFE_7+14_SAT_LIFE_8+14_SAT_LIFE_9+14_SAT_LIFE_10.THV.1+2.Y14-24+Y25-44+Y45-64+Y_GE65.3+4+7+11.99",
+          "url": "https://esploradati.istat.it/SDMXWS/rest/data/83_63_DF_DCCV_AVQ_PERSONE_138/A.IT.14_SAT_LIFE_0+14_SAT_LIFE_1+14_SAT_LIFE_2+14_SAT_LIFE_3+14_SAT_LIFE_4+14_SAT_LIFE_5+14_SAT_LIFE_6+14_SAT_LIFE_7+14_SAT_LIFE_8+14_SAT_LIFE_9+14_SAT_LIFE_10.THV.1+2.Y14-24+Y25-44+Y45-64+Y_GE65.3+4+7+11.99?startPeriod=2024&endPeriod=2024",
+          "file": "83_63_DF_DCCV_AVQ_PERSONE_138/290eecaf970c30a2.csv",
+          "sha256": "33a09e46f0aae00121869be4983d4d2e1fcdd37e712b1cb624d1309aeb45649a",
+          "fetched_at": "2026-11-06T09:21:49+00:00",
+          "from_cache": false
+        }
+      ],
+      "generated_at": "2026-11-06T09:21:49+00:00"
+    },
+    "political_info_sex_ageclass_education": {
+      "name": "political_info_sex_ageclass_education",
+      "description": "Frequenza dell'informazione politica per sesso, classe d'età e titolo di studio",
+      "source_name": "ISTAT, Aspetti della vita quotidiana (dataflow 83_63)",
+      "period": "2024",
+      "file": "political_info_sex_ageclass_education.csv",
+      "sha256": "50ecbe558eab77ca8c41e8fc4ba19298a94826aad44b964d52b32f5d0b78837b",
+      "rows": 96,
+      "columns": [
+        "sex",
+        "age_class",
+        "education",
+        "category",
+        "count"
+      ],
+      "raw": [
+        {
+          "dataflow": "83_63_DF_DCCV_AVQ_PERSONE_109",
+          "key": "A.IT.14_INF_POL_EVERY+14_INF_POL_SW+14_INF_POL_1W+14_INF_POL_SM+14_INF_POL_SY+14_INF_POL_NEV.THV.1+2.Y14-24+Y25-44+Y45-64+Y_GE65.3+4+7+11.99",
+          "url": "https://esploradati.istat.it/SDMXWS/rest/data/83_63_DF_DCCV_AVQ_PERSONE_109/A.IT.14_INF_POL_EVERY+14_INF_POL_SW+14_INF_POL_1W+14_INF_POL_SM+14_INF_POL_SY+14_INF_POL_NEV.THV.1+2.Y14-24+Y25-44+Y45-64+Y_GE65.3+4+7+11.99?startPeriod=2024&endPeriod=2024",
+          "file": "83_63_DF_DCCV_AVQ_PERSONE_109/62705e716ffd58fd.csv",
+          "sha256": "0abe5b0d4807b554c4ab86025ab161c102ea585be7ee9b0ca4438d80a7eb3cc0",
+          "fetched_at": "2026-11-06T09:21:59+00:00",
+          "from_cache": false
+        }
+      ],
+      "generated_at": "2026-11-06T09:21:59+00:00"
+    },
     "population_region_sex_age": {
       "name": "population_region_sex_age",
       "description": "Popolazione residente al 1° gennaio per regione, sesso ed età singola, tutte le età)",
@@ -189,6 +412,71 @@
         }
       ],
       "generated_at": "2026-11-06T08:09:45+00:00"
+    },
+    "religion_sex_ageclass_education": {
+      "name": "religion_sex_ageclass_education",
+      "description": "Frequenza di un luogo di culto per sesso, classe d'età e titolo di studio",
+      "source_name": "ISTAT, Aspetti della vita quotidiana (dataflow 83_63)",
+      "period": "2024",
+      "file": "religion_sex_ageclass_education.csv",
+      "sha256": "719970ae2ce94fb79e5e6c53adf8d2bf19add003b59d99c434d167e67ce2a282",
+      "rows": 72,
+      "columns": [
+        "sex",
+        "age_class",
+        "education",
+        "category",
+        "count"
+      ],
+      "raw": [
+        {
+          "dataflow": "83_63_DF_DCCV_AVQ_PERSONE_134",
+          "key": "A.IT.6_WEEK_RELIG+6_NEVER_RELIG.THV.1+2.Y6-24+Y25-44+Y45-64+Y_GE65.3+4+7+11.99",
+          "url": "https://esploradati.istat.it/SDMXWS/rest/data/83_63_DF_DCCV_AVQ_PERSONE_134/A.IT.6_WEEK_RELIG+6_NEVER_RELIG.THV.1+2.Y6-24+Y25-44+Y45-64+Y_GE65.3+4+7+11.99?startPeriod=2024&endPeriod=2024",
+          "file": "83_63_DF_DCCV_AVQ_PERSONE_134/adc5d8987caabbec.csv",
+          "sha256": "b32633d0f874f537080dccdaaa7f806e52528bcd6c76d8909e23082e3083104c",
+          "fetched_at": "2026-11-06T09:22:05+00:00",
+          "from_cache": false
+        },
+        {
+          "dataflow": "83_63_DF_DCCV_AVQ_PERSONE_236",
+          "key": "A.IT.6_INTTUTTI+6_INT_1P_SETT+6_INT_QV_MESE+6_INT_QV_ANNO+6_INTNO.THV.1+2.Y6-24+Y25-44+Y45-64+Y_GE65.3+4+7+11.99",
+          "url": "https://esploradati.istat.it/SDMXWS/rest/data/83_63_DF_DCCV_AVQ_PERSONE_236/A.IT.6_INTTUTTI+6_INT_1P_SETT+6_INT_QV_MESE+6_INT_QV_ANNO+6_INTNO.THV.1+2.Y6-24+Y25-44+Y45-64+Y_GE65.3+4+7+11.99?startPeriod=2024&endPeriod=2024",
+          "file": "83_63_DF_DCCV_AVQ_PERSONE_236/132448dfef825e43.csv",
+          "sha256": "b31822997fd5f06c6be94deece17dd4c144cc0bc7c93a1fcc8389276373b54aa",
+          "fetched_at": "2026-11-06T09:21:55+00:00",
+          "from_cache": true
+        }
+      ],
+      "generated_at": "2026-11-06T09:22:05+00:00"
+    },
+    "trust_sex_ageclass_education": {
+      "name": "trust_sex_ageclass_education",
+      "description": "Fiducia interpersonale per sesso, classe d'età e titolo di studio (Italia)",
+      "source_name": "ISTAT, Aspetti della vita quotidiana (dataflow 83_63)",
+      "period": "2024",
+      "file": "trust_sex_ageclass_education.csv",
+      "sha256": "7bd111e7e995e4212f9254d41061474d81df9750fa2bbb38ce1b1b7c53cba1f0",
+      "rows": 48,
+      "columns": [
+        "sex",
+        "age_class",
+        "education",
+        "category",
+        "count"
+      ],
+      "raw": [
+        {
+          "dataflow": "83_63_DF_DCCV_AVQ_PERSONE_124",
+          "key": "A.IT.14_YESTRUST+14_NOTRUST.THV.1+2.Y14-24+Y25-44+Y45-64+Y_GE65.3+4+7+11.99",
+          "url": "https://esploradati.istat.it/SDMXWS/rest/data/83_63_DF_DCCV_AVQ_PERSONE_124/A.IT.14_YESTRUST+14_NOTRUST.THV.1+2.Y14-24+Y25-44+Y45-64+Y_GE65.3+4+7+11.99?startPeriod=2024&endPeriod=2024",
+          "file": "83_63_DF_DCCV_AVQ_PERSONE_124/8fe6262e924c71af.csv",
+          "sha256": "5af13753bf1a9581fc5554ef8d01ad93ea710059e5e65256281a282ced9b1ca4",
+          "fetched_at": "2026-11-06T09:21:43+00:00",
+          "from_cache": false
+        }
+      ],
+      "generated_at": "2026-11-06T09:21:43+00:00"
     }
   }
 }

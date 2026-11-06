@@ -12,7 +12,9 @@ from typing import Protocol
 import polars as pl
 
 from synthsurvey.population.istat import codelists as cl
+from synthsurvey.population.istat import codelists_persone as cp
 from synthsurvey.population.istat import normalize as nz
+from synthsurvey.population.istat import normalize_persone as npz
 
 
 class Normalizer(Protocol):
@@ -22,6 +24,8 @@ class Normalizer(Protocol):
 
 
 REGIONI = "+".join(cl.REGION_CODES)
+# EU-SILC: Trentino-Alto Adige solo come province autonome (ITD1, ITD2).
+REGIONI_SILC = "+".join(c for c in cl.REGION_CODES if c != "ITDA") + "+ITD1+ITD2"
 
 
 @dataclass(frozen=True)
@@ -172,9 +176,202 @@ FIRMS = TableSpec(
     columns=(*nz.REGION_COLUMNS, "sector", "size_class", "count"),
 )
 
+# --------------------------------------------------------------------------- #
+# Tavole per le persone (M4): atteggiamenti, reddito, imprese
+# --------------------------------------------------------------------------- #
+
+_AVQ_EDU = "3+4+7+11"
+_AVQ_AGES_14 = "Y14-24+Y25-44+Y45-64+Y_GE65"
+_AVQ_AGES_6 = "Y6-24+Y25-44+Y45-64+Y_GE65"
+_PERSON_COLUMNS = ("sex", "age_class", "education", "category", "count")
+_AVQ_SOURCE = "ISTAT, Aspetti della vita quotidiana (dataflow 83_63)"
+_SECTIONS = "+".join(cp.SECTOR_BY_SECTION)
+
+
+def _avq_request(flow: int, codes: Iterable[str], ages: str) -> SdmxRequest:
+    return SdmxRequest(
+        dataflow=f"83_63_DF_DCCV_AVQ_PERSONE_{flow}",
+        key=f"A.IT.{'+'.join(codes)}.THV.1+2.{ages}.{_AVQ_EDU}.99",
+        start="2024",
+        end="2024",
+    )
+
+
+_INTERNET_REQUEST = _avq_request(236, cp.INTERNET_AVQ, _AVQ_AGES_6)
+
+TRUST = TableSpec(
+    name="trust_sex_ageclass_education",
+    description="Fiducia interpersonale per sesso, classe d'età e titolo di studio (Italia)",
+    source_name=_AVQ_SOURCE,
+    period="2024",
+    requests=(_avq_request(124, cp.TRUST_AVQ, _AVQ_AGES_14),),
+    normalize=npz.trust_sex_ageclass_education,
+    columns=_PERSON_COLUMNS,
+)
+
+LIFE_SATISFACTION = TableSpec(
+    name="life_satisfaction_sex_ageclass_education",
+    description="Soddisfazione per la vita (0-10) per sesso, classe d'età e titolo di studio",
+    source_name=_AVQ_SOURCE,
+    period="2024",
+    requests=(_avq_request(138, cp.LIFE_SATISFACTION_AVQ, _AVQ_AGES_14),),
+    normalize=npz.life_satisfaction_sex_ageclass_education,
+    columns=_PERSON_COLUMNS,
+)
+
+INTERNET = TableSpec(
+    name="internet_sex_ageclass_education",
+    description="Uso di internet per frequenza, per sesso, classe d'età e titolo di studio",
+    source_name=_AVQ_SOURCE,
+    period="2024",
+    requests=(_INTERNET_REQUEST,),
+    normalize=npz.internet_sex_ageclass_education,
+    columns=_PERSON_COLUMNS,
+)
+
+POLITICAL_INFO = TableSpec(
+    name="political_info_sex_ageclass_education",
+    description="Frequenza dell'informazione politica per sesso, classe d'età e titolo di studio",
+    source_name=_AVQ_SOURCE,
+    period="2024",
+    requests=(_avq_request(109, cp.POLITICAL_INFO_AVQ, _AVQ_AGES_14),),
+    normalize=npz.political_info_sex_ageclass_education,
+    columns=_PERSON_COLUMNS,
+)
+
+RELIGION = TableSpec(
+    name="religion_sex_ageclass_education",
+    description="Frequenza di un luogo di culto per sesso, classe d'età e titolo di studio",
+    source_name=_AVQ_SOURCE,
+    period="2024",
+    requests=(_avq_request(134, cp.RELIGION_AVQ, _AVQ_AGES_6), _INTERNET_REQUEST),
+    normalize=npz.religion_sex_ageclass_education,
+    columns=_PERSON_COLUMNS,
+)
+
+ECONOMIC_JUDGEMENT = TableSpec(
+    name="economic_judgement_region",
+    description="Giudizio delle famiglie sulle risorse economiche per regione",
+    source_name="ISTAT, Aspetti della vita quotidiana, famiglie (dataflow 82_87)",
+    period="2024",
+    requests=(
+        SdmxRequest(
+            dataflow="82_87_DF_DCCV_AVQ_FAMIGLIE_14",
+            key=f"A.{REGIONI}.{'+'.join(cp.ECONOMIC_JUDGEMENT_AVQ)}.THV.TOT",
+            start="2024",
+            end="2024",
+        ),
+    ),
+    normalize=npz.economic_judgement_region,
+    columns=(*nz.REGION_COLUMNS, "category", "count"),
+)
+
+INCOME_MAIN_EARNER = TableSpec(
+    name="income_quintile_main_earner",
+    description=(
+        "Famiglie per quintile di reddito equivalente, per titolo di studio e condizione "
+        "del principale percettore (Italia)"
+    ),
+    source_name="ISTAT, Reddito e condizioni di vita EU-SILC (dataflow 32_38)",
+    period="2024",
+    requests=(
+        SdmxRequest(
+            dataflow="32_38_DF_DCCV_QUINTOREDD_5",
+            key="A.IT.REDD_QUINTO.10.1+2+3+4+5.1.99.99.9.9.9.9..",
+            start="2024",
+            end="2024",
+        ),
+    ),
+    normalize=npz.income_quintile_main_earner,
+    columns=("dimension", "code", "category", "quintile", "share"),
+)
+
+INCOME_REGION = TableSpec(
+    name="income_quintile_region",
+    description="Famiglie per quintile di reddito equivalente, per regione",
+    source_name="ISTAT, Reddito e condizioni di vita EU-SILC (dataflow 32_38)",
+    period="2024",
+    requests=(
+        SdmxRequest(
+            dataflow="32_38_DF_DCCV_QUINTOREDD_6",
+            key=f"A.{REGIONI_SILC}.REDD_QUINTO.10.1+2+3+4+5.1.99.99.9.9.9.9.99.99",
+            start="2024",
+            end="2024",
+        ),
+    ),
+    normalize=npz.income_quintile_region,
+    columns=(*nz.REGION_COLUMNS, "quintile", "share"),
+)
+
+FIRM_RELATIONS = TableSpec(
+    name="firm_relations_sector_size",
+    description=(
+        "Imprese con 3+ addetti e imprese con relazioni con altre imprese, per settore e classe"
+    ),
+    source_name="ISTAT, Censimento permanente delle imprese 2022 (dataflow 742_1106)",
+    period="2022",
+    requests=(
+        SdmxRequest(
+            dataflow="742_1106_DF_DCSI_CPI_RELAZIONI_6",
+            key=(
+                f"A.IT.AENTN3M+AENTN3M_RELAT.{_SECTIONS}.{'+'.join(cp.SIZE_CLASS_CENSUS)}"
+                ".ALL.ALL.ALL.ALL.TOT.TOT.TOT.0010.ALL"
+            ),
+            start="2022",
+            end="2022",
+        ),
+    ),
+    normalize=npz.firm_relations_sector_size,
+    columns=("sector", "size_class", "total", "with_relations"),
+)
+
+FIRM_OBJECTIVES = TableSpec(
+    name="firm_objectives_sector_size",
+    description=(
+        "Imprese con 10+ addetti e imprese che hanno perseguito obiettivi strategici, "
+        "per settore e classe"
+    ),
+    source_name="ISTAT, Censimento permanente delle imprese 2022 (dataflow 742_1102)",
+    period="2022",
+    requests=(
+        SdmxRequest(
+            dataflow="742_1102_DF_DCSI_CPI_CONTROLLO_22",
+            key=(
+                f"A.IT.AENTN10M.{_SECTIONS}.W10_19+W20_49+W50_99+W100_249.ALL.ALL.ALL.TOT"
+                f".{'+'.join(cp.FIRM_OBJECTIVES)}+ALL.OBJPURSUED+ALL.ALL"
+            ),
+            start="2022",
+            end="2022",
+        ),
+    ),
+    normalize=npz.firm_objectives_sector_size,
+    columns=("sector", "size_class", "objective", "total", "pursued"),
+)
+
+PERSON_TABLES: tuple[TableSpec, ...] = (
+    TRUST,
+    LIFE_SATISFACTION,
+    INTERNET,
+    POLITICAL_INFO,
+    RELIGION,
+    ECONOMIC_JUDGEMENT,
+    INCOME_MAIN_EARNER,
+    INCOME_REGION,
+)
+FIRM_PERSON_TABLES: tuple[TableSpec, ...] = (FIRM_RELATIONS, FIRM_OBJECTIVES)
+
 TABLES: dict[str, TableSpec] = {
     t.name: t
-    for t in (POPULATION, EDUCATION, EMPLOYMENT, EDUCATION_NATIONAL, EMPLOYED_NATIONAL, FIRMS)
+    for t in (
+        POPULATION,
+        EDUCATION,
+        EMPLOYMENT,
+        EDUCATION_NATIONAL,
+        EMPLOYED_NATIONAL,
+        FIRMS,
+        *PERSON_TABLES,
+        *FIRM_PERSON_TABLES,
+    )
 }
 
 # Tavole richieste da ciascuna sorgente del registro di configurazione.
@@ -185,8 +382,9 @@ TABLES_BY_SOURCE: dict[str, tuple[str, ...]] = {
         EMPLOYMENT.name,
         EDUCATION_NATIONAL.name,
         EMPLOYED_NATIONAL.name,
+        *(t.name for t in PERSON_TABLES),
     ),
-    "istat_imprese": (FIRMS.name,),
+    "istat_imprese": (FIRMS.name, *(t.name for t in FIRM_PERSON_TABLES)),
 }
 
 

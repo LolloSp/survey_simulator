@@ -21,6 +21,17 @@ class IstatTables:
     education_national: pl.DataFrame  # sex, age_class, education, count
     employed_national: pl.DataFrame  # sex, age_class, education, count
     firms: pl.DataFrame  # ..., sector, size_class, count
+    # Tavole per le persone (M4)
+    trust: pl.DataFrame  # sex, age_class, education, category, count
+    life_satisfaction: pl.DataFrame
+    internet: pl.DataFrame
+    political_info: pl.DataFrame
+    religion: pl.DataFrame
+    economic_judgement: pl.DataFrame  # ..., category, count (per regione)
+    income_main_earner: pl.DataFrame  # dimension, code, category, quintile, share
+    income_region: pl.DataFrame  # ..., quintile, share
+    firm_relations: pl.DataFrame  # sector, size_class, total, with_relations
+    firm_objectives: pl.DataFrame  # sector, size_class, objective, total, pursued
 
 
 _FIELDS = {
@@ -30,6 +41,16 @@ _FIELDS = {
     "education_national": "education_sex_ageclass_national",
     "employed_national": "employed_sex_ageclass_education_national",
     "firms": "firms_region_sector_size",
+    "trust": "trust_sex_ageclass_education",
+    "life_satisfaction": "life_satisfaction_sex_ageclass_education",
+    "internet": "internet_sex_ageclass_education",
+    "political_info": "political_info_sex_ageclass_education",
+    "religion": "religion_sex_ageclass_education",
+    "economic_judgement": "economic_judgement_region",
+    "income_main_earner": "income_quintile_main_earner",
+    "income_region": "income_quintile_region",
+    "firm_relations": "firm_relations_sector_size",
+    "firm_objectives": "firm_objectives_sector_size",
 }
 
 
@@ -54,5 +75,9 @@ def load_tables(processed_dir: Path) -> IstatTables:
         attese = list(TABLES[name].columns)
         if df.columns != attese:
             raise TablesError(f"{name}: colonne {df.columns} diverse da {attese}")
-        frames[field] = df.with_columns(pl.col("count").cast(pl.Float64))
+        if "count" in df.columns:
+            df = df.with_columns(pl.col("count").cast(pl.Float64))
+        if "quintile" in df.columns:
+            df = df.with_columns(pl.col("quintile").cast(pl.String))
+        frames[field] = df
     return IstatTables(**frames)
