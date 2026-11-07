@@ -1,0 +1,79 @@
+# Esempio di ensemble (M12): due provider sulle stesse persone. La divergenza
+# fra modelli nel report segnala le domande fragili. Servono entrambe le chiavi
+# in .env: ANTHROPIC_API_KEY e OPENAI_API_KEY.
+project:
+  name: indagine-mercato-2026-ensemble
+  seed: 20261105
+sample:
+  total: 100
+  allocation: quota
+  segments:
+    consumer:
+      share: 0.7
+      source: istat_individui
+      filters:
+        age:
+        - 18
+        - 99
+        region: all
+      quotas:
+      - sex
+      - age_band
+      - macro_area
+      - education
+      - employment
+      oversample: {}
+    pmi:
+      share: 0.3
+      source: istat_imprese
+      filters:
+        employees:
+        - 1
+        - 249
+        sectors: all
+      quotas:
+      - size_class
+      - sector
+      - macro_area
+      oversample:
+        size_class:
+          micro: 0.4
+          piccola: 0.35
+          media: 0.25
+      respondent_role:
+      - titolare
+      - responsabile_acquisti
+      - amministratore
+questionnaire:
+  path: ../../questionnaires/examples/mercato_v1.yaml
+modes:
+  design: within_subject
+  enabled:
+  - cawi
+  - cati
+  - capi
+engine:
+  models:
+  - provider: anthropic
+    model: claude-opus-5-5
+  - provider: openai
+    model: gpt-5
+  effort: low
+  max_tokens: 1024
+  concurrency: 4
+  replicates: 3
+  randomize_option_order: true
+  nonverbal:
+    enabled: true
+    vocabulary: default
+run:
+  pilot: false
+  pilot_size: 12
+  frozen: false
+  budget_max_eur: 100
+output:
+  formats:
+  - parquet
+  - csv
+  - sav
+  dir: ../../runs

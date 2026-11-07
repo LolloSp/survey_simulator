@@ -20,6 +20,9 @@ class ModelPrice(BaseModel):
     cache_read: float = Field(ge=0)
 
 
+FREE = ModelPrice(input=0.0, output=0.0, cache_write=0.0, cache_read=0.0)
+
+
 class PriceTable(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
     updated: str
@@ -49,6 +52,8 @@ class Pricing:
     eur_per_usd: float = 1.0
 
     def price(self, model: str) -> ModelPrice:
+        if model.startswith("fake"):
+            return FREE  # il provider finto non costa, qualunque sia il nome del modello
         try:
             return self.table.models[model]
         except KeyError:

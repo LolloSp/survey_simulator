@@ -5,7 +5,7 @@ rispondenti coerente con i dati ISTAT e gli sottopone un questionario in tre
 modalità (CAWI, CATI, CAPI) tramite agenti LLM, producendo un dataset con pesi,
 paradati e codebook.
 
-Specifica completa: [docs/SPEC.md](docs/SPEC.md). Stato: **M11 – validazione**.
+Specifica completa: [docs/SPEC.md](docs/SPEC.md). Stato: **v0.1.0, tutte le milestone implementate** (prove dal vivo e revisioni in `docs/TODO.md`).
 
 ## Avvio rapido
 
@@ -68,6 +68,12 @@ uv run synthsurvey run --config configs/examples/mercato_100.yaml --pilot --esti
 uv run synthsurvey run --config configs/examples/mercato_100.yaml --pilot
 uv run synthsurvey report runs/<cartella del run>   # rigenera dataset largo, .sav, codebook, report.html
 uv run synthsurvey freeze runs/<cartella del run>
+```
+
+Ensemble di due provider sulle stesse persone (servono `ANTHROPIC_API_KEY` e `OPENAI_API_KEY` in `.env`):
+
+```bash
+uv run synthsurvey run --config configs/examples/mercato_100_ensemble.yaml --pilot --estimate-only
 ```
 
 Quando arrivano le interviste reali (CSV lungo o largo, vedi docs/methodology.md sezione 9):

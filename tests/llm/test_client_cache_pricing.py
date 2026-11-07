@@ -99,7 +99,7 @@ def test_prezzi() -> None:
     assert pricing.estimate_usd("claude-haiku-5-5", 1_000_000, 0) == pytest.approx(0.10)
     assert pricing.cost_usd("fake-1", usage) == 0.0
     with pytest.raises(UnknownModelError, match="assente"):
-        pricing.cost_usd("gpt-5", usage)
+        pricing.cost_usd("gpt-99", usage)
 
 
 def test_riempimento_schema() -> None:

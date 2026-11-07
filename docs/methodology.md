@@ -562,6 +562,18 @@ pool viene confrontata con il budget prima di avviare ogni intervista; se
 lo supera, le interviste non iniziate vengono saltate e il manifest
 registra `budget_exceeded`. Le interviste già fatte restano valide.
 
+### Ensemble
+
+Con più modelli in `engine.models` ogni intervista del piano viene
+eseguita da ciascun modello, con pool, cache e costi separati. Il
+report aggiunge una sezione che mette a confronto i modelli variabile
+per variabile e ordina per divergenza (massimo meno minimo del valore
+di sintesi): dove i modelli non concordano la risposta dipende dal
+modello più che dal profilo, e la domanda va letta con cautela o
+riformulata. L'adapter OpenAI (M12) usa risposte strutturate in
+modalità `strict` con gli stessi schemi dell'adapter Anthropic, così i
+due provider rispondono nello stesso formato.
+
 ### Riavvio
 
 Ogni richiesta ha un'impronta (modello, prompt, schema, variante) e la

@@ -40,6 +40,13 @@ decisione umana. Una riga per voce; si cancella quando è chiusa.
   di riferimento nel formato lungo (docs/methodology.md, sezione 9) e lanciare
   `synthsurvey validate`; il criterio della SPEC è verificato finora solo con
   un dataset fittizio.
+- [ ] **M12, prova dal vivo di OpenAI**: con `OPENAI_API_KEY` in `.env` lanciare
+  `uv run synthsurvey llm ping --config configs/examples/mercato_100_ensemble.yaml --model-index 1`;
+  verificare che `reasoning_effort` e `response_format` strict siano accettati dal
+  modello scelto e confrontare la spesa con la tabella prezzi (`llm/prices.yaml`,
+  da aggiornare se i listini sono cambiati).
+- [ ] **Release v0.1.0 su GitHub**: creare la release dal tag `v0.1.0` con il testo
+  di `CHANGELOG.md`.
 - [ ] **M5, questionario reale**: caricare il questionario già pronto del
   caso di riferimento in `questionnaires/` e verificare che le tre versioni
   per modalità siano esportabili per revisione (criterio di M5).

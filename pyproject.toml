@@ -1,6 +1,6 @@
 [project]
 name = "synthsurvey"
-version = "0.0.1"
+version = "0.1.0"
 description = "Simulatore di indagini su popolazione sintetica italiana"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
@@ -23,6 +23,7 @@ dependencies = [
     "openpyxl>=3.1",
     "pyreadstat>=1.2",
     "pandas>=2.2",
+    "openai>=1.60",
 ]
 
 [project.scripts]

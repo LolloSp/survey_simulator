@@ -103,6 +103,15 @@
 <p class="small">Una sola replica: nessuna misura di stabilità.</p>
 {% endif %}
 
+{% if models_count > 1 %}
+<h2>5b. Ensemble: divergenza fra modelli</h2>
+<p class="small">Stesse persone, stesse domande, modelli diversi. Una divergenza alta segnala una domanda fragile, dove la risposta dipende dal modello più che dal profilo. Ordinato dalla divergenza maggiore.</p>
+<table>
+  <tr><th>Variabile</th><th>Metrica</th>{% for e in ensemble[:1] %}{% for r in e.rows %}<th class="num">{{ r.group }}</th>{% endfor %}{% endfor %}<th class="num">Divergenza</th></tr>
+  {% for e in ensemble %}<tr><td>{{ e.name }}</td><td>{{ e.rows[0].metric if e.rows else "" }}</td>{% for r in e.rows %}<td class="num">{{ r.value }}</td>{% endfor %}<td class="num">{{ e.divergence_text }}</td></tr>{% endfor %}
+</table>
+{% endif %}
+
 <h2>6. Segnali non verbali e incongruenze (CATI e CAPI)</h2>
 {% if nonverbal_enabled and incongruenze_domanda %}
 <p class="small">Incongruenza: l'intervistatore simulato ha annotato che i segnali percepiti contraddicono la risposta a voce. È il dato più inventato del sistema: ipotesi qualitativa, non misura.</p>

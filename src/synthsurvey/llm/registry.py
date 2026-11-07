@@ -23,7 +23,13 @@ def make_client(spec: ModelSpec, config: SynthSurveyConfig) -> LLMClient:
             # Haiku non ha fallback lato server sui rifiuti.
             use_fallbacks=not spec.model.startswith("claude-haiku"),
         )
-    raise LLMError(f"provider '{spec.provider}' non ancora disponibile (previsto in M12)")
+    if spec.provider == "openai":
+        from synthsurvey.llm.openai_client import OpenAIClient
+
+        return OpenAIClient(
+            spec.model, timeout_s=config.engine.timeout_s, temperature=config.engine.temperature
+        )
+    raise LLMError(f"provider '{spec.provider}' sconosciuto")
 
 
 def cache_dir_for(config: SynthSurveyConfig) -> Path:

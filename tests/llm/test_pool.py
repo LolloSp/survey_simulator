@@ -84,7 +84,7 @@ async def test_costi_e_statistiche() -> None:
     assert d["latency_ms_mean"] == 0
 
 
-def test_registro_dalla_config(tmp_path: Path) -> None:
+def test_registro_dalla_config(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     raw = config_base()
     raw["engine"]["models"] = [
         {"provider": "fake", "model": "fake-1"},
@@ -96,7 +96,8 @@ def test_registro_dalla_config(tmp_path: Path) -> None:
     assert isinstance(make_client(cfg.engine.models[0], cfg), FakeLLMClient)
     haiku = make_client(cfg.engine.models[1], cfg)
     assert isinstance(haiku, AnthropicClient) and haiku.use_fallbacks is False
-    with pytest.raises(LLMError, match="M12"):
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    with pytest.raises(LLMError, match="OPENAI_API_KEY"):
         make_client(cfg.engine.models[2], cfg)
     assert cache_dir_for(cfg) == tmp_path / "c"
     pool = make_pool(cfg.engine.models[0], cfg)

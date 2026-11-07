@@ -139,8 +139,7 @@ class ModesConfig(StrictModel):
         return self
 
 
-# Provider LLM noti: "anthropic" e "fake" sono implementati (M6); "openai" è
-# previsto per l'ensemble di M12 e la config lo accetta già.
+# Provider LLM implementati: "anthropic" (M6), "openai" (M12) e "fake" per i test.
 KNOWN_PROVIDERS: tuple[str, ...] = ("anthropic", "fake", "openai")
 
 

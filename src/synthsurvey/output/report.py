@@ -158,6 +158,34 @@ def build_context(
                     ],
                 }
             )
+    ensemble = []
+    modelli = sorted(wide["model"].unique().to_list())
+    if len(modelli) > 1:
+        for riga in analysis.compare(wide, variables, "model"):
+            pct = riga["kind"] in ("single", "multi_dummy")
+            valori = [r["value"] for r in riga["groups"].values() if r["value"] is not None]
+            divergenza = (max(valori) - min(valori)) if len(valori) > 1 else None
+            ensemble.append(
+                {
+                    **riga,
+                    "divergence": divergenza,
+                    "divergence_text": (
+                        "-"
+                        if divergenza is None
+                        else (f"{100 * divergenza:.0f} punti" if pct else f"{divergenza:.2f}")
+                    ),
+                    "rows": [
+                        {
+                            "group": g,
+                            "metric": r["metric"],
+                            "value": _pct(r["value"]) if pct else _num(r["value"]),
+                            "n": r["n"],
+                        }
+                        for g, r in riga["groups"].items()
+                    ],
+                }
+            )
+        ensemble.sort(key=lambda e: -(e["divergence"] or 0.0))
     stati = analysis.status_by_mode(long)
     stabilita = analysis.replicate_stability(wide, variables)
     piatte = analysis.straightlining(wide, variables)
@@ -187,6 +215,8 @@ def build_context(
         "effetti": effetti,
         "segmenti": segmenti,
         "stati": {m: {k: _pct(v) for k, v in d.items()} for m, d in stati.items()},
+        "ensemble": ensemble,
+        "models_count": len(modelli),
         "completamento": {m: _pct(v) for m, v in analysis.completion(long).items()},
         "stabilita": [{**s, "agreement_pct": _pct(s["agreement"])} for s in stabilita],
         "piatte": [
