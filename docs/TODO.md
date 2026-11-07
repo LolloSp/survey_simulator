@@ -30,6 +30,9 @@ decisione umana. Una riga per voce; si cancella quando è chiusa.
   `--mode capi`; leggere le trascrizioni in `transcripts/` e la colonna
   `incongruence`: se l'intervistatore interviene troppo o troppo poco, agire
   sulla soglia `PROBE_THRESHOLD` o sul prompt `interviewer_it.j2`.
+- [ ] **M9, run pilota dal vivo**: `uv run synthsurvey run --config configs/examples/mercato_100.yaml --pilot`
+  con la chiave in `.env`; confrontare la spesa reale nel manifest con la stima
+  e, se la stima sbaglia di molto, ritoccare le costanti in `runner/plan.py`.
 - [ ] **M5, questionario reale**: caricare il questionario già pronto del
   caso di riferimento in `questionnaires/` e verificare che le tre versioni
   per modalità siano esportabili per revisione (criterio di M5).

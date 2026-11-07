@@ -816,19 +816,112 @@ def interview_preview(
 def run(
     config: ConfigOption = Path("config.yaml"),
     pilot: Annotated[
-        bool, typer.Option("--pilot", help="Esegue un pilota su un sottoinsieme ridotto.")
+        bool, typer.Option("--pilot", help="Esegue un pilota su run.pilot_size persone.")
     ] = False,
+    run_id: Annotated[
+        str | None, typer.Option("--run-id", help="Nome della cartella del run (default: data).")
+    ] = None,
+    estimate_only: Annotated[
+        bool, typer.Option("--estimate-only", help="Solo stima di costo, nessuna chiamata.")
+    ] = False,
+    use_cache: Annotated[
+        bool, typer.Option("--cache/--no-cache", help="Riusa le risposte in cache.")
+    ] = True,
+    data_dir: DataDirOption = Path("data"),
 ) -> None:
-    """Esegue un run completo: campione, interviste nelle modalità previste, repliche."""
-    _non_implementato("run --pilot" if pilot else "run", "M9")
+    """Esegue un run completo: campione, persone, interviste per modalità e replica, output."""
+    from synthsurvey.llm import LLMError
+    from synthsurvey.population.quotas import QuotaError
+    from synthsurvey.population.tables import TablesError
+    from synthsurvey.questionnaire import QuestionnaireError
+    from synthsurvey.runner import BudgetError, FrozenError, execute_run
+
+    try:
+        loaded = load_config(config)
+    except ConfigError as exc:
+        typer.secho(str(exc), fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from None
+    for w in loaded.warnings:
+        typer.secho(f"Avviso: {w.location}: {w.message}", fg=typer.colors.YELLOW)
+
+    def _progress(fatte: int, totali: int, spesa: float) -> None:
+        if fatte == totali or fatte % 10 == 0:
+            typer.echo(f"  interviste {fatte}/{totali}, spesa {spesa:.2f} EUR")
+
+    try:
+        result = execute_run(
+            loaded,
+            data_dir=data_dir,
+            pilot=pilot,
+            run_id=run_id,
+            use_cache=use_cache,
+            progress=_progress,
+            estimate_only=estimate_only,
+        )
+    except BudgetError as exc:
+        typer.secho(f"Budget: {exc}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=3) from None
+    except FrozenError as exc:
+        typer.secho(str(exc), fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=4) from None
+    except (TablesError, QuotaError, QuestionnaireError, LLMError) as exc:
+        typer.secho(f"Errore: {exc}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from None
+    e = result.estimate
+    typer.echo(
+        f"Piano: {e.interviews} interviste, circa {e.calls} chiamate, "
+        f"stima {e.cost_eur:.2f} EUR su budget {e.budget_eur:.2f} EUR"
+    )
+    if estimate_only:
+        typer.secho("Solo stima: nessuna chiamata eseguita.", fg=typer.colors.GREEN)
+        return
+    m = result.manifest
+    typer.echo(
+        f"Interviste fatte {m['interviews_done']}, saltate {m['interviews_skipped']}, "
+        f"record {m['records']}, spesa {result.cost_eur:.2f} EUR"
+    )
+    if result.budget_exceeded:
+        typer.secho(
+            "Budget superato durante il run: interviste restanti saltate (stato budget_exceeded).",
+            fg=typer.colors.YELLOW,
+            err=True,
+        )
+    stato = "congelato" if m.get("frozen") else "non congelato"
+    typer.secho(f"Run {result.run_id} in {result.run_dir} ({stato})", fg=typer.colors.GREEN)
+    if result.budget_exceeded:
+        raise typer.Exit(code=3)
 
 
 @app.command("freeze")
 def freeze(
     run_dir: Annotated[Path, typer.Argument(help="Cartella del run da congelare.")],
+    verify: Annotated[
+        bool, typer.Option("--verify", help="Verifica gli hash di un run già congelato.")
+    ] = False,
 ) -> None:
-    """Congela un run: modello, prompt, parametri, seed e versioni dei dati."""
-    _non_implementato("freeze", "M9")
+    """Congela un run: hash di ogni file nel manifest; da allora nessuna modifica è ammessa."""
+    from synthsurvey.runner import freeze_run, is_frozen, verify_frozen
+
+    if verify:
+        problemi = verify_frozen(run_dir)
+        if problemi:
+            for pr in problemi:
+                typer.secho(f"  - {pr}", fg=typer.colors.RED, err=True)
+            raise typer.Exit(code=1)
+        typer.secho(f"Run congelato e integro: {run_dir}", fg=typer.colors.GREEN)
+        return
+    if is_frozen(run_dir):
+        typer.secho(f"Run già congelato: {run_dir}", fg=typer.colors.YELLOW)
+        return
+    try:
+        manifest = freeze_run(run_dir)
+    except FileNotFoundError as exc:
+        typer.secho(str(exc), fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from None
+    typer.secho(
+        f"Run congelato: {run_dir} ({len(manifest['files'])} file, {manifest['frozen_at']})",
+        fg=typer.colors.GREEN,
+    )
 
 
 @app.command("report")

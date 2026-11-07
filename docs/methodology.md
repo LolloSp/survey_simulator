@@ -9,8 +9,8 @@ implementa (vedi Roadmap in [SPEC.md](SPEC.md)).
 4. Adattamento del questionario per modalità (M5)
 5. Livello LLM: client, cache, costi (M6): sotto
 6. Simulazione delle modalità ed effetti attesi dalla letteratura (M7, M8): sotto
-7. Segnali non verbali: vocabolario e limiti interpretativi (M8)
-8. Disegno, repliche, ensemble, congelamento (M9)
+7. Segnali non verbali: vocabolario e limiti interpretativi (M8): in 6
+8. Disegno, repliche, ensemble, congelamento (M9): sotto
 9. Metriche di validazione ex post (M11)
 
 ## 1. Fonti ISTAT e versionamento delle tabelle
@@ -536,3 +536,52 @@ stessa griglia.
   il rifiuto del modello su una domanda produce una non risposta.
 - L'effetto intervistatore è unico: non ci sono intervistatori diversi
   con stili diversi.
+
+## 7. Disegno, repliche, ensemble, congelamento
+
+### Piano
+
+Il runner costruisce un piano esplicito: per ogni modello in
+`engine.models`, per ogni persona, per ogni modalità assegnata, per ogni
+replica. Nel disegno within-subject ogni persona risponde in tutte le
+modalità abilitate; nel between-subject riceve una sola modalità, con
+conteggi esatti dai resti più grandi su `modes.allocation` e una
+permutazione dal ramo 9 del seed. Le repliche ripetono la stessa
+intervista con una chiave di variante diversa, così la cache non le
+confonde e il generatore dell'ordine delle opzioni cambia.
+
+### Stima e budget
+
+Prima di chiamare qualsiasi modello il runner stima token e costo a
+prezzo pieno, senza cache, contando il contesto che cresce nel CAWI (le
+pagine precedenti) e nel dialogo (gli ultimi otto scambi) più una quota di
+interventi dell'intervistatore. La stima è volutamente prudente: se supera
+`run.budget_max_eur` il run non parte. Durante il run la spesa reale dei
+pool viene confrontata con il budget prima di avviare ogni intervista; se
+lo supera, le interviste non iniziate vengono saltate e il manifest
+registra `budget_exceeded`. Le interviste già fatte restano valide.
+
+### Riavvio
+
+Ogni richiesta ha un'impronta (modello, prompt, schema, variante) e la
+cache su disco conserva la risposta: un run interrotto, rilanciato con la
+stessa configurazione, rifà solo le chiamate mancanti. Il secondo avvio di
+un run identico costa zero chiamate.
+
+### Manifest e congelamento
+
+`manifest.json` contiene la configurazione completa, gli hash del file di
+configurazione, del questionario, delle tavole ISTAT e dei prompt, i
+modelli, il seed, il piano, la stima, le statistiche dei pool e la spesa.
+`synthsurvey freeze` aggiunge l'hash di ogni file della cartella e
+`frozen: true`; da quel momento il runner rifiuta di riscrivere la
+cartella e `freeze --verify` segnala file modificati, mancanti o
+aggiunti. Ogni correzione genera un nuovo run.
+
+### Limiti
+
+- La stima dei token usa costanti (caratteri per token, lunghezza delle
+  risposte) tarate a mano: va confrontata con la spesa reale dei primi
+  run e corretta nel codice se sbaglia di molto.
+- Il controllo del budget è per intervista, non per chiamata: l'ultima
+  ondata di interviste già avviate può sforare di poco.
