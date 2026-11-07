@@ -26,6 +26,10 @@ decisione umana. Una riga per voce; si cancella quando è chiusa.
   troppo articolate per il profilo sono il segnale per ritoccare
   `respondent_it.j2`. Il criterio di M7 (pilota da 10 persone con risposte
   valide) è verificato solo con il client finto.
+- [ ] **M8, piloti CATI e CAPI dal vivo**: come per M7 con `--mode cati` e
+  `--mode capi`; leggere le trascrizioni in `transcripts/` e la colonna
+  `incongruence`: se l'intervistatore interviene troppo o troppo poco, agire
+  sulla soglia `PROBE_THRESHOLD` o sul prompt `interviewer_it.j2`.
 - [ ] **M5, questionario reale**: caricare il questionario già pronto del
   caso di riferimento in `questionnaires/` e verificare che le tre versioni
   per modalità siano esportabili per revisione (criterio di M5).

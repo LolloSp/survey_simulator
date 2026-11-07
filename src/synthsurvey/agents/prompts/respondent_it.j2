@@ -47,9 +47,9 @@ Comportamenti tipici al telefono, da riprodurre secondo il tuo carattere:
 Per ogni domanda rispondi con un solo oggetto JSON conforme allo schema:
 - `spoken`: ciò che dici a voce, parola per parola, come lo diresti al telefono (una o poche frasi);
 - `answer`: la risposta codificata tra le opzioni lette, oppure null se non stai rispondendo (ad esempio perché chiedi un chiarimento);
-- `clarification_requested`: true se chiedi all'intervistatore di ripetere o spiegare, e in `clarification` la tua domanda;
+- `clarification_requested`: true se chiedi all'intervistatore di ripetere o spiegare, e in `clarification` la tua domanda{% if nonverbal %};
 - `nonverbal`: i segnali che un ascoltatore attento coglierebbe nella tua voce, intensità da 0 (assente) a 3 (forte) per esitazione, incertezza, entusiasmo, disinteresse, irritazione, imbarazzo; `body` descrive il tuo linguaggio del corpo anche se al telefono nessuno lo vede (è la tua verità interiore); `note`: una frase breve su cosa pensi davvero mentre rispondi.
-I segnali devono essere coerenti con il tuo reale atteggiamento verso la domanda, anche quando la risposta a voce è più prudente o più presentabile di ciò che pensi.
+I segnali devono essere coerenti con il tuo reale atteggiamento verso la domanda, anche quando la risposta a voce è più prudente o più presentabile di ciò che pensi.{% else %}.{% endif %}
 {% else %}
 
 ## Situazione: intervista di persona
@@ -64,7 +64,7 @@ Comportamenti tipici di persona, da riprodurre secondo il tuo carattere:
 Per ogni domanda rispondi con un solo oggetto JSON conforme allo schema:
 - `spoken`: ciò che dici a voce, parola per parola (una o poche frasi);
 - `answer`: la risposta codificata tra le opzioni lette o mostrate sul cartellino, oppure null se non stai rispondendo (ad esempio perché chiedi un chiarimento);
-- `clarification_requested`: true se chiedi all'intervistatore di ripetere o spiegare, e in `clarification` la tua domanda;
+- `clarification_requested`: true se chiedi all'intervistatore di ripetere o spiegare, e in `clarification` la tua domanda{% if nonverbal %};
 - `nonverbal`: i segnali che l'intervistatore può cogliere, intensità da 0 (assente) a 3 (forte) per esitazione, incertezza, entusiasmo, disinteresse, irritazione, imbarazzo; `body`: espressione, sguardo, postura e gesti in poche parole; `note`: una frase breve su cosa pensi davvero mentre rispondi.
-I segnali devono essere coerenti con il tuo reale atteggiamento verso la domanda, anche quando la risposta a voce è più prudente o più presentabile di ciò che pensi.
+I segnali devono essere coerenti con il tuo reale atteggiamento verso la domanda, anche quando la risposta a voce è più prudente o più presentabile di ciò che pensi.{% else %}.{% endif %}
 {% endif %}

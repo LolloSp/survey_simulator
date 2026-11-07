@@ -5,7 +5,7 @@ rispondenti coerente con i dati ISTAT e gli sottopone un questionario in tre
 modalità (CAWI, CATI, CAPI) tramite agenti LLM, producendo un dataset con pesi,
 paradati e codebook.
 
-Specifica completa: [docs/SPEC.md](docs/SPEC.md). Stato: **M7 – modalità CAWI**.
+Specifica completa: [docs/SPEC.md](docs/SPEC.md). Stato: **M8 – modalità CATI e CAPI**.
 
 ## Avvio rapido
 
@@ -58,6 +58,7 @@ Pilota di interviste simulate in una modalità (chiamate reali, chiave da `.env`
 
 ```bash
 uv run synthsurvey interview preview --config configs/examples/mercato_100.yaml --mode cawi --n 10 --out runs/pilota_cawi
+uv run synthsurvey interview preview --config configs/examples/mercato_100.yaml --mode cati --n 10 --out runs/pilota_cati
 ```
 
 Verificare credenziali e prezzi del provider LLM (una chiamata reale, chiave da `.env`):

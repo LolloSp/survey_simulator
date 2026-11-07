@@ -89,7 +89,7 @@ def _scale_text(scale: Scale, *, spoken: bool) -> str:
     return f"Scala da {lo} a {hi}" + (f" ({etichette})" if etichette else "") + "."
 
 
-def _options_spoken(options: Sequence[str]) -> str:
+def options_spoken(options: Sequence[str]) -> str:
     return "Le leggo le possibili risposte: " + "; ".join(options) + "."
 
 
@@ -155,7 +155,7 @@ def _adapt_cati(q: Question) -> list[ModeQuestion]:
                 testo = f"{intro} {item.text}."
                 note = _note(q, Mode.CATI, [] if n == 0 else ["Ripetere la scala se serve."])
             else:
-                testo = f"{q.text} {item.text}. {_options_spoken(q.options or [])}"
+                testo = f"{q.text} {item.text}. {options_spoken(q.options or [])}"
                 note = _note(q, Mode.CATI, [])
             out.append(
                 _base(
@@ -175,7 +175,7 @@ def _adapt_cati(q: Question) -> list[ModeQuestion]:
     if q.type == QuestionType.SCALE and q.scale:
         testo = f"{q.text} {_scale_text(q.scale, spoken=True)}"
     elif q.type in (QuestionType.SINGLE, QuestionType.MULTI) and q.options:
-        testo = f"{q.text} {_options_spoken(q.options)}"
+        testo = f"{q.text} {options_spoken(q.options)}"
     elif q.type == QuestionType.NUMERIC and q.unit:
         testo = f"{q.text} Risponda in {q.unit}."
     note = _note(q, Mode.CATI, [])
@@ -203,7 +203,7 @@ def _adapt_capi(q: Question) -> list[ModeQuestion]:
         if q.type == QuestionType.SCALE and q.scale:
             testo = f"{q.text} (cartellino: {_scale_text(q.scale, spoken=False)})"
     elif q.type in (QuestionType.SINGLE, QuestionType.MULTI) and q.options:
-        testo = f"{q.text} {_options_spoken(q.options)}"
+        testo = f"{q.text} {options_spoken(q.options)}"
     if q.type == QuestionType.NUMERIC and q.unit:
         testo = f"{q.text} Risponda in {q.unit}."
     note = _note(q, Mode.CAPI, extra)

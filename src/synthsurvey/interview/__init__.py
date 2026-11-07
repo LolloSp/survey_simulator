@@ -1,6 +1,15 @@
 """Interviste simulate: rispondente CAWI (M7), dialogo CATI e CAPI (M8)."""
 
 from synthsurvey.interview.cawi import run_cawi
+from synthsurvey.interview.dialogue import run_dialogue
+from synthsurvey.interview.nonverbal import (
+    BODY_FIELDS,
+    PROBE_THRESHOLD,
+    SIGNALS,
+    describe_observed,
+    max_intensity,
+    observe,
+)
 from synthsurvey.interview.prompting import (
     render_interviewer_system,
     render_respondent_system,
@@ -26,6 +35,9 @@ from synthsurvey.interview.session import (
 )
 
 __all__ = [
+    "BODY_FIELDS",
+    "PROBE_THRESHOLD",
+    "SIGNALS",
     "AnswerRecord",
     "AnswerStatus",
     "AnswerValue",
@@ -34,13 +46,17 @@ __all__ = [
     "InterviewSpec",
     "Turn",
     "code_value",
+    "describe_observed",
     "describe_value",
     "interview_rng",
+    "max_intensity",
     "normalize_value",
+    "observe",
     "render_interviewer_system",
     "render_respondent_system",
     "routing_value",
     "run_cawi",
+    "run_dialogue",
     "run_interview",
     "status_for",
     "template_hashes",

@@ -492,10 +492,47 @@ di griglia produce un record del dataset lungo con stato (`answered`,
 rispetto all'ordine canonico, testo, ordine presentato, pagina e quota di
 token della chiamata.
 
+### CATI e CAPI (M8)
+
+Le interviste con intervistatore procedono una domanda alla volta sulla
+versione per modalità di M5 (griglie spezzate al telefono, cartellini di
+persona). L'intervistatore legge la domanda con le opzioni nell'ordine
+deciso dal seed; il rispondente risponde con la battuta a voce, la risposta
+codificata, l'eventuale richiesta di chiarimento e il blocco dei segnali
+non verbali. L'agente intervistatore (`agents/prompts/interviewer_it.j2`)
+interviene solo quando serve: chiarimento chiesto, risposta non
+codificabile, o un segnale osservato di intensità almeno 2 su 3. Può
+accettare, chiarire o approfondire una sola volta con una domanda neutra;
+dopo il suo intervento il rispondente parla di nuovo e la seconda risposta
+è quella definitiva. Così la maggior parte delle domande costa una
+chiamata e nessuna più di tre.
+
+### Segnali non verbali
+
+Vocabolario fisso: esitazione, incertezza, entusiasmo, disinteresse,
+irritazione, imbarazzo, ciascuno con intensità da 0 a 3; linguaggio del
+corpo in quattro campi (espressione, sguardo, postura, gesti); una nota
+libera su ciò che la persona pensa davvero. Il rispondente emette tutto,
+sempre: è la "verità" simulata e finisce in `nonverbal_emitted`.
+L'intervistatore osserva solo ciò che la modalità permette (al telefono
+niente corpo) e lo trova in `nonverbal_observed`; quando i segnali
+contraddicono le parole annota `incongruence`. Con
+`engine.nonverbal.enabled: false` il blocco sparisce da schema, prompt e
+record, per confrontare i risultati con e senza.
+
+Va letto come ipotesi qualitativa: non esiste una misura reale con cui
+calibrarlo finché gli intervistatori umani non annotano i segnali con la
+stessa griglia.
+
 ### Limiti
 
 - La plausibilità delle risposte dipende dal modello e dal prompt: con il
   client finto i test verificano la meccanica (routing, codifica, stati,
-  seed), non la qualità. Il pilota con il modello reale è nel TODO.
+  seed, interventi dell'intervistatore), non la qualità. I piloti con il
+  modello reale sono nel TODO.
 - Il CAWI non simula i tempi di compilazione né le risposte cambiate:
   i paradati disponibili sono abbandono, non risposta e token.
+- Nelle interviste con intervistatore non è simulato l'abbandono a metà;
+  il rifiuto del modello su una domanda produce una non risposta.
+- L'effetto intervistatore è unico: non ci sono intervistatori diversi
+  con stili diversi.

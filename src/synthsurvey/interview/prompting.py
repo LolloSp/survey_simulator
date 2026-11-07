@@ -32,12 +32,13 @@ def template_hashes() -> dict[str, str]:
     return out
 
 
-def render_respondent_system(persona: Persona, mode: Mode) -> str:
+def render_respondent_system(persona: Persona, mode: Mode, *, nonverbal: bool = True) -> str:
     """System prompt del rispondente: la narrativa della persona più le regole della modalità."""
     return _env.get_template(RESPONDENT_TEMPLATE).render(
         narrative=persona.narrative,
         style=persona.response_style.labels(),
         mode=mode.value,
+        nonverbal=nonverbal,
     )
 
 
