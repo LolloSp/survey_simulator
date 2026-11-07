@@ -36,6 +36,10 @@ decisione umana. Una riga per voce; si cancella quando è chiusa.
 - [ ] **M10, apertura del .sav in SPSS o R**: il file è verificato con pyreadstat;
   il criterio della SPEC chiede l'apertura in SPSS o R (`haven::read_sav`) su un
   run vero. Da fare quando esiste un run con il modello reale.
+- [ ] **M11, validazione con dati veri**: esportare le interviste reali del caso
+  di riferimento nel formato lungo (docs/methodology.md, sezione 9) e lanciare
+  `synthsurvey validate`; il criterio della SPEC è verificato finora solo con
+  un dataset fittizio.
 - [ ] **M5, questionario reale**: caricare il questionario già pronto del
   caso di riferimento in `questionnaires/` e verificare che le tre versioni
   per modalità siano esportabili per revisione (criterio di M5).

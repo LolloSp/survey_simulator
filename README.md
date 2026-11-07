@@ -5,7 +5,7 @@ rispondenti coerente con i dati ISTAT e gli sottopone un questionario in tre
 modalità (CAWI, CATI, CAPI) tramite agenti LLM, producendo un dataset con pesi,
 paradati e codebook.
 
-Specifica completa: [docs/SPEC.md](docs/SPEC.md). Stato: **M10 – output e report**.
+Specifica completa: [docs/SPEC.md](docs/SPEC.md). Stato: **M11 – validazione**.
 
 ## Avvio rapido
 
@@ -68,6 +68,12 @@ uv run synthsurvey run --config configs/examples/mercato_100.yaml --pilot --esti
 uv run synthsurvey run --config configs/examples/mercato_100.yaml --pilot
 uv run synthsurvey report runs/<cartella del run>   # rigenera dataset largo, .sav, codebook, report.html
 uv run synthsurvey freeze runs/<cartella del run>
+```
+
+Quando arrivano le interviste reali (CSV lungo o largo, vedi docs/methodology.md sezione 9):
+
+```bash
+uv run synthsurvey validate runs/<cartella del run> --real dati/reali.csv --out runs/<cartella>/../validazione
 ```
 
 Verificare credenziali e prezzi del provider LLM (una chiamata reale, chiave da `.env`):

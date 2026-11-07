@@ -12,7 +12,7 @@ implementa (vedi Roadmap in [SPEC.md](SPEC.md)).
 7. Segnali non verbali: vocabolario e limiti interpretativi (M8): in 6
 8. Disegno, repliche, ensemble, congelamento (M9): in 7
 9. Output, codebook e report (M10): in 8
-10. Metriche di validazione ex post (M11)
+10. Metriche di validazione ex post (M11): in 9
 
 ## 1. Fonti ISTAT e versionamento delle tabelle
 
@@ -628,3 +628,59 @@ verbali per domanda e segmento; costi e chiamate.
   intervalli di confidenza: i confronti vanno letti come descrittivi.
 - La "risposta prevalente" delle singole è scelta sul totale, non per
   gruppo: nei confronti si legge la stessa opzione in tutti i gruppi.
+
+## 9. Validazione ex post
+
+### Dati reali
+
+`synthsurvey validate <run> --real <csv>` accetta due formati. Il lungo ha
+una riga per rispondente e domanda (`respondent_id`, `mode`, `question_id`,
+`answer_code`, facoltativi `item_id`, `segment`, `weight`), con le stesse
+convenzioni di codifica del simulato: indice 1..k per le singole, indici
+separati da `|` per le multiple, numero per scale e numeriche, `NS` per
+"non so", vuoto per non risposta; le domande assenti per un rispondente
+sono non applicabili. Il largo ha una riga per rispondente e le colonne
+con i nomi del dataset largo simulato. In entrambi i casi i dati vengono
+portati al largo, così ogni metrica confronta colonne omonime.
+
+### Allineamento
+
+Si confrontano solo le modalità presenti in entrambi i dataset; quelle
+presenti solo nel simulato restano etichettate come non validate. Le
+variabili confrontabili sono quelle con almeno una risposta reale; i
+sottogruppi sono gli attributi presenti in entrambi (segmento, classe
+d'età, area, sesso, dimensione d'impresa, istruzione). I pesi reali, se
+assenti, valgono 1.
+
+### Metriche
+
+- **Distanza per domanda**: Jensen-Shannon in base 2 (0 identiche, 1
+  disgiunte) e variazione totale fra le distribuzioni pesate delle
+  risposte valide, per ogni variabile codificata.
+- **Valore di sintesi con intervallo**: media per scale, numeriche,
+  griglie e dummy delle multiple; quota della risposta prevalente nel
+  reale per le singole. L'intervallo al 95% è calcolato sul campione
+  reale con l'approssimazione normale; il rapporto dice se il simulato
+  cade dentro, così un valore fuori per pochi punti su 40 interviste non
+  viene letto come errore del modello.
+- **Correlazione**: Pearson fra i valori di sintesi simulati e reali
+  sull'insieme delle variabili, quote e medie separate. Alta correlazione
+  con differenze sistematiche segnala un bias di livello, non di
+  ordinamento.
+- **Sottogruppi**: per ogni attributo comune, differenze di media di ogni
+  gruppo rispetto al primo, nel simulato e nel reale: accordo di segno e
+  correlazione. Dice se le differenze fra gruppi sono riprodotte, che è
+  ciò che conta per le letture per segmento.
+- **Effetti di modalità**: la stessa misura con la modalità come
+  variabile di gruppo, solo sulle modalità osservate anche nel reale.
+
+### Limiti
+
+- Gli intervalli sono normali e non tengono conto dei pesi reali né del
+  disegno dell'indagine reale; con campioni piccoli vanno letti con
+  prudenza.
+- Nessuna correzione per confronti multipli: con molte domande qualche
+  "fuori intervallo" è atteso per caso.
+- Il test del criterio di M11 usa un dataset reale fittizio derivato dal
+  simulato con rumore; la validazione vera richiede le interviste del
+  caso di riferimento.

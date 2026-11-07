@@ -1,6 +1,5 @@
 """Test dello scheletro della CLI (M0)."""
 
-import pytest
 from typer.testing import CliRunner
 
 from synthsurvey import __version__
@@ -21,18 +20,6 @@ def test_version() -> None:
     result = runner.invoke(app, ["--version"])
     assert result.exit_code == 0
     assert __version__ in result.output
-
-
-@pytest.mark.parametrize(
-    "args",
-    [
-        ["validate", "runs/x", "--real", "reali.csv"],
-    ],
-)
-def test_comandi_non_implementati_escono_con_1(args: list[str]) -> None:
-    result = runner.invoke(app, args)
-    assert result.exit_code == 1
-    assert "non ancora implementato" in result.output
 
 
 def test_modulo_eseguibile() -> None:

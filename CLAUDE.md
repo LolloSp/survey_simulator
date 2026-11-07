@@ -36,6 +36,7 @@ Specifica completa: docs/SPEC.md. Leggila prima di ogni milestone.
 - uv run synthsurvey run --config configs/examples/mercato_100.yaml --pilot --estimate-only  (stima senza chiamate)
 - uv run synthsurvey run --config configs/examples/mercato_100.yaml --pilot  (chiamate reali, poi `freeze <cartella>`)
 - uv run synthsurvey report <cartella del run> --out <altra cartella>  (rigenera gli output; nessuna chiamata)
+- uv run synthsurvey validate <cartella del run> --real <csv> --out <cartella>  (confronto con dati reali; nessuna chiamata)
 - uv run python scripts/make_questionnaire_fixtures.py  (rigenera il Word di esempio e il PDF dei test)
 - uv run python scripts/istat_explore.py search <parola>  (ricognizione dataflow ISTAT)
 

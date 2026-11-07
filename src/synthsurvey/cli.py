@@ -971,10 +971,41 @@ def report(
 @app.command("validate")
 def validate(
     run_dir: Annotated[Path, typer.Argument(help="Cartella del run simulato.")],
-    real: Annotated[Path, typer.Option("--real", help="File con le interviste reali.")],
+    real: Annotated[
+        Path, typer.Option("--real", help="CSV con le interviste reali (formato lungo o largo).")
+    ],
+    out: Annotated[
+        Path | None,
+        typer.Option("--out", help="Cartella del rapporto (default <run>/validation)."),
+    ] = None,
+    questionnaire: Annotated[
+        Path | None,
+        typer.Option("--questionnaire", help="YAML del questionario, se spostato."),
+    ] = None,
 ) -> None:
-    """Confronta un run simulato con le interviste reali."""
-    _non_implementato("validate", "M11")
+    """Confronta un run simulato con le interviste reali: metriche e rapporto di confronto."""
+    from synthsurvey.output import OutputError
+    from synthsurvey.runner import FrozenError
+    from synthsurvey.validation import RealDataError, validate_run
+
+    try:
+        result, files = validate_run(run_dir, real, out_dir=out, questionnaire_path=questionnaire)
+    except (OutputError, RealDataError, FrozenError) as exc:
+        typer.secho(str(exc), fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from None
+    a = result.alignment
+    for w in a.warnings:
+        typer.secho(f"Avviso: {w}", fg=typer.colors.YELLOW)
+    s = result.summary
+    js = "-" if s["js_mean"] is None else f"{s['js_mean']:.3f}"
+    ic = "-" if s["within_ci_share"] is None else f"{100 * s['within_ci_share']:.0f}%"
+    typer.echo(
+        f"Modalità confrontate: {', '.join(a.modes) or 'nessuna'}; variabili {s['variables']}; "
+        f"JS media {js}; dentro IC {ic}"
+    )
+    for f in files:
+        typer.echo(f"  {f}")
+    typer.secho("Rapporto di validazione scritto.", fg=typer.colors.GREEN)
 
 
 if __name__ == "__main__":
