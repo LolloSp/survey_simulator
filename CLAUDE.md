@@ -32,6 +32,7 @@ Specifica completa: docs/SPEC.md. Leggila prima di ogni milestone.
 - uv run synthsurvey questionnaire validate questionnaires/examples/mercato_v1.yaml --config configs/examples/mercato_100.yaml
 - uv run synthsurvey llm ping --config configs/examples/mercato_100.yaml  (una chiamata reale: costa, usa la chiave in .env)
 - uv run synthsurvey questionnaire import questionnaires/examples/mercato_v1.docx --config configs/examples/mercato_100.yaml --out runs/importato/mercato_v1.yaml  (chiamate reali)
+- uv run synthsurvey interview preview --config configs/examples/mercato_100.yaml --mode cawi --n 10 --out runs/pilota_cawi  (chiamate reali)
 - uv run python scripts/make_questionnaire_fixtures.py  (rigenera il Word di esempio e il PDF dei test)
 - uv run python scripts/istat_explore.py search <parola>  (ricognizione dataflow ISTAT)
 

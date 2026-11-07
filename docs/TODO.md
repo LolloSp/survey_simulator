@@ -20,6 +20,12 @@ decisione umana. Una riga per voce; si cancella quando è chiusa.
   YAML a mano e confrontarlo con `questionnaires/examples/mercato_v1.yaml`.
   Esiti possibili: ritocchi al prompt `questionnaire_import_it.j2`. Finché non è
   fatta, M6b è implementata ma non chiusa secondo il criterio della SPEC.
+- [ ] **M7, pilota CAWI dal vivo**: con la chiave in `.env` lanciare
+  `uv run synthsurvey interview preview --config configs/examples/mercato_100.yaml --mode cawi --n 10 --out runs/pilota_cawi`
+  e leggere `responses.csv` e le trascrizioni: risposte piatte, incoerenti o
+  troppo articolate per il profilo sono il segnale per ritoccare
+  `respondent_it.j2`. Il criterio di M7 (pilota da 10 persone con risposte
+  valide) è verificato solo con il client finto.
 - [ ] **M5, questionario reale**: caricare il questionario già pronto del
   caso di riferimento in `questionnaires/` e verificare che le tre versioni
   per modalità siano esportabili per revisione (criterio di M5).

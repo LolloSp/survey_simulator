@@ -17,6 +17,8 @@ Responder = Callable[[LLMRequest], str | dict[str, Any]]
 
 def fill_schema(schema: dict[str, Any]) -> Any:
     """Valore di esempio conforme a uno schema JSON (object, array, enum, tipi base)."""
+    if "anyOf" in schema:
+        return fill_schema(schema["anyOf"][0])
     if "enum" in schema:
         return schema["enum"][0]
     if "const" in schema:

@@ -36,8 +36,10 @@ app.add_typer(config_app, name="config")
 app.add_typer(data_app, name="data")
 app.add_typer(sample_app, name="sample")
 app.add_typer(personas_app, name="personas")
+interview_app = typer.Typer(help="Interviste simulate: pilota per modalità.", no_args_is_help=True)
 app.add_typer(questionnaire_app, name="questionnaire")
 app.add_typer(llm_app, name="llm")
+app.add_typer(interview_app, name="interview")
 
 ConfigOption = Annotated[
     Path,
@@ -655,6 +657,159 @@ def llm_ping(
         typer.secho(
             "Attenzione: il modello ha rifiutato la richiesta di prova.", fg=typer.colors.YELLOW
         )
+
+
+@interview_app.command("preview")
+def interview_preview(
+    config: ConfigOption = Path("config.yaml"),
+    mode: Annotated[str, typer.Option("--mode", help="cawi, cati o capi.")] = "cawi",
+    n: Annotated[
+        int | None, typer.Option("--n", help="Persone da intervistare (default run.pilot_size).")
+    ] = None,
+    replicate: Annotated[int, typer.Option("--replicate", min=1, help="Numero di replica.")] = 1,
+    out: Annotated[
+        Path | None,
+        typer.Option("--out", help="Cartella per responses.csv, responses.json e transcripts."),
+    ] = None,
+    model_index: Annotated[
+        int, typer.Option("--model-index", help="Quale modello di engine.models usare (da 0).")
+    ] = 0,
+    use_cache: Annotated[
+        bool, typer.Option("--cache/--no-cache", help="Riusa le risposte in cache.")
+    ] = True,
+    data_dir: DataDirOption = Path("data"),
+) -> None:
+    """Pilota di interviste in una modalità: costruisce le persone e le intervista."""
+    import asyncio
+    import json
+    from collections import Counter
+
+    from synthsurvey.interview import InterviewSpec, run_interview
+    from synthsurvey.llm import LLMError, make_pool
+    from synthsurvey.personas import build_personas
+    from synthsurvey.population.quotas import QuotaError
+    from synthsurvey.population.sample import build_sample
+    from synthsurvey.population.tables import TablesError, load_tables
+    from synthsurvey.questionnaire import Mode, QuestionnaireError, adapt, load_questionnaire
+
+    try:
+        cfg = load_config(config).config
+    except ConfigError as exc:
+        typer.secho(str(exc), fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from None
+    try:
+        modalita = Mode(mode)
+    except ValueError:
+        typer.secho("--mode deve essere cawi, cati o capi", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=2) from None
+    if model_index >= len(cfg.engine.models):
+        typer.secho("model-index fuori dalla lista engine.models", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=2)
+    try:
+        loaded_q = load_questionnaire(cfg.questionnaire.path, cfg)
+    except QuestionnaireError as exc:
+        typer.secho(str(exc), fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from None
+    processed = data_dir / "processed"
+    n_total = n if n is not None else cfg.run.pilot_size
+    try:
+        tables = load_tables(processed)
+        sample = build_sample(cfg, processed, n_total=n_total, tables=tables)
+        personas = build_personas(sample, cfg, tables, processed_dir=processed).personas
+    except (TablesError, QuotaError) as exc:
+        typer.secho(f"Errore: {exc}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from None
+    spec_model = cfg.engine.models[model_index]
+    pool = make_pool(spec_model, cfg, use_cache=use_cache)
+    mq = adapt(loaded_q.questionnaire, modalita)
+    run_id = f"preview-{modalita.value}"
+    specs = [
+        InterviewSpec(
+            run_id=run_id,
+            persona=p,
+            persona_index=i,
+            mode=modalita,
+            replicate=replicate,
+            model=pool.client.model,
+            seed=cfg.project.seed,
+        )
+        for i, p in enumerate(personas)
+    ]
+
+    async def _tutte() -> list[object]:
+        return list(
+            await asyncio.gather(
+                *(run_interview(s, loaded_q.questionnaire, mq, pool, cfg) for s in specs)
+            )
+        )
+
+    try:
+        results = asyncio.run(_tutte())
+    except LLMError as exc:
+        typer.secho(f"Errore LLM: {exc}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from None
+    except NotImplementedError as exc:
+        typer.secho(str(exc), fg=typer.colors.YELLOW, err=True)
+        raise typer.Exit(code=1) from None
+
+    from synthsurvey.interview import AnswerStatus, InterviewResult
+
+    records = [r for res in results if isinstance(res, InterviewResult) for r in res.records]
+    stats = pool.stats.as_dict()
+    completate = sum(
+        1 for res in results if isinstance(res, InterviewResult) and res.outcome.completed
+    )
+    typer.secho(
+        f"Interviste {modalita.value.upper()}: {len(results)} persone, {completate} completate, "
+        f"{len(records)} record",
+        fg=typer.colors.GREEN,
+    )
+    typer.echo(
+        f"Chiamate {stats['calls']}, cache {stats['cache_hits']}, rifiuti {stats['refusals']}, "
+        f"token {stats['input_tokens']} in / {stats['output_tokens']} out, "
+        f"costo {stats['cost_usd']:.4f} USD"
+    )
+    conte = Counter(r.status for r in records)
+    typer.echo(
+        "Stati: " + ", ".join(f"{s.value}={conte.get(s, 0)}" for s in AnswerStatus if conte.get(s))
+    )
+    for q in loaded_q.questionnaire.questions:
+        valori = Counter(
+            r.answer_text or "-"
+            for r in records
+            if r.question_id == q.id and r.status is AnswerStatus.ANSWERED
+        )
+        if valori:
+            top = ", ".join(f"{v} x{c}" for v, c in valori.most_common(4))
+            typer.echo(f"  {q.id}: {top}")
+    avvisi = [
+        w for res in results if isinstance(res, InterviewResult) for w in res.outcome.warnings
+    ]
+    for w in avvisi[:10]:
+        typer.secho(f"Avviso: {w}", fg=typer.colors.YELLOW)
+    if out is not None:
+        import polars as pl
+
+        out.mkdir(parents=True, exist_ok=True)
+        righe = [r.to_dict() for r in records]
+        for r in righe:
+            for k in ("option_order", "nonverbal_emitted", "nonverbal_observed"):
+                if r[k] is not None:
+                    r[k] = json.dumps(r[k], ensure_ascii=False)
+        pl.DataFrame(righe, infer_schema_length=None).write_csv(out / "responses.csv")
+        (out / "responses.json").write_text(
+            json.dumps([r.to_dict() for r in records], ensure_ascii=False, indent=1),
+            encoding="utf-8",
+        )
+        trascrizioni = out / "transcripts"
+        trascrizioni.mkdir(exist_ok=True)
+        for res in results:
+            if not isinstance(res, InterviewResult):
+                continue
+            nome = f"{res.persona_id}_{modalita.value}_r{replicate}.md"
+            testo = "\n\n".join(f"**{t.speaker}**\n\n{t.text}" for t in res.transcript)
+            (trascrizioni / nome).write_text(testo + "\n", encoding="utf-8")
+        typer.secho(f"Scritto in {out}", fg=typer.colors.GREEN)
 
 
 @app.command("run")

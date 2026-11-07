@@ -8,7 +8,7 @@ implementa (vedi Roadmap in [SPEC.md](SPEC.md)).
 3. Costruzione delle persone: atteggiamenti, stile di risposta, narrativa (M4)
 4. Adattamento del questionario per modalità (M5)
 5. Livello LLM: client, cache, costi (M6): sotto
-6. Simulazione delle modalità ed effetti attesi dalla letteratura (M7, M8)
+6. Simulazione delle modalità ed effetti attesi dalla letteratura (M7, M8): sotto
 7. Segnali non verbali: vocabolario e limiti interpretativi (M8)
 8. Disegno, repliche, ensemble, congelamento (M9)
 9. Metriche di validazione ex post (M11)
@@ -456,3 +456,46 @@ errori, rifiuti, token e costo. I prezzi sono in `llm/prices.yaml`,
 versionato con data e fonte; il costo per risposta usa le quattro categorie
 di token e `engine.eur_per_usd` lo converte in euro per il confronto con
 `run.budget_max_eur` in M9.
+
+## 6. Simulazione delle modalità
+
+### Rispondente
+
+L'agente rispondente è un modello linguistico con un system prompt in due
+parti (`agents/prompts/respondent_it.j2`): la narrativa della persona (M4)
+con i tratti dello stile di risposta resi in parole, e le regole della
+modalità. Il prompt chiede di interpretare la persona senza essere più
+informata o più equilibrata di lei e descrive i comportamenti tipici della
+modalità (nel CAWI: lettura veloce, scelta fra le prime opzioni, voti simili
+nelle griglie, aperte brevi, "non so" a portata di clic, abbandono). Gli
+effetti di modalità non sono imposti da regole: devono emergere dal profilo
+e dal prompt, e vanno verificati nel pilota e con i dati reali (M11).
+
+### CAWI (M7)
+
+Ogni pagina del questionario adattato è una chiamata al modello con uno
+schema JSON che elenca le domande visibili e, per ciascuna, i valori
+ammessi (opzioni nell'ordine presentato, punti della scala, "non so" se
+previsto). Le pagine precedenti restano nella conversazione, così il
+rispondente vede le proprie risposte e resta coerente. Il routing è
+valutato prima di ogni pagina; una domanda che dipende da un'altra della
+stessa pagina viene mostrata in un gruppo successivo. L'ordine delle
+opzioni è deciso per intervista da un generatore derivato dal seed di
+progetto, dall'indice della persona, dalla modalità e dalla replica:
+stessa configurazione, stesso ordine.
+
+Le risposte vengono normalizzate e controllate oltre lo schema (limiti
+numerici, numero massimo di scelte, etichette fra quelle presentate):
+ciò che non è codificabile diventa non risposta. Ogni domanda e ogni item
+di griglia produce un record del dataset lungo con stato (`answered`,
+`dont_know`, `nonresponse`, `not_applicable`, `abandoned`), codice
+rispetto all'ordine canonico, testo, ordine presentato, pagina e quota di
+token della chiamata.
+
+### Limiti
+
+- La plausibilità delle risposte dipende dal modello e dal prompt: con il
+  client finto i test verificano la meccanica (routing, codifica, stati,
+  seed), non la qualità. Il pilota con il modello reale è nel TODO.
+- Il CAWI non simula i tempi di compilazione né le risposte cambiate:
+  i paradati disponibili sono abbandono, non risposta e token.
