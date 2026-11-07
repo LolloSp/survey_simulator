@@ -5,7 +5,7 @@ rispondenti coerente con i dati ISTAT e gli sottopone un questionario in tre
 modalità (CAWI, CATI, CAPI) tramite agenti LLM, producendo un dataset con pesi,
 paradati e codebook.
 
-Specifica completa: [docs/SPEC.md](docs/SPEC.md). Stato: **M9 – runner**.
+Specifica completa: [docs/SPEC.md](docs/SPEC.md). Stato: **M10 – output e report**.
 
 ## Avvio rapido
 
@@ -66,6 +66,7 @@ Run completo o pilota, con stima preventiva e tetto di spesa, poi congelamento:
 ```bash
 uv run synthsurvey run --config configs/examples/mercato_100.yaml --pilot --estimate-only
 uv run synthsurvey run --config configs/examples/mercato_100.yaml --pilot
+uv run synthsurvey report runs/<cartella del run>   # rigenera dataset largo, .sav, codebook, report.html
 uv run synthsurvey freeze runs/<cartella del run>
 ```
 

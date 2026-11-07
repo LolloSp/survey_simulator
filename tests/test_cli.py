@@ -26,7 +26,6 @@ def test_version() -> None:
 @pytest.mark.parametrize(
     "args",
     [
-        ["report", "runs/x"],
         ["validate", "runs/x", "--real", "reali.csv"],
     ],
 )

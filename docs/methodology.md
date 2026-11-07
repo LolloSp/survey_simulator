@@ -10,8 +10,9 @@ implementa (vedi Roadmap in [SPEC.md](SPEC.md)).
 5. Livello LLM: client, cache, costi (M6): sotto
 6. Simulazione delle modalità ed effetti attesi dalla letteratura (M7, M8): sotto
 7. Segnali non verbali: vocabolario e limiti interpretativi (M8): in 6
-8. Disegno, repliche, ensemble, congelamento (M9): sotto
-9. Metriche di validazione ex post (M11)
+8. Disegno, repliche, ensemble, congelamento (M9): in 7
+9. Output, codebook e report (M10): in 8
+10. Metriche di validazione ex post (M11)
 
 ## 1. Fonti ISTAT e versionamento delle tabelle
 
@@ -585,3 +586,45 @@ aggiunti. Ogni correzione genera un nuovo run.
   run e corretta nel codice se sbaglia di molto.
 - Il controllo del budget è per intervista, non per chiamata: l'ultima
   ondata di interviste già avviate può sforare di poco.
+
+## 8. Output, codebook e report
+
+### Dataset
+
+Il dataset lungo (`responses_long`) è la fonte: una riga per domanda e
+item di ogni intervista, con stato, codice, testo, ordine presentato e
+paradati. Il dataset largo (`responses_wide`) ne deriva: una riga per
+persona × modalità × replica × modello, con gli attributi della persona e i
+pesi. Le convenzioni di codifica sono nel codebook e nella SPEC; i codici
+mancanti negativi distinguono "non applicabile", "non risposta", "non so"
+e "abbandono", e nel file .sav sono dichiarati come valori mancanti con
+etichette, così SPSS e R li trattano correttamente. Le domande aperte
+restano testo, con una variabile di stato accanto.
+
+### Codebook
+
+`codebook.json` descrive chiavi, attributi della persona con la loro
+provenienza (dato ISTAT, proxy, ipotesi), ogni variabile del largo con
+etichette dei valori e mancanti, e la struttura del lungo. Il codebook è
+il posto dove un analista scopre che `sensibilita_prezzo` è un'ipotesi
+dichiarata e non un dato.
+
+### Report
+
+Il report HTML è statico, senza dipendenze esterne, con grafici SVG
+generati nel codice. Ogni pagina porta l'avvertenza che i dati sono
+simulati. Le sezioni: esito delle interviste per modalità (completamento,
+stati, chiarimenti, approfondimenti, lunghezza delle aperte);
+distribuzioni pesate per domanda; effetti di modalità rispetto al CAWI
+(media o quota della risposta prevalente, differenza, mancanti) e
+straightlining nelle griglie; confronto fra segmenti; stabilità fra
+repliche (quota di interviste con la stessa risposta in tutte le
+repliche: bassa dove il modello domina il profilo); incongruenze non
+verbali per domanda e segmento; costi e chiamate.
+
+### Limiti
+
+- Le quote sono pesate con il peso di post-stratificazione ma senza
+  intervalli di confidenza: i confronti vanno letti come descrittivi.
+- La "risposta prevalente" delle singole è scelta sul totale, non per
+  gruppo: nei confronti si legge la stessa opzione in tutti i gruppi.

@@ -927,9 +927,45 @@ def freeze(
 @app.command("report")
 def report(
     run_dir: Annotated[Path, typer.Argument(help="Cartella del run da cui generare il report.")],
+    out: Annotated[
+        Path | None,
+        typer.Option(
+            "--out", help="Cartella di destinazione (obbligatoria se il run è congelato)."
+        ),
+    ] = None,
+    questionnaire: Annotated[
+        Path | None,
+        typer.Option(
+            "--questionnaire", help="YAML del questionario, se spostato dal percorso del manifest."
+        ),
+    ] = None,
+    formats: Annotated[
+        str | None,
+        typer.Option(
+            "--formats", help="Formati del dataset largo: parquet,csv,sav (default: config)."
+        ),
+    ] = None,
 ) -> None:
-    """Genera il report HTML di un run."""
-    _non_implementato("report", "M10")
+    """Genera dataset largo, .sav, codebook e report HTML di un run."""
+    from synthsurvey.output import OutputError, write_outputs
+    from synthsurvey.runner import FrozenError
+
+    formati = [f.strip() for f in formats.split(",")] if formats else None
+    try:
+        result = write_outputs(
+            run_dir, out_dir=out, questionnaire_path=questionnaire, formats=formati
+        )
+    except (OutputError, FrozenError) as exc:
+        typer.secho(str(exc), fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from None
+    for f in result.files:
+        typer.echo(f"  {f.name}")
+    assert result.wide is not None
+    typer.secho(
+        f"Output in {result.out_dir}: {result.wide.height} righe larghe, "
+        f"{len(result.variables)} variabili",
+        fg=typer.colors.GREEN,
+    )
 
 
 @app.command("validate")

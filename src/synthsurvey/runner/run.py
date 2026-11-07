@@ -288,6 +288,10 @@ def execute_run(
     manifest["stats"] = stats
     manifest["cost_eur"] = round(result.cost_eur, 4)
     write_manifest(run_dir, manifest)
+    # Dataset largo, .sav, codebook e report (M10): import locale per evitare cicli.
+    from synthsurvey.output import write_outputs
+
+    write_outputs(run_dir, questionnaire_path=cfg.questionnaire.path, formats=formati)
     if cfg.run.frozen:
         manifest = freeze_run(run_dir)
     result.manifest = manifest
