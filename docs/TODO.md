@@ -50,11 +50,15 @@ decisione umana. Una riga per voce; si cancella quando è chiusa.
 - [ ] **Release su GitHub**: creare la release dal tag più recente con il testo di
   `CHANGELOG.md` (dal browser: Releases, Draft a new release).
 
-- [ ] **M13, prepare sull'anagrafica vera via sessione**: `prepare --provider session`
-  sul file in `data/raw/` con il questionario di esempio allineato ai segmenti
-  `privati`/`imprese`, poi `run --pilot` con poche persone per modalità rispondendo
-  dalla sessione; verificare che le narrative delle imprese con rispondente noto dal
-  codice fiscale siano coerenti.
+- [x] **M13, prepare sull'anagrafica vera via sessione** (8 novembre 2026): `prepare
+  --provider session --size 3 --modes cawi,cati` sul file in `data/raw/` (2231 record
+  validi, 955 privati e 1276 imprese) con il questionario di esempio rimappato sui segmenti
+  `privati`/`imprese`; `run --pilot` da 6 persone x 2 modalità completato in 9 riprese e
+  congelato (`runs/progetti/forniture/runs/pilota`, 25 file). Verificato: nomi sintetici,
+  mappa persona-record solo in `private/`, provenienza `anagrafica` nel codebook, narrative
+  delle tre imprese coerenti con sesso, età e ruolo dedotti dal codice fiscale
+  (amministratore con 4 addetti, due titolari con 5 e 6). Limite noto: l'anagrafica non
+  porta il titolo di studio, che l'ISTAT completa in modo plausibile ma uniforme.
 
 - [ ] **M5, questionario reale**: caricare il questionario già pronto del
   caso di riferimento in `questionnaires/` e verificare che le tre versioni
