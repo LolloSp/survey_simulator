@@ -32,7 +32,16 @@ def test_ipf_converge(pop: ind.IndividuiPopulation) -> None:
     assert pop.ipf.converged
     assert pop.ipf.iterations < 50
     assert pop.table.shape == ind.SHAPE
-    assert (pop.table > 0).all(), "nessuna cella vuota: ogni combinazione è possibile"
+    # Oltre i 79 anni il seed esclude occupati e persone in cerca: celle a zero volute.
+    i_occ, i_cerca = ind.EMPLOYMENT.index("occupato"), ind.EMPLOYMENT.index("in_cerca")
+    anziani = [i for i, (_l, lo, _h) in enumerate(ind.AGE_GROUPS) if lo >= ind.NO_WORK_AGE]
+    assert anziani == [12, 13]
+    assert (pop.table[:, :, anziani, :, i_occ] == 0).all()
+    assert (pop.table[:, :, anziani, :, i_cerca] == 0).all()
+    resto = np.delete(pop.table, anziani, axis=2)
+    assert (resto > 0).all(), "altrove nessuna cella vuota: ogni combinazione è possibile"
+    pensionati = ind.EMPLOYMENT.index("pensionato")
+    assert (pop.table[:, :, anziani, :, pensionati] > 0).all()
 
 
 def test_totale_e_marginale_popolazione(pop: ind.IndividuiPopulation, tables: IstatTables) -> None:
@@ -129,7 +138,8 @@ def test_gradiente_eta_e_associazione_dal_seed(pop: ind.IndividuiPopulation) -> 
 
 def test_frame_e_helper(pop: ind.IndividuiPopulation) -> None:
     frame = pop.to_frame()
-    assert frame.height == int(np.prod(ind.SHAPE))
+    vuote = ind.SHAPE[0] * ind.SHAPE[1] * 2 * ind.SHAPE[3] * 2  # 80+ x {occupato, in_cerca}
+    assert frame.height == int(np.prod(ind.SHAPE)) - vuote
     assert frame.columns == [
         "region_code",
         "region",

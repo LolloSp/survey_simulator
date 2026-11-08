@@ -46,6 +46,7 @@ AGE_GROUPS: tuple[tuple[str, int, int], ...] = (
     ("85_plus", 85, 100),
 )
 AGE_GROUP_LABELS: tuple[str, ...] = tuple(g[0] for g in AGE_GROUPS)
+NO_WORK_AGE = 80  # età da cui il seed esclude occupati e persone in cerca di lavoro
 
 # Assi della tabella congiunta.
 AX_REGION, AX_SEX, AX_AGE, AX_EDU, AX_EMP = range(5)
@@ -267,6 +268,13 @@ def build_seed(t: IstatTables, ages: Array) -> Array:
         for mi in range(SHAPE[4]):
             quota = occ[:, ci, :] if mi == i_occ else (1.0 - occ[:, ci, :]) / (SHAPE[4] - 1)
             seed[:, :, gi, :, mi] = (edu[:, ci, :] * quota)[np.newaxis, :, :]
+    # Oltre i 79 anni nessun occupato né in cerca: le celle a zero nel seed restano a
+    # zero nell'IPF, e la quota censuaria dei 65+ si concentra fra i 65 e i 79 anni.
+    i_cerca = EMPLOYMENT.index("in_cerca")
+    for gi, (_label, lo, _hi) in enumerate(AGE_GROUPS):
+        if lo >= NO_WORK_AGE:
+            seed[:, :, gi, :, i_occ] = 0.0
+            seed[:, :, gi, :, i_cerca] = 0.0
     return seed
 
 

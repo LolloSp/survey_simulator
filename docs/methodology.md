@@ -168,6 +168,10 @@ per regione e sesso, vengono sottratti rispettivamente da `fino_media` e da
 `altro_inattivo` prima di calcolare le quote, che diventano così quote dei
 18-24enni.
 
+Dopo la revisione delle persone di M4 il seed esclude occupati e persone
+in cerca di lavoro dagli 80 anni in su: le celle a zero restano a zero
+nell'IPF e la quota censuaria dei 65+ si distribuisce fra i 65 e i 79 anni.
+
 ### Imprese
 
 La tavola ASIA è già una congiunta esatta regione × settore × classe di

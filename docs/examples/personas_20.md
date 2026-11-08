@@ -1,7 +1,7 @@
 # Persone di esempio (20, caso di riferimento mercato_100, seed 20261105)
-
 Generate con `synthsurvey personas preview --config configs/examples/mercato_100.yaml --n 20`.
 Da revisionare a mano: ogni persona mostra profilo strutturato, provenienze implicite nel codebook e narrativa.
+Rigenerate l'8 novembre 2026 dopo la revisione (nessun occupato oltre i 79 anni).
 
 ## p_00001 (consumer, consumer_00001)
 
@@ -216,7 +216,7 @@ Da revisionare a mano: ogni persona mostra profilo strutturato, provenienze impl
 
 - regione: puglia
 - sesso: f
-- età: 88
+- età: 77
 - istruzione: fino_media
 - condizione: occupato
 - quintile di reddito: 2
@@ -229,7 +229,7 @@ Da revisionare a mano: ogni persona mostra profilo strutturato, provenienze impl
 - tratti (ipotesi): sensibilita_prezzo=0.70, fedelta_marca=0.39, propensione_rischio=0.57, apertura_novita=0.09
 - stile (ipotesi): acquiescenza=0.54, desiderabilita_sociale=0.53, non_so=0.78, tempo_disponibile=0.45, loquacita=0.65
 
-> Anna ha 88 anni e vive in Puglia. Ha finito la scuola dell'obbligo e lavora. La famiglia ha un reddito modesto; in casa le risorse economiche sono giudicate adeguate. Pensa che di gran parte della gente ci si possa fidare. Non usa internet, non segue la politica e frequenta un luogo di culto ogni settimana. Nel complesso si dice abbastanza soddisfatta della propria vita. Quando compra, guarda prima di tutto al prezzo; tende a restare con chi conosce ma può cambiare. Accetta qualche rischio se ne vale la pena e diffida delle novità. Intervistata, valuta ogni affermazione prima di dirsi d'accordo; qualche volta addolcisce le risposte per fare buona impressione. Spesso risponde che non sa o preferisce non rispondere. Concede un tempo ragionevole all'intervista e si dilunga volentieri nelle risposte aperte.
+> Anna ha 77 anni e vive in Puglia. Ha finito la scuola dell'obbligo e lavora. La famiglia ha un reddito modesto; in casa le risorse economiche sono giudicate adeguate. Pensa che di gran parte della gente ci si possa fidare. Non usa internet, non segue la politica e frequenta un luogo di culto ogni settimana. Nel complesso si dice abbastanza soddisfatta della propria vita. Quando compra, guarda prima di tutto al prezzo; tende a restare con chi conosce ma può cambiare. Accetta qualche rischio se ne vale la pena e diffida delle novità. Intervistata, valuta ogni affermazione prima di dirsi d'accordo; qualche volta addolcisce le risposte per fare buona impressione. Spesso risponde che non sa o preferisce non rispondere. Concede un tempo ragionevole all'intervista e si dilunga volentieri nelle risposte aperte.
 
 ## p_00013 (consumer, consumer_00013)
 

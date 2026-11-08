@@ -3,14 +3,14 @@
 Attività aperte che non rientrano in una milestone o che aspettano una
 decisione umana. Una riga per voce; si cancella quando è chiusa.
 
-- [ ] **M4, revisione manuale delle 20 persone** (`docs/examples/personas_20.md`):
-  verificare coerenza interna, plausibilità, qualità del testo, varietà e
-  ragionevolezza delle ipotesi. Esiti possibili: correzioni al template
-  `src/synthsurvey/agents/prompts/persona_it.j2`, ai priori
-  `src/synthsurvey/personas/priors/default.yaml`, o nuove regole in
-  `src/synthsurvey/personas/coherence.py`. Finché non è fatta, M4 è
-  implementata ma non chiusa secondo il criterio della SPEC. Aperta il
-  6 novembre 2026, si procede intanto con M5 per decisione del responsabile.
+- [x] **M4, revisione delle 20 persone** (8 novembre 2026, prima passata fatta da Claude,
+  da confermare con una lettura tua): coerenza interna e plausibilità buone in 19 casi su 20;
+  il difetto vero era una donna di 88 anni "occupata" (l'IPF spalmava gli occupati dei 65+
+  anche oltre gli 80). Corretto nel seed (`individui.NO_WORK_AGE = 80`): nessun occupato né
+  in cerca da 80 anni in su. Le 20 persone sono state rigenerate. Resta un suggerimento,
+  non un difetto: le narrative usano le stesse frasi per tutti (es. "con la gente bisogna
+  stare molto attenti"); se con il modello reale le risposte risultano piatte, aggiungere
+  varianti di frase al template `persona_it.j2` scelte in modo deterministico dalla persona.
 - [ ] **Credito API**: la chiave Anthropic in `.env` è valida ma l'account non ha credito
   (verificato l'8 novembre 2026); finché non viene caricato, i piloti si fanno con il
   provider `session` (M14) e le voci "dal vivo" restano aperte per il modello reale.
