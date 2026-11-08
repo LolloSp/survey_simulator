@@ -23,12 +23,10 @@ decisione umana. Una riga per voce; si cancella quando è chiusa.
   YAML a mano e confrontarlo con `questionnaires/examples/mercato_v1.yaml`.
   Esiti possibili: ritocchi al prompt `questionnaire_import_it.j2`. Finché non è
   fatta, M6b è implementata ma non chiusa secondo il criterio della SPEC.
-- [ ] **M7, pilota CAWI dal vivo**: con la chiave in `.env` lanciare
-  `uv run synthsurvey interview preview --config configs/examples/mercato_100.yaml --mode cawi --n 10 --out runs/pilota_cawi`
-  e leggere `responses.csv` e le trascrizioni: risposte piatte, incoerenti o
-  troppo articolate per il profilo sono il segnale per ritoccare
-  `respondent_it.j2`. Il criterio di M7 (pilota da 10 persone con risposte
-  valide) è verificato solo con il client finto.
+- [x] **M7, pilota CAWI** (8 novembre 2026): completato con il provider `session`, 10 persone,
+  120 record validi, routing e stati corretti (`runs/pilota_cawi_sessione`). Resta la
+  prova con il modello reale quando c'è credito: `interview preview --mode cawi` sulla
+  config `mercato_100.yaml`, per giudicare la plausibilità delle risposte del modello.
 - [ ] **M8, piloti CATI e CAPI dal vivo**: come per M7 con `--mode cati` e
   `--mode capi`; leggere le trascrizioni in `transcripts/` e la colonna
   `incongruence`: se l'intervistatore interviene troppo o troppo poco, agire
