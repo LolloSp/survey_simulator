@@ -233,7 +233,7 @@ def _write_config(path: Path, raw: dict[str, Any]) -> None:
 
 
 def _import_questionnaire(source: Path, dest: Path, config_path: Path, rounds: int) -> Path | None:
-    from synthsurvey.llm import make_pool
+    from synthsurvey.llm import AwaitingAnswersError, make_pool
     from synthsurvey.questionnaire import (
         ExtractionError,
         extract_text,
@@ -248,7 +248,16 @@ def _import_questionnaire(source: Path, dest: Path, config_path: Path, rounds: i
     except ExtractionError as exc:
         raise PrepareError(f"questionario: {exc}") from exc
     pool = make_pool(loaded.config.engine.models[0], loaded.config, use_cache=True)
-    result = asyncio.run(import_questionnaire(doc, pool, config=loaded.config, max_rounds=rounds))
+    try:
+        result = asyncio.run(
+            import_questionnaire(doc, pool, config=loaded.config, max_rounds=rounds)
+        )
+    except AwaitingAnswersError as exc:
+        raise PrepareError(
+            "questionario: il provider sessione aspetta la trascrizione "
+            f"({exc.path.name}); rispondere con `synthsurvey session answer` usando "
+            f"--config {config_path} e rilanciare prepare con gli stessi argomenti"
+        ) from exc
     rapporto = dest.with_suffix(".import.md")
     if result.raw is None:
         rapporto.write_text(render_report(result), encoding="utf-8")

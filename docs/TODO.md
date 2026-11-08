@@ -17,12 +17,10 @@ decisione umana. Una riga per voce; si cancella quando è chiusa.
 - [ ] **M6, prova dal vivo del provider**: con `ANTHROPIC_API_KEY` in `.env`
   lanciare `uv run synthsurvey llm ping --config configs/examples/mercato_100.yaml`
   e verificare credenziali, modello, formato strutturato e costo.
-- [ ] **M6b, importazione dal vivo**: lanciare `questionnaire import` sul Word di
-  esempio `questionnaires/examples/mercato_v1.docx` e poi su un questionario
-  vero del caso di riferimento; leggere il rapporto `.import.md`, correggere lo
-  YAML a mano e confrontarlo con `questionnaires/examples/mercato_v1.yaml`.
-  Esiti possibili: ritocchi al prompt `questionnaire_import_it.j2`. Finché non è
-  fatta, M6b è implementata ma non chiusa secondo il criterio della SPEC.
+- [x] **M6b, importazione del Word di esempio** (8 novembre 2026): fatta con il provider
+  `session` (la trascrizione l'ha scritta Claude nel ruolo dell'agente): YAML valido al primo
+  giro, 10 domande, routing dedotto dai salti in prosa, 8 note di incertezza nel rapporto.
+  Restano la prova con il modello reale e l'import del questionario vero (vedi M5).
 - [x] **M7, pilota CAWI** (8 novembre 2026): completato con il provider `session`, 10 persone,
   120 record validi, routing e stati corretti (`runs/pilota_cawi_sessione`). Resta la
   prova con il modello reale quando c'è credito: `interview preview --mode cawi` sulla
