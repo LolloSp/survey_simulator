@@ -38,9 +38,11 @@ decisione umana. Una riga per voce; si cancella quando è chiusa.
   con il provider sessione il costo è comunque zero, la stima serve solo come ordine di
   grandezza dei giri.
 
-- [ ] **M10, apertura del .sav in SPSS o R**: `runs/pilota-sessione/responses_wide.sav`
-  è verificato con pyreadstat; serve una macchina con R (`haven::read_sav`) o SPSS,
-  qui non ci sono. Tocca a te, oppure autorizza l'installazione di R su questo PC.
+- [x] **M10, apertura del .sav in R** (8 novembre 2026): installato R 4.6.2 con winget e
+  letto con `haven::read_sav(user_na = TRUE)` sia `runs/pilota-sessione/responses_wide.sav`
+  (15 righe, 36 colonne) sia quello del pilota sull'anagrafica (12 righe): 17 variabili con
+  etichette di valore, 16 con i missing -1/-2/-3/-4 dichiarati, nessuna variabile senza
+  etichetta; le frequenze di `q1` coincidono con il formato lungo. SPSS non provato.
 
 - [ ] **M11, validazione con dati veri**: esportare le interviste reali del caso
   di riferimento nel formato lungo (docs/methodology.md, sezione 9) e lanciare
@@ -48,7 +50,8 @@ decisione umana. Una riga per voce; si cancella quando è chiusa.
   un dataset fittizio.
 
 - [ ] **Release su GitHub**: creare la release dal tag più recente con il testo di
-  `CHANGELOG.md` (dal browser: Releases, Draft a new release).
+  `CHANGELOG.md`. GitHub CLI è installato (8 novembre 2026); serve il tuo
+  `gh auth login`, poi `gh release create` lo fa Claude dalla sessione.
 
 - [x] **M13, prepare sull'anagrafica vera via sessione** (8 novembre 2026): `prepare
   --provider session --size 3 --modes cawi,cati` sul file in `data/raw/` (2231 record
