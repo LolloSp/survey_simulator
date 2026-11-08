@@ -159,7 +159,7 @@ def test_run_completo_100_per_3_modalita_per_3_repliche(
     assert len(result.results) == 900, f"{durata:.1f} s"
     assert result.manifest["records"] == 900 * 12
     manifest = freeze_run(result.run_dir)
-    assert manifest["frozen"] and len(manifest["files"]) == 900 + 11
+    assert manifest["frozen"] and len(manifest["files"]) == 900 + 12
     assert verify_frozen(result.run_dir) == []
 
 

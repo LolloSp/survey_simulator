@@ -76,7 +76,7 @@ Run completo o pilota, con stima preventiva e tetto di spesa, poi congelamento:
 ```bash
 uv run synthsurvey run --config configs/examples/mercato_100.yaml --pilot --estimate-only
 uv run synthsurvey run --config configs/examples/mercato_100.yaml --pilot
-uv run synthsurvey report runs/<cartella del run>   # rigenera dataset largo, .sav, codebook, report.html
+uv run synthsurvey report runs/<cartella del run>   # rigenera dataset largo, .sav, codebook, report.html, interviste.html
 uv run synthsurvey freeze runs/<cartella del run>
 ```
 

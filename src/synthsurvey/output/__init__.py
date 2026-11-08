@@ -1,4 +1,4 @@
-"""Output di un run: dataset largo, .sav, codebook, report HTML (M10).
+"""Output di un run: dataset largo, .sav, codebook, report HTML, pagina delle interviste (M10).
 
 `write_outputs(run_dir)` legge ciò che il runner ha scritto (manifest,
 persone, dataset lungo) e produce il resto. Un run congelato non viene
@@ -22,6 +22,12 @@ from synthsurvey.output.analysis import (
     summarize,
 )
 from synthsurvey.output.codebook import build_codebook, write_codebook
+from synthsurvey.output.interviews import (
+    build_interviews_data,
+    read_interviews,
+    render_interviews_page,
+    write_interviews_page,
+)
 from synthsurvey.output.report import build_context, render_report, write_report
 from synthsurvey.output.sav import write_sav
 from synthsurvey.output.wide import (
@@ -133,6 +139,10 @@ def write_outputs(
     context = build_context(manifest, wide, long, variables, questionnaire)
     result.context = context
     result.files.append(write_report(context, destinazione / "report.html"))
+    pagina = build_interviews_data(
+        manifest, long, personas, questionnaire, read_interviews(run_dir)
+    )
+    result.files.append(write_interviews_page(pagina, destinazione / "interviste.html"))
     return result
 
 
@@ -144,11 +154,14 @@ __all__ = [
     "WideVariable",
     "build_codebook",
     "build_context",
+    "build_interviews_data",
     "build_wide",
     "compare",
     "completion",
     "incongruence",
     "load_run",
+    "read_interviews",
+    "render_interviews_page",
     "render_report",
     "replicate_stability",
     "status_by_mode",
@@ -156,6 +169,7 @@ __all__ = [
     "summarize",
     "wide_variables",
     "write_codebook",
+    "write_interviews_page",
     "write_outputs",
     "write_report",
     "write_sav",

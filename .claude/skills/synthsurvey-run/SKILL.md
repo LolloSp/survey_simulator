@@ -70,7 +70,8 @@ uv run synthsurvey run --config progetti/<nome>/config.yaml
 uv run synthsurvey freeze <cartella del run>
 ```
 
-Consegna all'utente i percorsi di `report.html`, `responses_wide.sav`,
+Consegna all'utente i percorsi di `report.html`, `interviste.html` (interviste e
+risposte da leggere, per domanda o per persona), `responses_wide.sav`,
 `codebook.json`. Ricorda che `private/contacts_map.csv` lega le persone ai
 record dei clienti e non va condiviso.
 

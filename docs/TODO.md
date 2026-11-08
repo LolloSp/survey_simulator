@@ -72,4 +72,12 @@ decisione umana. Una riga per voce; si cancella quando è chiusa.
   committente è un dato di input e non si versiona: `questionnaires/` è ignorata tranne
   `examples/`.
 
+- [x] **Run sul questionario reale** (8 novembre 2026): 20 clienti in proporzione all'anagrafica
+  (9 privati, 11 imprese) × CAWI, CATI e CAPI, provider sessione, 60 interviste completate e
+  congelate in `runs/progetti/gerarchia_messaggi_20/`. Limite noto: dalla domanda 3 in poi i
+  segnali non verbali hanno un tono fisso per persona e modalità.
+
+- [x] **Pagina `interviste.html`** (8 novembre 2026, richiesta da Lorenzo): sempre prodotta con il
+  report; specifica in SPEC.md, sezione «Contenuto di ogni cartella di run».
+
 - [x] **Rilanci dell'intervistatore** (8 novembre 2026, deciso da Lorenzo): aggiunti `probe` e `coding_note` alla domanda, rilancio da copione nel dialogo CATI/CAPI, `probe_text` nel record; il questionario reale li usa su tutte le 7 domande. Il segmento `privati` resta: il questionario è per consumatori e imprese, quindi senza `applies_to`.

@@ -303,6 +303,13 @@ Campi: `persona_id`, `segment`, attributi demografici, attributi impresa (per le
 - `responses_wide.csv` e `.sav` (una riga per persona × modalità × replica), con pesi.
 - `codebook.json` (e opzionalmente DDI), `transcripts/` con i dialoghi CATI e CAPI.
 - `report.html`: distribuzioni, confronto tra segmenti, effetti di modalità, stabilità tra repliche.
+- `interviste.html`: pagina autonoma (un file, nessuna dipendenza esterna, funziona offline) per leggere interviste e risposte. Sempre prodotta, insieme al report, a fine run e da `synthsurvey report`. Contiene:
+  - riepilogo: persone per segmento, interviste completate, risposte, risposte ai rilanci; avviso che i dati sono simulati;
+  - vista **per domanda**: testo, rilancio da copione e `coding_note`; una riga per persona con la risposta in ogni modalità affiancata e, sotto, la risposta al rilancio; incongruenze segnalate;
+  - vista **per persona**: profilo (`narrative`, segmento, età, regione, impresa) e le interviste delle varie modalità affiancate, domanda per domanda;
+  - filtri per segmento e per replica (se più di una), ricerca nel testo con evidenziazione, opzione per mostrare i segnali non verbali emessi e il pensiero non detto (`note`).
+
+  Non contiene `unit_id`, codici cliente né altro da `private/`: solo persone sintetiche e loro risposte. Le preferenze di vista restano nel browser (`localStorage`), mai i dati.
 
 ## Stack tecnologico e repository
 
@@ -369,7 +376,7 @@ Ogni milestone è un blocco consegnabile e testabile, pensato per una o poche se
 8. **M7 – Modalità CAWI.** Agente rispondente, una pagina alla volta, randomizzazione delle opzioni. *Fatto quando:* un pilota da 10 persone produce risposte valide.
 9. **M8 – Modalità CATI e CAPI.** Agente intervistatore, dialogo, cartellini, trascrizioni. *Fatto quando:* le stesse 10 persone completano entrambe le modalità.
 10. **M9 – Runner.** Disegno within/between, repliche, concorrenza, stima costi, budget, congelamento. *Fatto quando:* un run da 100 × 3 modalità × 3 repliche completa e può essere congelato.
-11. **M10 – Output e report.** Export long/wide, .sav, codebook, report HTML. *Fatto quando:* il dataset si apre in SPSS/R e il report mostra segmenti ed effetti di modalità.
+11. **M10 – Output e report.** Export long/wide, .sav, codebook, report HTML. *Fatto quando:* il dataset si apre in SPSS/R e il report mostra segmenti ed effetti di modalità. Aggiunta dell'8 novembre 2026: la pagina `interviste.html` per leggere interviste e risposte, prodotta sempre accanto al report.
 12. **M11 – Validazione.** Import dati reali, allineamento al disegno, metriche, report di confronto. *Fatto quando:* testato su un dataset reale di prova (anche fittizio).
 13. **M12 – Ensemble e rifinitura.** Secondo provider LLM, documentazione, esempi, release v0.1 su GitHub.
 14. **M13 – Anagrafiche e avvio da Claude Code.** Sorgente `lista_clienti`: il campione è l'anagrafica del committente (CSV o Excel con intestazioni variabili), ISTAT completa gli attributi mancanti; comando `synthsurvey prepare` che da questionario e anagrafica scrive la configurazione e stima il run; skill di progetto per guidare la sessione di Claude Code. *Fatto quando:* `prepare` su un'anagrafica reale produce una configurazione valida con il rapporto dei record scartati, `run --pilot` parte, e nessun dato personale del file (nomi, codici fiscali, contatti) compare nei prompt o negli output condivisibili.

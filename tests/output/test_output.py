@@ -65,6 +65,7 @@ def test_il_run_produce_gli_output_di_m10(run_dir: Path) -> None:
         "responses_wide.sav",
         "codebook.json",
         "report.html",
+        "interviste.html",
     ):
         assert (run_dir / nome).is_file(), nome
 
@@ -135,6 +136,42 @@ def test_report_html(run_dir: Path) -> None:
     assert "fake/fake-1" in html and "pilota" in html
 
 
+def _dati_pagina(html: str) -> dict[str, Any]:
+    inizio = html.index("const D = ") + len("const D = ")
+    fine = html.index(";</script>", inizio)
+    return json.loads(html[inizio:fine])
+
+
+def test_pagina_interviste(run_dir: Path) -> None:
+    html = (run_dir / "interviste.html").read_text(encoding="utf-8")
+    assert "DATI SIMULATI" in html and "Per domanda" in html and "Per persona" in html
+    assert "<link" not in html and 'src="http' not in html, (
+        "pagina autonoma, niente risorse esterne"
+    )
+    dati = _dati_pagina(html)
+    _manifest, long, personas, q = load_run(run_dir)
+    assert len(dati["rows"]) == long.height
+    assert dati["modes"] == ["cawi", "cati", "capi"] and dati["replicates"] == [1, 2]
+    assert [x["id"] for x in dati["questions"]] == [x.id for s in q.sections for x in s.questions]
+    assert len(dati["personas"]) == len(personas) and len(dati["interviews"]) == 72
+    assert all(i["completed"] for i in dati["interviews"])
+    for p in personas:
+        assert p.unit_id not in html, "nessun legame con i record del committente"
+    griglia = [r for r in dati["rows"] if r["q"] == "q5"]
+    testi = {i.text for s in q.sections for x in s.questions if x.id == "q5" for i in x.items or []}
+    assert griglia and all(r["i"] in testi for r in griglia), "righe della griglia col loro testo"
+
+
+def test_segnali_non_verbali_della_pagina() -> None:
+    from synthsurvey.output.interviews import _nonverbal
+
+    livelli, pensiero = _nonverbal(
+        json.dumps({"esitazione": 2, "entusiasmo": 0, "imbarazzo": 1, "body": {}, "note": "Uffa."})
+    )
+    assert livelli == {"esitazione": 2, "imbarazzo": 1} and pensiero == "Uffa."
+    assert _nonverbal(None) == ({}, "") and _nonverbal("non json") == ({}, "")
+
+
 def test_analisi(run_dir: Path) -> None:
     _manifest, long, personas, q = load_run(run_dir)
     wide, variables = build_wide(long, personas_frame(personas), q)
@@ -175,6 +212,7 @@ def test_output_su_run_congelato_e_errori(run_dir: Path, tmp_path: Path) -> None
         altrove / "responses_wide.sav"
     ).exists()
     assert (altrove / "report.html").is_file() and result.wide is not None
+    assert (altrove / "interviste.html").is_file(), "anche da un run congelato, altrove"
     with pytest.raises(OutputError, match="manifest assente"):
         write_outputs(tmp_path / "vuota")
     with pytest.raises(OutputError, match="questionario non trovato"):

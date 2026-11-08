@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interviste {{ data.project or data.run }}</title>
+<style>
+:root {
+  --bg: #f7f7f5; --surface: #ffffff; --ink: #1c1c1e; --muted: #6b6b70; --line: #e4e4e0;
+  --accent: #2f5d8a; --accent-soft: #e6eef6; --warn: #9a5b00; --warn-soft: #fdf3e2;
+  --priv: #2f7a5b; --priv-soft: #e3f2ea; --impr: #6a4c93; --impr-soft: #eee8f6;
+  --cawi: #5b6b7a; --cati: #2f5d8a; --capi: #8a4b2f; --mark: #ffe58a;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #161618; --surface: #1f1f22; --ink: #ececea; --muted: #a0a0a6; --line: #333338;
+    --accent: #8db6e0; --accent-soft: #233344; --warn: #f0b660; --warn-soft: #3a2c15;
+    --priv: #7fcfa8; --priv-soft: #1d3329; --impr: #c2a6e8; --impr-soft: #2c2440;
+    --cawi: #a5b3c0; --cati: #8db6e0; --capi: #e0a284; --mark: #7a6514;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #161618; --surface: #1f1f22; --ink: #ececea; --muted: #a0a0a6; --line: #333338;
+  --accent: #8db6e0; --accent-soft: #233344; --warn: #f0b660; --warn-soft: #3a2c15;
+  --priv: #7fcfa8; --priv-soft: #1d3329; --impr: #c2a6e8; --impr-soft: #2c2440;
+  --cawi: #a5b3c0; --cati: #8db6e0; --capi: #e0a284; --mark: #7a6514;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+.wrap { max-width: 1280px; margin: 0 auto; padding: 0 16px 64px; }
+header { padding: 24px 0 8px; }
+h1 { font-size: 1.5rem; margin: 0 0 4px; letter-spacing: -0.01em; }
+.meta { color: var(--muted); font-size: 0.9rem; font-weight: 400; }
+.banner { background: var(--warn-soft); color: var(--warn); border-radius: 8px; padding: 8px 12px;
+  margin: 12px 0; font-size: 0.88rem; font-weight: 600; }
+.kpis { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 8px 14px; }
+.kpi b { display: block; font-size: 1.3rem; font-variant-numeric: tabular-nums; }
+.kpi span { color: var(--muted); font-size: 0.8rem; }
+.bar { position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 10px 0;
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center; border-bottom: 1px solid var(--line); }
+.tabs, .seg { display: flex; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.tabs button, .seg button { border: 0; background: none; color: var(--ink); padding: 7px 14px; cursor: pointer; font: inherit; }
+.tabs button.on, .seg button.on { background: var(--accent); color: var(--surface); }
+input[type=search], select { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line);
+  border-radius: 8px; padding: 7px 10px; min-width: 0; }
+input[type=search] { flex: 1 1 200px; }
+label.chk { display: flex; gap: 6px; align-items: center; color: var(--muted); font-size: 0.88rem; }
+.qhead { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; margin: 16px 0 8px; }
+.qhead h2 { margin: 0 0 6px; font-size: 1.1rem; }
+.qhead .sub { color: var(--muted); font-size: 0.88rem; }
+.qhead .sub b { color: var(--ink); font-weight: 600; }
+.qnav { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
+.qnav button { font: inherit; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  border-radius: 999px; padding: 4px 12px; cursor: pointer; }
+.qnav button.on { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.grid { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--surface);
+  border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.grid th { text-align: left; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted);
+  padding: 8px 12px; border-bottom: 1px solid var(--line); }
+.grid td { vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+.grid tr:last-child td { border-bottom: 0; }
+.who b { display: block; }
+.who small { color: var(--muted); }
+.pill { display: inline-block; font-size: 0.72rem; font-weight: 600; border-radius: 999px; padding: 1px 8px;
+  background: var(--accent-soft); color: var(--accent); }
+.pill.privati { background: var(--priv-soft); color: var(--priv); }
+.pill.imprese { background: var(--impr-soft); color: var(--impr); }
+.mode { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em; color: var(--accent); }
+.mode.cawi { color: var(--cawi); } .mode.cati { color: var(--cati); } .mode.capi { color: var(--capi); }
+.ans { margin: 0; }
+.ans.empty { color: var(--muted); font-style: italic; }
+.item { color: var(--muted); font-size: 0.82rem; }
+.probe { margin-top: 6px; padding-left: 10px; border-left: 2px solid var(--line); }
+.probe::before { content: "↳ rilancio: "; color: var(--muted); font-size: 0.82rem; }
+.sig { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px; }
+.sig span { font-size: 0.72rem; background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; color: var(--muted); }
+.thought { margin-top: 4px; font-size: 0.82rem; color: var(--muted); font-style: italic; }
+.inc { color: var(--warn); font-size: 0.78rem; font-weight: 600; }
+.cards { display: grid; gap: 12px; margin-top: 16px; }
+.pcard { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+.pcard h3 { margin: 0; font-size: 1.05rem; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.pcard .narr { color: var(--muted); font-size: 0.88rem; margin: 6px 0 10px; }
+details summary { cursor: pointer; color: var(--accent); font-size: 0.88rem; }
+.cols { display: grid; grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); gap: 12px; margin-top: 10px; }
+.col { border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
+.col h4 { margin: 0 0 6px; }
+.qa { margin: 0 0 10px; }
+.qa .qq { font-size: 0.8rem; color: var(--muted); font-weight: 600; }
+mark { background: var(--mark); color: inherit; border-radius: 2px; }
+.empty-state { color: var(--muted); padding: 24px; text-align: center; }
+.mobile-label { display: none; }
+@media (max-width: 760px) {
+  .cols { grid-template-columns: 1fr; }
+  .grid thead { display: none; }
+  .grid, .grid tbody, .grid tr, .grid td { display: block; width: 100%; }
+  .grid tr { border-bottom: 1px solid var(--line); }
+  .grid td { border-bottom: 0; padding: 6px 12px; }
+  .mobile-label { display: inline; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Interviste: <span id="proj"></span></h1>
+  <div class="meta" id="meta"></div>
+  <div class="banner">DATI SIMULATI: le risposte vengono da persone sintetiche e modelli linguistici, non da persone reali.</div>
+  <div class="kpis" id="kpis"></div>
+</header>
+<div class="bar">
+  <div class="tabs" id="tabs">
+    <button data-v="q" class="on">Per domanda</button>
+    <button data-v="p">Per persona</button>
+  </div>
+  <div class="seg" id="seg"></div>
+  <select id="rep" aria-label="Replica"></select>
+  <input type="search" id="q" placeholder="Cerca nelle risposte…">
+  <label class="chk"><input type="checkbox" id="showsig"> segnali e pensieri</label>
+</div>
+<main id="main"></main>
+</div>
+<script>const D = {{ data|tojson }};</script>
+<script>
+{% raw %}
+const MODES = D.modes;
+const MODE_LABEL = { cawi: "CAWI · online", cati: "CATI · telefono", capi: "CAPI · di persona" };
+const mlabel = m => MODE_LABEL[m] || m.toUpperCase();
+const SEGMENTS = [...new Set(D.personas.map(p => p.segment))];
+const state = { view: "q", seg: "", rep: D.replicates[0], text: "", q: D.questions[0] ? D.questions[0].id : "", sig: false };
+const STORE = "synthsurvey-interviste-vista";
+try {
+  const s = JSON.parse(localStorage.getItem(STORE) || "{}");
+  for (const k of ["view", "seg", "q", "sig"]) if (k in s) state[k] = s[k];
+  if (!D.questions.some(q => q.id === state.q) && D.questions[0]) state.q = D.questions[0].id;
+  if (state.seg && !SEGMENTS.includes(state.seg)) state.seg = "";
+} catch (e) {}
+
+const R = {};
+for (const r of D.rows) (R[`${r.p}|${r.m}|${r.r}|${r.q}`] ||= []).push(r);
+const get = (p, m, q) => R[`${p}|${m}|${state.rep}|${q}`] || [];
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const hl = s => {
+  const t = esc(s);
+  if (!state.text) return t;
+  const re = new RegExp(esc(state.text).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi");
+  return t.replace(re, m => `<mark>${m}</mark>`);
+};
+const match = r => !state.text || [r.a, r.pt, r.i].some(x => (x || "").toLowerCase().includes(state.text.toLowerCase()));
+const anyMatch = rs => rs.some(match);
+const sexAge = p => `${p.sex === "f" ? "F" : p.sex === "m" ? "M" : ""} ${p.age ?? ""}`.trim();
+const firmLine = p => p.firm ? `${p.firm.sector} · ${p.firm.employees} addetti · ${p.firm.role}` : "";
+const STATUS = { dont_know: "non so", nonresponse: "nessuna risposta", not_applicable: "non prevista", abandoned: "interrotta" };
+
+function answerBlock(rs) {
+  if (!rs.length) return `<p class="ans empty">—</p>`;
+  return rs.map(r => {
+    let h = r.i ? `<div class="item">${hl(r.i)}</div>` : "";
+    h += r.a ? `<p class="ans">${hl(r.a)}</p>` : `<p class="ans empty">${esc(STATUS[r.s] || (r.s === "answered" ? "(vuota)" : r.s))}</p>`;
+    if (r.pt) h += `<div class="probe">${hl(r.pt)}</div>`;
+    if (r.inc) h += `<div class="inc">⚠ incongruenza segnalata</div>`;
+    if (state.sig) {
+      const chips = Object.entries(r.nv).map(([k, v]) => `<span>${esc(k)} ${v}</span>`).join("");
+      if (chips) h += `<div class="sig">${chips}</div>`;
+      if (r.note) h += `<div class="thought">“${esc(r.note)}”</div>`;
+    }
+    return h;
+  }).join("");
+}
+
+const personasFiltered = () => D.personas.filter(p => !state.seg || p.segment === state.seg);
+
+function viewQuestion() {
+  const qs = D.questions;
+  const q = qs.find(x => x.id === state.q) || qs[0];
+  if (!q) return `<div class="empty-state">Nessuna domanda.</div>`;
+  let h = `<div class="qnav">${qs.map((x, i) =>
+    `<button data-q="${esc(x.id)}" class="${x.id === q.id ? "on" : ""}" title="${esc(x.text)}">D${i + 1}</button>`).join("")}</div>`;
+  h += `<div class="qhead"><h2>${esc(q.text)}</h2><div class="sub">`;
+  if (q.probe) h += `Rilancio (CATI/CAPI): <b>${esc(q.probe)}</b><br>`;
+  if (q.note) h += `Cosa annotare: <b>${esc(q.note)}</b>`;
+  h += `</div></div>`;
+  const ps = personasFiltered().filter(p => MODES.some(m => anyMatch(get(p.id, m, q.id))));
+  if (!ps.length) return h + `<div class="empty-state">Nessuna risposta corrisponde ai filtri.</div>`;
+  h += `<table class="grid"><thead><tr><th style="width:18%">Persona</th>${MODES.map(m =>
+    `<th><span class="mode ${esc(m)}">${esc(mlabel(m))}</span></th>`).join("")}</tr></thead><tbody>`;
+  for (const p of ps) {
+    h += `<tr><td class="who"><b>${esc(p.name)} <span class="pill ${esc(p.segment)}">${esc(p.segment)}</span></b>
+      <small>${esc(sexAge(p))} · ${esc(p.region)}${firmLine(p) ? "<br>" + esc(firmLine(p)) : ""}</small></td>`;
+    for (const m of MODES) h += `<td><span class="mobile-label mode ${esc(m)}">${esc(mlabel(m))}</span>${answerBlock(get(p.id, m, q.id))}</td>`;
+    h += `</tr>`;
+  }
+  return h + `</tbody></table>`;
+}
+
+function viewPersona() {
+  const ps = personasFiltered().filter(p => !state.text || D.rows.some(r => r.p === p.id && r.r === state.rep && match(r)));
+  if (!ps.length) return `<div class="empty-state">Nessuna persona corrisponde ai filtri.</div>`;
+  let h = `<div class="cards">`;
+  for (const p of ps) {
+    h += `<div class="pcard"><h3>${esc(p.name)} <span class="pill ${esc(p.segment)}">${esc(p.segment)}</span>
+      <small class="meta">${esc(sexAge(p))} · ${esc(p.region)}${firmLine(p) ? " · " + esc(firmLine(p)) : ""} · ${esc(p.id)}</small></h3>
+      <details${state.text ? " open" : ""}><summary>Profilo e interviste</summary>
+      <p class="narr">${esc(p.narrative)}</p><div class="cols" style="--n:${MODES.length}">`;
+    for (const m of MODES) {
+      const iv = D.interviews.find(i => i.persona_id === p.id && i.mode === m && i.replicate === state.rep);
+      h += `<div class="col"><h4><span class="mode ${esc(m)}">${esc(mlabel(m))}</span>${iv && !iv.completed ? `<span class="inc"> · interrotta</span>` : ""}</h4>`;
+      D.questions.forEach((q, i) => {
+        const rs = get(p.id, m, q.id);
+        if (state.text && !anyMatch(rs)) return;
+        if (!rs.length) return;
+        h += `<div class="qa"><div class="qq">D${i + 1}. ${esc(q.text)}</div>${answerBlock(rs)}</div>`;
+      });
+      h += `</div>`;
+    }
+    h += `</div></details></div>`;
+  }
+  return h + `</div>`;
+}
+
+function render() {
+  try { localStorage.setItem(STORE, JSON.stringify({ view: state.view, seg: state.seg, q: state.q, sig: state.sig })); } catch (e) {}
+  document.querySelectorAll("#tabs button").forEach(b => b.classList.toggle("on", b.dataset.v === state.view));
+  document.querySelectorAll("#seg button").forEach(b => b.classList.toggle("on", b.dataset.s === state.seg));
+  document.getElementById("showsig").checked = state.sig;
+  document.getElementById("main").innerHTML = state.view === "q" ? viewQuestion() : viewPersona();
+}
+
+document.getElementById("proj").textContent = D.project || D.run;
+document.getElementById("meta").textContent = `Run ${D.run}`;
+const segCount = s => D.personas.filter(p => p.segment === s).length;
+const done = D.interviews.filter(i => i.completed).length;
+document.getElementById("kpis").innerHTML = [
+  [D.personas.length, "persone"], ...SEGMENTS.map(s => [segCount(s), s]),
+  [D.interviews.length ? `${done}/${D.interviews.length}` : "-", "interviste completate"],
+  [D.rows.length, "risposte"], [D.rows.filter(r => r.pt).length, "risposte ai rilanci"],
+].map(([v, l]) => `<div class="kpi"><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join("");
+document.getElementById("seg").innerHTML = [["", "Tutti"], ...SEGMENTS.map(s => [s, s[0].toUpperCase() + s.slice(1)])]
+  .map(([v, l]) => `<button data-s="${esc(v)}">${esc(l)}</button>`).join("");
+const rep = document.getElementById("rep");
+rep.innerHTML = D.replicates.map(r => `<option value="${r}">Replica ${r}</option>`).join("");
+rep.hidden = D.replicates.length < 2;
+
+document.getElementById("tabs").onclick = e => { if (e.target.dataset.v) { state.view = e.target.dataset.v; render(); } };
+document.getElementById("seg").onclick = e => { if (e.target.dataset.s !== undefined) { state.seg = e.target.dataset.s; render(); } };
+document.getElementById("main").onclick = e => { if (e.target.dataset.q) { state.q = e.target.dataset.q; render(); } };
+rep.onchange = e => { state.rep = Number(e.target.value); render(); };
+document.getElementById("q").oninput = e => { state.text = e.target.value.trim(); render(); };
+document.getElementById("showsig").onchange = e => { state.sig = e.target.checked; render(); };
+render();
+{% endraw %}
+</script>
+</body>
+</html>

@@ -4,6 +4,12 @@ Tutte le modifiche rilevanti del progetto. Il formato segue
 [Keep a Changelog](https://keepachangelog.com/it/1.1.0/); le versioni
 seguono il versionamento semantico.
 
+## [Non rilasciato]
+
+### Aggiunto
+
+- Pagina `interviste.html`, prodotta sempre accanto a `report.html` (a fine run e da `synthsurvey report`): un file autonomo per leggere interviste e risposte per domanda o per persona, con modalità affiancate, rilanci, filtri per segmento e replica, ricerca e segnali non verbali a richiesta. Nessun dato del committente.
+
 ## [0.1.3] - 2026-11-08
 
 ### Aggiunto
