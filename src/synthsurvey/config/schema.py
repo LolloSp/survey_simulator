@@ -163,8 +163,9 @@ class ModesConfig(StrictModel):
         return self
 
 
-# Provider LLM implementati: "anthropic" (M6), "openai" (M12) e "fake" per i test.
-KNOWN_PROVIDERS: tuple[str, ...] = ("anthropic", "fake", "openai")
+# Provider LLM implementati: "anthropic" (M6), "openai" (M12), "session" (M14, la sessione
+# di Claude Code risponde su file) e "fake" per i test.
+KNOWN_PROVIDERS: tuple[str, ...] = ("anthropic", "fake", "openai", "session")
 
 
 class ModelSpec(StrictModel):

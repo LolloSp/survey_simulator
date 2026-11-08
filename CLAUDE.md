@@ -41,6 +41,7 @@ Specifica completa: docs/SPEC.md. Leggila prima di ogni milestone.
 - uv run synthsurvey validate <cartella del run> --real <csv> --out <cartella>  (confronto con dati reali; nessuna chiamata)
 - uv run synthsurvey run --config configs/examples/mercato_100_ensemble.yaml --pilot --estimate-only  (ensemble a due provider)
 - uv run synthsurvey prepare --questionnaire <file> --contacts <file> --out progetti/<nome>  (anagrafica + questionario -> config; stima senza chiamate)
+- uv run synthsurvey interview preview --config configs/examples/pilota_sessione.yaml --mode cawi  (provider sessione: si ferma con codice 5, poi `session list --full --out <md>` e `session answer <json>`, e rilancio)
 - uv run python scripts/make_questionnaire_fixtures.py  (rigenera il Word di esempio e il PDF dei test)
 - uv run python scripts/istat_explore.py search <parola>  (ricognizione dataflow ISTAT)
 

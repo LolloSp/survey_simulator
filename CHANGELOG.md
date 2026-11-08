@@ -4,6 +4,14 @@ Tutte le modifiche rilevanti del progetto. Il formato segue
 [Keep a Changelog](https://keepachangelog.com/it/1.1.0/); le versioni
 seguono il versionamento semantico.
 
+## [0.1.2] - 2026-11-08
+
+### Aggiunto
+
+- Provider `session` (M14): il modello è la sessione di Claude Code; richieste in attesa su
+  file, comandi `session list` e `session answer`, run e piloti che si sospendono (codice 5) e
+  riprendono dallo stesso comando. Esempio `configs/examples/pilota_sessione.yaml`.
+
 ## [0.1.1] - 2026-11-08
 
 ### Aggiunto

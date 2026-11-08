@@ -29,11 +29,20 @@ def make_client(spec: ModelSpec, config: SynthSurveyConfig) -> LLMClient:
         return OpenAIClient(
             spec.model, timeout_s=config.engine.timeout_s, temperature=config.engine.temperature
         )
+    if spec.provider == "session":
+        from synthsurvey.llm.session_client import SessionClient, SessionMailbox
+
+        return SessionClient(SessionMailbox(session_mailbox_dir(config)), spec.model)
     raise LLMError(f"provider '{spec.provider}' sconosciuto")
 
 
 def cache_dir_for(config: SynthSurveyConfig) -> Path:
     return config.engine.cache_dir or (config.output.dir / ".cache")
+
+
+def session_mailbox_dir(config: SynthSurveyConfig) -> Path:
+    """Cassetta delle richieste del provider `session` (M14)."""
+    return cache_dir_for(config) / "session"
 
 
 def make_pool(

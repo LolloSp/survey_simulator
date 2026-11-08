@@ -82,6 +82,31 @@ uv run synthsurvey validate <cartella del run> --real <csv> --out <cartella>
 
 Il formato del CSV è in `docs/methodology.md`, sezione 9.
 
+## Senza credito API: il provider sessione
+
+Se non c'è una chiave o il credito, il modello sei tu. Nella configurazione
+`engine.models` deve avere `provider: session`, `model: session` (esempio:
+`configs/examples/pilota_sessione.yaml`). Il ciclo è:
+
+1. lancia il comando (`interview preview ...` oppure `run --pilot`): si ferma
+   con codice 5 e dice quante richieste aspettano;
+2. `uv run synthsurvey session list --config <config> --full --out <file.md>` e
+   leggi il file: per ogni richiesta trovi system prompt (la persona e le
+   regole della modalità), la conversazione e lo schema JSON della risposta;
+3. rispondi **come quella persona**, seguendo le regole del system prompt
+   (tempo disponibile, acquiescenza, "non so", stile): niente risposte da
+   assistente, niente perfezione; scrivi un file JSON `impronta -> oggetto
+   conforme allo schema` e depositalo con `synthsurvey session answer
+   <file.json> --config <config>`; le risposte non conformi vengono
+   rifiutate con il motivo;
+4. rilancia lo stesso comando del punto 1; ripeti finché completa.
+
+Ogni passo sequenziale (una pagina CAWI, una domanda CATI o CAPI) richiede
+un giro: un pilota CAWI da 10 persone sono 5-7 giri, un CATI 10-15. Va bene
+per decine di interviste, non per i run completi. Il costo è il contesto
+della sessione: tienilo basso rispondendo in blocco e senza ricopiare i
+prompt nella chat.
+
 ## Regole
 
 - Un passo alla volta, con conferma prima di ogni spesa.

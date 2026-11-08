@@ -99,6 +99,8 @@ uv run synthsurvey llm prices
 uv run synthsurvey llm ping --config configs/examples/mercato_100.yaml
 ```
 
+Senza credito API si può fare il pilota con il provider `session`: la sessione di Claude Code risponde alle richieste in attesa (`synthsurvey session list` / `session answer`) e il run riparte da dove si era fermato. Esempio in `configs/examples/pilota_sessione.yaml`; dettagli nello skill `.claude/skills/synthsurvey-run`.
+
 ## Sviluppo
 
 ```bash

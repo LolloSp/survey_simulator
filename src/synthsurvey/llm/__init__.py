@@ -19,9 +19,17 @@ from synthsurvey.llm.pricing import (
     default_pricing,
     load_prices,
 )
-from synthsurvey.llm.registry import cache_dir_for, make_client, make_pool
+from synthsurvey.llm.registry import cache_dir_for, make_client, make_pool, session_mailbox_dir
+from synthsurvey.llm.session_client import (
+    AwaitingAnswersError,
+    PendingRequest,
+    SessionClient,
+    SessionMailbox,
+    pending_markdown,
+)
 
 __all__ = [
+    "AwaitingAnswersError",
     "FakeLLMClient",
     "LLMClient",
     "LLMError",
@@ -29,11 +37,14 @@ __all__ = [
     "LLMRequest",
     "LLMResponse",
     "Message",
+    "PendingRequest",
     "PoolStats",
     "PriceTable",
     "Pricing",
     "ResponseCache",
     "SchemaError",
+    "SessionClient",
+    "SessionMailbox",
     "UnknownModelError",
     "Usage",
     "cache_dir_for",
@@ -42,4 +53,6 @@ __all__ = [
     "load_prices",
     "make_client",
     "make_pool",
+    "pending_markdown",
+    "session_mailbox_dir",
 ]

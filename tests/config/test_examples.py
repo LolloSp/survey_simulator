@@ -8,12 +8,13 @@ from synthsurvey.config import Design, estimate_interviews, load_config, segment
 from tests.config.conftest import ESEMPI, ESEMPI_DIR
 
 
-def test_ci_sono_quattro_esempi() -> None:
+def test_ci_sono_cinque_esempi() -> None:
     assert [p.name for p in ESEMPI] == [
         "mercato_100.yaml",
         "mercato_1000.yaml",
         "mercato_100_ensemble.yaml",
         "mercato_500.yaml",
+        "pilota_sessione.yaml",
     ]
 
 

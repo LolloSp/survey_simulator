@@ -459,6 +459,18 @@ versionato con data e fonte; il costo per risposta usa le quattro categorie
 di token e `engine.eur_per_usd` lo converte in euro per il confronto con
 `run.budget_max_eur` in M9.
 
+### Provider sessione (M14)
+
+Con `provider: session` nessun modello viene chiamato: ogni richiesta
+senza risposta finisce su file e il run si sospende; la sessione di Claude
+Code legge le richieste (persona, regole della modalità, conversazione,
+schema) e deposita risposte validate contro lo schema, poi il run riparte
+dallo stesso comando grazie alla cache per impronta. È pensato per piloti
+di poche decine di interviste quando manca il credito API: la qualità
+dipende da chi risponde, non c'è concorrenza reale e ogni passo
+sequenziale richiede un giro. I record riportano `model = session`, così
+nei confronti non si mescolano con quelli dei modelli via API.
+
 ## 6. Simulazione delle modalità
 
 ### Rispondente

@@ -32,6 +32,7 @@ from synthsurvey.interview.session import InterviewResult, InterviewSpec, run_in
 from synthsurvey.llm.pool import LLMPool
 from synthsurvey.llm.pricing import default_pricing
 from synthsurvey.llm.registry import make_pool
+from synthsurvey.llm.session_client import AwaitingAnswersError
 from synthsurvey.personas.build import build_personas
 from synthsurvey.personas.narrative import template_hash as persona_template_hash
 from synthsurvey.personas.schema import Persona
@@ -77,6 +78,11 @@ class RunResult:
     results: list[InterviewResult] = field(default_factory=list)
     skipped: int = 0
     cost_eur: float = 0.0
+    awaiting: int = 0  # interviste sospese in attesa di risposte dalla sessione (M14)
+
+    @property
+    def paused(self) -> bool:
+        return self.awaiting > 0
 
     @property
     def budget_exceeded(self) -> bool:
@@ -197,9 +203,9 @@ async def _execute(
     cfg: SynthSurveyConfig,
     run_id: str,
     progress: Progress | None,
-) -> tuple[list[InterviewResult], int]:
+) -> tuple[list[InterviewResult], int, int]:
     budget = cfg.run.budget_max_eur
-    stato = {"fatte": 0, "saltate": 0}
+    stato = {"fatte": 0, "saltate": 0, "in_attesa": 0}
     lock = asyncio.Lock()
 
     def spesa_eur() -> float:
@@ -220,7 +226,12 @@ async def _execute(
             model=pool.client.model,
             seed=cfg.project.seed,
         )
-        res = await run_interview(spec, questionnaire, mqs[item.mode], pool, cfg)
+        try:
+            res = await run_interview(spec, questionnaire, mqs[item.mode], pool, cfg)
+        except AwaitingAnswersError:
+            async with lock:
+                stato["in_attesa"] += 1
+            return None
         async with lock:
             stato["fatte"] += 1
             if progress is not None:
@@ -228,7 +239,7 @@ async def _execute(
         return res
 
     esiti = await asyncio.gather(*(una(item) for item in plan))
-    return [r for r in esiti if r is not None], stato["saltate"]
+    return [r for r in esiti if r is not None], stato["saltate"], stato["in_attesa"]
 
 
 def execute_run(
@@ -286,11 +297,20 @@ def execute_run(
     manifest["started_at"] = now_iso()
     write_manifest(run_dir, manifest)
 
-    results, skipped = asyncio.run(
+    results, skipped, awaiting = asyncio.run(
         _execute(plan, personas, questionnaire, mqs, pools, cfg, run_id, progress)
     )
     result.results = results
     result.skipped = skipped
+    result.awaiting = awaiting
+    if awaiting:
+        # Provider sessione: si riparte con lo stesso comando dopo aver depositato le risposte.
+        manifest["status"] = "paused"
+        manifest["interviews_awaiting"] = awaiting
+        manifest["interviews_done"] = len(results)
+        write_manifest(run_dir, manifest)
+        result.manifest = manifest
+        return result
     result.cost_eur = sum(p.stats.cost_usd for p in pools) * cfg.engine.eur_per_usd
 
     formati = [f.value for f in cfg.output.formats]

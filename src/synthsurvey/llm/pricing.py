@@ -52,8 +52,8 @@ class Pricing:
     eur_per_usd: float = 1.0
 
     def price(self, model: str) -> ModelPrice:
-        if model.startswith("fake"):
-            return FREE  # il provider finto non costa, qualunque sia il nome del modello
+        if model.startswith(("fake", "session")):
+            return FREE  # provider finto e sessione non costano, qualunque sia il nome
         try:
             return self.table.models[model]
         except KeyError:

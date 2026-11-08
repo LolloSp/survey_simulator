@@ -11,6 +11,9 @@ decisione umana. Una riga per voce; si cancella quando è chiusa.
   `src/synthsurvey/personas/coherence.py`. Finché non è fatta, M4 è
   implementata ma non chiusa secondo il criterio della SPEC. Aperta il
   6 novembre 2026, si procede intanto con M5 per decisione del responsabile.
+- [ ] **Credito API**: la chiave Anthropic in `.env` è valida ma l'account non ha credito
+  (verificato l'8 novembre 2026); finché non viene caricato, i piloti si fanno con il
+  provider `session` (M14) e le voci "dal vivo" restano aperte per il modello reale.
 - [ ] **M6, prova dal vivo del provider**: con `ANTHROPIC_API_KEY` in `.env`
   lanciare `uv run synthsurvey llm ping --config configs/examples/mercato_100.yaml`
   e verificare credenziali, modello, formato strutturato e costo.

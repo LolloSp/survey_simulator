@@ -32,6 +32,10 @@ llm_app = typer.Typer(
 questionnaire_app = typer.Typer(
     help="Questionario: validazione e versioni per modalità.", no_args_is_help=True
 )
+session_app = typer.Typer(
+    help="Provider sessione: richieste in attesa e deposito delle risposte.",
+    no_args_is_help=True,
+)
 app.add_typer(config_app, name="config")
 app.add_typer(data_app, name="data")
 app.add_typer(sample_app, name="sample")
@@ -40,11 +44,31 @@ interview_app = typer.Typer(help="Interviste simulate: pilota per modalità.", n
 app.add_typer(questionnaire_app, name="questionnaire")
 app.add_typer(llm_app, name="llm")
 app.add_typer(interview_app, name="interview")
+app.add_typer(session_app, name="session")
 
 ConfigOption = Annotated[
     Path,
     typer.Option("--config", "-c", help="File YAML di configurazione del progetto."),
 ]
+
+
+def _avviso_sessione(cfg: object, in_attesa: int) -> None:
+    """Provider sessione: dice quante richieste aspettano e come rispondere."""
+    from synthsurvey.config.schema import SynthSurveyConfig
+    from synthsurvey.llm import SessionMailbox, session_mailbox_dir
+
+    assert isinstance(cfg, SynthSurveyConfig)
+    mailbox = SessionMailbox(session_mailbox_dir(cfg))
+    n_p, _n_a = mailbox.counts()
+    typer.secho(
+        f"In pausa: {in_attesa} interviste aspettano {n_p} risposte dalla sessione "
+        f"({mailbox.pending_dir}).",
+        fg=typer.colors.YELLOW,
+    )
+    typer.echo(
+        "Rispondere con `synthsurvey session list --full` e `synthsurvey session answer <json>`, "
+        "poi rilanciare lo stesso comando."
+    )
 
 
 def _non_implementato(comando: str, milestone: str) -> None:
@@ -736,12 +760,16 @@ def interview_preview(
         for i, p in enumerate(personas)
     ]
 
+    from synthsurvey.llm import AwaitingAnswersError
+
+    async def _una(s: InterviewSpec) -> object:
+        try:
+            return await run_interview(s, loaded_q.questionnaire, mq, pool, cfg)
+        except AwaitingAnswersError:
+            return None
+
     async def _tutte() -> list[object]:
-        return list(
-            await asyncio.gather(
-                *(run_interview(s, loaded_q.questionnaire, mq, pool, cfg) for s in specs)
-            )
-        )
+        return list(await asyncio.gather(*(_una(s) for s in specs)))
 
     try:
         results = asyncio.run(_tutte())
@@ -754,6 +782,10 @@ def interview_preview(
 
     from synthsurvey.interview import AnswerStatus, InterviewResult
 
+    in_attesa = sum(1 for res in results if res is None)
+    if in_attesa:
+        _avviso_sessione(cfg, in_attesa)
+        raise typer.Exit(code=5)
     records = [r for res in results if isinstance(res, InterviewResult) for r in res.records]
     stats = pool.stats.as_dict()
     completate = sum(
@@ -810,6 +842,71 @@ def interview_preview(
             testo = "\n\n".join(f"**{t.speaker}**\n\n{t.text}" for t in res.transcript)
             (trascrizioni / nome).write_text(testo + "\n", encoding="utf-8")
         typer.secho(f"Scritto in {out}", fg=typer.colors.GREEN)
+
+
+@session_app.command("list")
+def session_list(
+    config: ConfigOption = Path("config.yaml"),
+    full: Annotated[
+        bool, typer.Option("--full", help="Testo completo di system, conversazione e schema.")
+    ] = False,
+    out: Annotated[
+        Path | None, typer.Option("--out", help="Scrive l'elenco in un file Markdown.")
+    ] = None,
+) -> None:
+    """Elenca le richieste in attesa di risposta dalla sessione."""
+    from synthsurvey.llm import SessionMailbox, pending_markdown, session_mailbox_dir
+
+    try:
+        cfg = load_config(config).config
+    except ConfigError as exc:
+        typer.secho(str(exc), fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from None
+    mailbox = SessionMailbox(session_mailbox_dir(cfg))
+    richieste = mailbox.pending()
+    testo = pending_markdown(richieste, full=full)
+    if out is not None:
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(testo, encoding="utf-8")
+        typer.echo(f"{len(richieste)} richieste in attesa, elenco in {out}")
+    else:
+        typer.echo(testo)
+
+
+@session_app.command("answer")
+def session_answer(
+    file: Annotated[Path, typer.Argument(help="JSON: impronta -> risposta conforme allo schema.")],
+    config: ConfigOption = Path("config.yaml"),
+) -> None:
+    """Deposita le risposte della sessione; quelle non conformi vengono rifiutate."""
+    import json
+
+    from synthsurvey.llm import SessionMailbox, session_mailbox_dir
+
+    try:
+        cfg = load_config(config).config
+    except ConfigError as exc:
+        typer.secho(str(exc), fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from None
+    try:
+        risposte = json.loads(file.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        typer.secho(f"file delle risposte non leggibile: {exc}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from None
+    if not isinstance(risposte, dict):
+        typer.secho("serve un oggetto JSON impronta -> risposta", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1)
+    mailbox = SessionMailbox(session_mailbox_dir(cfg))
+    accettate, errori = mailbox.deposit(risposte)
+    for e in errori:
+        typer.secho(f"  - {e}", fg=typer.colors.RED, err=True)
+    n_p, _ = mailbox.counts()
+    typer.secho(
+        f"Risposte accettate {len(accettate)}, rifiutate {len(errori)}; ancora in attesa {n_p}.",
+        fg=typer.colors.GREEN if not errori else typer.colors.YELLOW,
+    )
+    if errori:
+        raise typer.Exit(code=2)
 
 
 @app.command("prepare")
@@ -949,6 +1046,9 @@ def run(
     if estimate_only:
         typer.secho("Solo stima: nessuna chiamata eseguita.", fg=typer.colors.GREEN)
         return
+    if result.paused:
+        _avviso_sessione(loaded.config, result.awaiting)
+        raise typer.Exit(code=5)
     m = result.manifest
     typer.echo(
         f"Interviste fatte {m['interviews_done']}, saltate {m['interviews_skipped']}, "
