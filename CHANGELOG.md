@@ -4,7 +4,7 @@ Tutte le modifiche rilevanti del progetto. Il formato segue
 [Keep a Changelog](https://keepachangelog.com/it/1.1.0/); le versioni
 seguono il versionamento semantico.
 
-## [Non rilasciato]
+## [0.1.4] - 2026-11-08
 
 ### Aggiunto
 
