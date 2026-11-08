@@ -137,7 +137,8 @@ async def test_capi_griglia_intera_e_cartellini(
     osservato = rec[("q1", None)].nonverbal_observed
     assert osservato is not None and osservato["body"]["espressione"] == "neutra"
     letture = [t.text for t in result.transcript if t.speaker == "intervistatore"]
-    assert any("[Cartellino: da 1 a 10" in t for t in letture)
+    q1 = next(t for t in letture if t.startswith("Quanto è soddisfatto"))
+    assert q1.lower().count("cartellino") == 1, "il cartellino della scala compare una volta sola"
     q4 = next(t for t in letture if t.startswith("Quali di questi canali"))
     assert "[Cartellino:" in q4 and q4.rstrip("]").endswith("Nessuno")
     assert "sei un intervistatore" not in client.requests[0].system.lower()

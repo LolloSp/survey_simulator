@@ -27,16 +27,19 @@ decisione umana. Una riga per voce; si cancella quando è chiusa.
   120 record validi, routing e stati corretti (`runs/pilota_cawi_sessione`). Resta la
   prova con il modello reale quando c'è credito: `interview preview --mode cawi` sulla
   config `mercato_100.yaml`, per giudicare la plausibilità delle risposte del modello.
-- [ ] **M8, piloti CATI e CAPI dal vivo**: come per M7 con `--mode cati` e
-  `--mode capi`; leggere le trascrizioni in `transcripts/` e la colonna
-  `incongruence`: se l'intervistatore interviene troppo o troppo poco, agire
-  sulla soglia `PROBE_THRESHOLD` o sul prompt `interviewer_it.j2`.
-- [ ] **M9, run pilota dal vivo**: `uv run synthsurvey run --config configs/examples/mercato_100.yaml --pilot`
-  con la chiave in `.env`; confrontare la spesa reale nel manifest con la stima
-  e, se la stima sbaglia di molto, ritoccare le costanti in `runner/plan.py`.
-- [ ] **M10, apertura del .sav in SPSS o R**: il file è verificato con pyreadstat;
-  il criterio della SPEC chiede l'apertura in SPSS o R (`haven::read_sav`) su un
-  run vero. Da fare quando esiste un run con il modello reale.
+- [x] **M8, piloti CATI e CAPI** (8 novembre 2026): completati con il provider `session`,
+  5 persone per modalità (`runs/pilota_cati_sessione`, `runs/pilota_capi_sessione`):
+  60 record ciascuno, intervistatore intervenuto 3 e 2 volte (accettazioni su segnali
+  moderati, un chiarimento, un rifiuto spontaneo accettato), segnali del corpo solo nel
+  CAPI. Resta la prova con il modello reale.
+- [x] **M9, run pilota** (8 novembre 2026): `run --pilot` con il provider `session`, 5 persone
+  x 3 modalità x 1 replica, completato in 7 riprese e congelato (`runs/pilota-sessione`,
+  26 file, hash verificati). La stima prudente prevedeva 195 chiamate, ne sono servite
+  108: le costanti in `runner/plan.py` sopravvalutano di circa l'80%, da tarare con il
+  modello reale (la spesa reale resta da confrontare quando c'è credito).
+- [ ] **M10, apertura del .sav in SPSS o R**: il file `runs/pilota-sessione/responses_wide.sav`
+  esiste ed è verificato con pyreadstat; su questo PC non ci sono né R né SPSS. Da aprire
+  su una macchina con R (`haven::read_sav`) o SPSS: tocca a te.
 - [ ] **M11, validazione con dati veri**: esportare le interviste reali del caso
   di riferimento nel formato lungo (docs/methodology.md, sezione 9) e lanciare
   `synthsurvey validate`; il criterio della SPEC è verificato finora solo con

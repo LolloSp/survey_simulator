@@ -715,6 +715,7 @@ def interview_preview(
     from synthsurvey.population.sample import build_sample
     from synthsurvey.population.tables import TablesError, load_tables
     from synthsurvey.questionnaire import Mode, QuestionnaireError, adapt, load_questionnaire
+    from synthsurvey.runner.outputs import transcript_markdown
 
     try:
         cfg = load_config(config).config
@@ -839,8 +840,7 @@ def interview_preview(
             if not isinstance(res, InterviewResult):
                 continue
             nome = f"{res.persona_id}_{modalita.value}_r{replicate}.md"
-            testo = "\n\n".join(f"**{t.speaker}**\n\n{t.text}" for t in res.transcript)
-            (trascrizioni / nome).write_text(testo + "\n", encoding="utf-8")
+            (trascrizioni / nome).write_text(transcript_markdown(res), encoding="utf-8")
         typer.secho(f"Scritto in {out}", fg=typer.colors.GREEN)
 
 

@@ -102,7 +102,7 @@ def spoken_question(mq: ModeQuestion, presented: list[str]) -> str:
     if mq.show_card:
         if mq.options:
             testo += " [Cartellino: " + "; ".join(presented) + "]"
-        elif mq.scale is not None:
+        elif mq.scale is not None and "cartellino" not in testo.lower():
             etichette = ", ".join(f"{k} = {v}" for k, v in sorted(mq.scale.labels.items()))
             testo += f" [Cartellino: da {mq.scale.min} a {mq.scale.max}" + (
                 f"; {etichette}]" if etichette else "]"
