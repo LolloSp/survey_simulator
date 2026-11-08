@@ -49,9 +49,10 @@ decisione umana. Una riga per voce; si cancella quando è chiusa.
   `synthsurvey validate`; il criterio della SPEC è verificato finora solo con
   un dataset fittizio.
 
-- [ ] **Release su GitHub**: creare la release dal tag più recente con il testo di
-  `CHANGELOG.md`. GitHub CLI è installato (8 novembre 2026); serve il tuo
-  `gh auth login`, poi `gh release create` lo fa Claude dalla sessione.
+- [x] **Release su GitHub** (8 novembre 2026): tag `v0.1.2` creato sul commit di M14 e
+  release v0.1.0, v0.1.1 e v0.1.2 pubblicate con `gh release create` e le sezioni di
+  `CHANGELOG.md` (v0.1.2 marcata Latest). Il repository è pubblico: da confermare se voluto
+  per un prodotto proprietario (`gh repo edit --visibility private`).
 
 - [x] **M13, prepare sull'anagrafica vera via sessione** (8 novembre 2026): `prepare
   --provider session --size 3 --modes cawi,cati` sul file in `data/raw/` (2231 record

@@ -44,6 +44,7 @@ Specifica completa: docs/SPEC.md. Leggila prima di ogni milestone.
 - uv run synthsurvey interview preview --config configs/examples/pilota_sessione.yaml --mode cawi  (provider sessione: si ferma con codice 5, poi `session list --full --out <md>` e `session answer <json>`, e rilancio)
 - uv run python scripts/make_questionnaire_fixtures.py  (rigenera il Word di esempio e il PDF dei test)
 - uv run python scripts/istat_explore.py search <parola>  (ricognizione dataflow ISTAT)
+- gh release create vX.Y.Z --notes-file <note>  (release dal tag; `gh` in C:/Program Files/GitHub CLI, login già fatto)
 
 ## Ambiente
 - Sviluppo su Windows 11 (PowerShell); la CI gira su Linux.
