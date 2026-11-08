@@ -58,7 +58,7 @@ def test_segmento_quote_duplicate(base: dict[str, Any]) -> None:
 
 def test_segmento_quote_vuote(base: dict[str, Any]) -> None:
     base["sample"]["segments"]["consumer"]["quotas"] = []
-    assert ha_errore(base, "sample.segments.consumer.quotas")
+    assert ha_errore(base, "sample.segments.consumer")
 
 
 def test_segmento_share_fuori_intervallo(base: dict[str, Any]) -> None:

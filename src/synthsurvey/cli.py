@@ -812,6 +812,80 @@ def interview_preview(
         typer.secho(f"Scritto in {out}", fg=typer.colors.GREEN)
 
 
+@app.command("prepare")
+def prepare_cmd(
+    questionnaire: Annotated[
+        Path, typer.Option("--questionnaire", "-q", help="Questionario: YAML, Word, PDF o Excel.")
+    ],
+    contacts: Annotated[
+        Path, typer.Option("--contacts", "-a", help="Anagrafica del committente: Excel o CSV.")
+    ],
+    out: Annotated[Path, typer.Option("--out", "-o", help="Cartella del progetto da creare.")],
+    project_name: Annotated[
+        str | None, typer.Option("--project-name", help="Nome del progetto (default dal file).")
+    ] = None,
+    provider: Annotated[str, typer.Option("--provider", help="anthropic, openai o fake.")] = (
+        "anthropic"
+    ),
+    model: Annotated[str, typer.Option("--model", help="Modello LLM.")] = "claude-opus-5-5",
+    modes: Annotated[
+        str, typer.Option("--modes", help="Modalità separate da virgola.")
+    ] = "cawi,cati,capi",
+    replicates: Annotated[int, typer.Option("--replicates", min=1)] = 3,
+    budget: Annotated[float, typer.Option("--budget", help="Tetto di spesa in euro.")] = 50.0,
+    seed: Annotated[int, typer.Option("--seed")] = 20261108,
+    sheet: Annotated[
+        str | None, typer.Option("--sheet", help="Foglio Excel dell'anagrafica.")
+    ] = None,
+    mapping: Annotated[
+        str | None,
+        typer.Option("--mapping", help="Colonne: campo=Intestazione,... (es. sex=Genere)."),
+    ] = None,
+    estimate: Annotated[
+        bool, typer.Option("--estimate/--no-estimate", help="Stima costo e volume.")
+    ] = True,
+    size: Annotated[
+        int | None,
+        typer.Option("--size", min=1, help="Sottocampione casuale per segmento (default: tutti)."),
+    ] = None,
+    data_dir: DataDirOption = Path("data"),
+) -> None:
+    """Prepara un progetto da questionario e anagrafica: configurazione, questionario, stima."""
+    from synthsurvey.prepare import PrepareError, prepare, summary_text
+
+    mappa = None
+    if mapping:
+        mappa = {}
+        for coppia in mapping.split(","):
+            if "=" not in coppia:
+                typer.secho(f"--mapping: voce non valida '{coppia}'", fg=typer.colors.RED, err=True)
+                raise typer.Exit(code=2)
+            k, v = coppia.split("=", 1)
+            mappa[k.strip()] = v.strip()
+    try:
+        result = prepare(
+            questionnaire=questionnaire,
+            contacts_path=contacts,
+            out_dir=out,
+            project_name=project_name,
+            model={"provider": provider, "model": model},
+            modes=[m.strip() for m in modes.split(",") if m.strip()],
+            replicates=replicates,
+            budget_eur=budget,
+            seed=seed,
+            sheet=sheet,
+            mapping=mappa,
+            data_dir=data_dir,
+            estimate=estimate,
+            size=size,
+        )
+    except PrepareError as exc:
+        typer.secho(f"Preparazione interrotta: {exc}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from None
+    typer.echo(summary_text(result))
+    typer.secho(f"Progetto pronto in {result.out_dir}", fg=typer.colors.GREEN)
+
+
 @app.command("run")
 def run(
     config: ConfigOption = Path("config.yaml"),

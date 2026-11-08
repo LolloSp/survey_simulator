@@ -56,6 +56,13 @@ def _source_versions(processed_dir: Path | None, priors_path: Path | None) -> di
     return versions
 
 
+def _is_firm(unit: dict[str, Any]) -> bool:
+    kind = unit.get("unit_kind")
+    if kind:
+        return str(kind) == "imprese"
+    return str(unit["source"]) == "istat_imprese"
+
+
 def _assemble(
     unit: dict[str, Any],
     attrs: dict[str, Any],
@@ -65,7 +72,7 @@ def _assemble(
     versions: dict[str, str],
 ) -> Persona:
     firm = None
-    if unit["source"] == "istat_imprese":
+    if _is_firm(unit):
         firm = Firm(
             sector=unit["sector"],
             size_class=unit["size_class"],
@@ -138,7 +145,7 @@ def build_personas(
         attrs: dict[str, Any] = {}
         prov: dict[str, Provenance] = {}
         for _attempt in range(1, priors.coherence.max_attempts + 1):
-            if unit["source"] == "istat_imprese":
+            if _is_firm(unit):
                 attrs, prov = sampler.firm(unit, allowed_roles.get(unit["segment"]), rng)
             else:
                 attrs, prov = sampler.individual(unit, rng)

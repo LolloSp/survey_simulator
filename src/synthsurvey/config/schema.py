@@ -59,12 +59,26 @@ class ProjectConfig(StrictModel):
     seed: int = Field(ge=0)
 
 
+LISTA_CLIENTI = "lista_clienti"
+
+
+class ContactsSpec(StrictModel):
+    """Anagrafica del committente come campione (sorgente `lista_clienti`, M13)."""
+
+    path: Path
+    unit: Literal["individui", "imprese"] | None = None  # None: riga per riga
+    sheet: str | None = None
+    mapping: dict[str, str] = Field(default_factory=dict)  # campo canonico -> intestazione
+    keep: dict[str, list[str]] = Field(default_factory=dict)  # colonna -> valori ammessi
+
+
 class SegmentConfig(StrictModel):
     share: Share | None = None
     size: int | None = Field(default=None, gt=0)
     source: str = Field(min_length=1)
+    contacts: ContactsSpec | None = None
     filters: dict[str, FilterValue] = Field(default_factory=dict)
-    quotas: list[str] = Field(min_length=1)
+    quotas: list[str] = Field(default_factory=list)
     oversample: dict[str, dict[str, Share]] = Field(default_factory=dict)
     respondent_role: list[str] | None = Field(default=None, min_length=1)
 
@@ -72,6 +86,16 @@ class SegmentConfig(StrictModel):
     @classmethod
     def _quotas_uniche(cls, v: list[str]) -> list[str]:
         return _check_unique(v, "quotas")
+
+    @model_validator(mode="after")
+    def _contacts_coerenti(self) -> "SegmentConfig":
+        if self.source == LISTA_CLIENTI and self.contacts is None:
+            raise ValueError("source lista_clienti richiede il blocco contacts (path del file)")
+        if self.source != LISTA_CLIENTI and self.contacts is not None:
+            raise ValueError("contacts è ammesso solo con source lista_clienti")
+        if self.source != LISTA_CLIENTI and not self.quotas:
+            raise ValueError("quotas: almeno una variabile di quota per le sorgenti ISTAT")
+        return self
 
     @field_validator("respondent_role")
     @classmethod
@@ -91,7 +115,7 @@ class SegmentConfig(StrictModel):
 
 
 class SampleConfig(StrictModel):
-    total: int = Field(gt=0)
+    total: int | None = Field(default=None, gt=0)  # null solo con lista_clienti
     allocation: Allocation = Allocation.QUOTA
     segments: dict[str, SegmentConfig] = Field(min_length=1)
 

@@ -5,9 +5,19 @@ rispondenti coerente con i dati ISTAT e gli sottopone un questionario in tre
 modalità (CAWI, CATI, CAPI) tramite agenti LLM, producendo un dataset con pesi,
 paradati e codebook.
 
-Specifica completa: [docs/SPEC.md](docs/SPEC.md). Stato: **v0.1.0, tutte le milestone implementate** (prove dal vivo e revisioni in `docs/TODO.md`).
+Specifica completa: [docs/SPEC.md](docs/SPEC.md). Stato: **v0.1.1, M13 anagrafiche e avvio da Claude Code** (prove dal vivo e revisioni in `docs/TODO.md`).
 
 ## Avvio rapido
+
+Il modo più semplice: da una sessione di Claude Code, con il questionario (YAML, Word, PDF o Excel) e l'anagrafica del committente (Excel o CSV) in `data/raw/`, chiedere di lanciare l'indagine. Lo skill `synthsurvey-run` guida i passi; sotto il cofano:
+
+```bash
+uv run synthsurvey prepare --questionnaire data/raw/questionario.docx --contacts data/raw/anagrafica.xlsx --out progetti/cliente
+uv run synthsurvey run --config progetti/cliente/config.yaml --pilot
+uv run synthsurvey run --config progetti/cliente/config.yaml
+```
+
+Il campione è l'anagrafica: ISTAT completa ciò che il file non dice. Nomi, codici fiscali e contatti non entrano mai nei prompt né negli output; la corrispondenza persona-record resta in `<run>/private/`, da non condividere.
 
 ```bash
 uv python install 3.12

@@ -71,6 +71,12 @@ def _resolve_paths(config: SynthSurveyConfig, base_dir: Path) -> SynthSurveyConf
     personas = config.personas
     if personas.priors_path is not None:
         personas = personas.model_copy(update={"priors_path": assoluto(personas.priors_path)})
+    segments = dict(config.sample.segments)
+    for name, seg in segments.items():
+        if seg.contacts is not None:
+            contacts = seg.contacts.model_copy(update={"path": assoluto(seg.contacts.path)})
+            segments[name] = seg.model_copy(update={"contacts": contacts})
+    sample = config.sample.model_copy(update={"segments": segments})
     engine = config.engine
     if engine.cache_dir is not None:
         engine = engine.model_copy(update={"cache_dir": assoluto(engine.cache_dir)})
@@ -80,6 +86,7 @@ def _resolve_paths(config: SynthSurveyConfig, base_dir: Path) -> SynthSurveyConf
             "output": output,
             "personas": personas,
             "engine": engine,
+            "sample": sample,
         }
     )
 

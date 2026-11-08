@@ -4,6 +4,22 @@ Tutte le modifiche rilevanti del progetto. Il formato segue
 [Keep a Changelog](https://keepachangelog.com/it/1.1.0/); le versioni
 seguono il versionamento semantico.
 
+## [0.1.1] - 2026-11-08
+
+### Aggiunto
+
+- Sorgente `lista_clienti`: il campione è l'anagrafica del committente (Excel o CSV con
+  intestazioni variabili); ISTAT completa gli attributi mancanti; provenienza `anagrafica` (M13).
+- Comando `synthsurvey prepare`: da questionario e anagrafica alla configurazione pronta,
+  con rapporto dei record e stima del run.
+- Skill di progetto `synthsurvey-run` per condurre un run da una sessione di Claude Code.
+- Tabella delle province italiane nel pacchetto.
+
+### Sicurezza
+
+- Nomi, codici fiscali e contatti dell'anagrafica non entrano in campione, prompt o output;
+  la corrispondenza persona-record sta in `<run>/private/`.
+
 ## [0.1.0] - 2026-11-07
 
 Prima release interna: la catena completa da configurazione a report.

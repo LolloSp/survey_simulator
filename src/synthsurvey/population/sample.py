@@ -19,6 +19,7 @@ from synthsurvey.population.individui import (
 )
 from synthsurvey.population.ipf import Array
 from synthsurvey.population.quotas import (
+    QuotaError,
     QuotaTarget,
     apply_filters,
     frame_total,
@@ -32,10 +33,13 @@ from synthsurvey.population.sampling import DrawResult, draw_cells, expand_units
 from synthsurvey.population.tables import IstatTables, load_tables
 from synthsurvey.population.weights import WeightResult, rake_weights
 
+CONTACTS_SOURCE = "lista_clienti"
+
 UNIT_COLUMNS = [
     "unit_id",
     "segment",
     "source",
+    "unit_kind",
     "region_code",
     "region",
     "macro_area",
@@ -48,7 +52,23 @@ UNIT_COLUMNS = [
     "size_class",
     "weight",
     "weight_pop",
+    # Solo per le anagrafiche (M13): cosa viene dal file e cosa da ISTAT.
+    "province",
+    "respondent_role_known",
+    "sex_known",
+    "age_known",
+    "sector_known",
+    "size_known",
 ]
+UNIT_DTYPES: dict[str, type[pl.DataType]] = {
+    "sex_known": pl.Boolean,
+    "age_known": pl.Boolean,
+    "sector_known": pl.Boolean,
+    "size_known": pl.Boolean,
+    "age": pl.Int64,
+    "weight": pl.Float64,
+    "weight_pop": pl.Float64,
+}
 
 
 @dataclass(frozen=True)
@@ -73,6 +93,7 @@ class SampleResult:
     ipf_iterations: int
     ipf_max_rel_error: float
     warnings: list[str]
+    private_map: pl.DataFrame | None = None  # anagrafiche: unit_id -> record (non condivisibile)
 
 
 def _frame_for(
@@ -130,6 +151,7 @@ def _segment_units(
         pl.Series("unit_id", [f"{name}_{i + 1:05d}" for i in range(units.height)]),
         pl.lit(name).alias("segment"),
         pl.lit(source.name).alias("source"),
+        pl.lit(source.unit).alias("unit_kind"),
     )
     return units
 
@@ -138,6 +160,8 @@ def _sizes(
     config: SynthSurveyConfig, totals: dict[str, float], n_total: int | None
 ) -> dict[str, int]:
     n = n_total if n_total is not None else config.sample.total
+    if n is None:
+        raise QuotaError("sample.total mancante: obbligatorio con le sorgenti ISTAT")
     if config.sample.allocation is Allocation.PROPORTIONAL:
         shares = {k: v / sum(totals.values()) for k, v in totals.items()}
         return largest_remainder(shares, n)
@@ -164,6 +188,8 @@ def build_sample(
     tables = tables if tables is not None else load_tables(processed_dir)
     segments = config.sample.segments
     sources = {name: get_source(seg.source) for name, seg in segments.items()}
+    if all(seg.source == CONTACTS_SOURCE for seg in segments.values()):
+        return _build_from_contacts(config, tables, n_total)
     individui = (
         build_individui(tables) if any(s.unit == "individui" for s in sources.values()) else None
     )
@@ -212,11 +238,7 @@ def build_sample(
         )
         warnings.extend(avvisi)
 
-    tutte = pl.concat([r.units for r in results.values()], how="diagonal")
-    for col in UNIT_COLUMNS:
-        if col not in tutte.columns:
-            tutte = tutte.with_columns(pl.lit(None, dtype=pl.String).alias(col))
-    tutte = tutte.select(UNIT_COLUMNS)
+    tutte = _complete_columns(pl.concat([r.units for r in results.values()], how="diagonal"))
     return SampleResult(
         project=config.project.name,
         seed=config.project.seed,
@@ -225,4 +247,92 @@ def build_sample(
         ipf_iterations=individui.ipf.iterations if individui is not None else 0,
         ipf_max_rel_error=individui.ipf.max_rel_error if individui is not None else 0.0,
         warnings=warnings,
+    )
+
+
+def _complete_columns(units: pl.DataFrame) -> pl.DataFrame:
+    for col in UNIT_COLUMNS:
+        if col not in units.columns:
+            units = units.with_columns(
+                pl.lit(None, dtype=UNIT_DTYPES.get(col, pl.String)).alias(col)
+            )
+    return units.select(UNIT_COLUMNS)
+
+
+def _build_from_contacts(
+    config: SynthSurveyConfig, tables: IstatTables, n_total: int | None
+) -> SampleResult:
+    """Campione dalle anagrafiche (M13): un'unità per record valido, peso 1.
+
+    `n_total` (pilota) prende i primi record di ogni segmento in proporzione.
+    """
+    from synthsurvey.population.contacts import load_contacts
+    from synthsurvey.population.contacts_sample import (
+        build_contacts_units,
+        empty_draw,
+        unit_weights,
+    )
+
+    segments = config.sample.segments
+    letti = {}
+    for name, seg in segments.items():
+        assert seg.contacts is not None
+        letti[name] = load_contacts(
+            seg.contacts.path,
+            unit=seg.contacts.unit,
+            sheet=seg.contacts.sheet,
+            mapping=seg.contacts.mapping or None,
+            keep=seg.contacts.keep or None,
+        )
+    serve_individui = any((r.records["unit"] == "individui").any() for r in letti.values() if r.n)
+    individui = build_individui(tables) if serve_individui else None
+    quote: dict[str, int] | None = None
+    if n_total is not None:
+        totali = {n: (segments[n].size or r.n) for n, r in letti.items()}
+        somma = sum(totali.values()) or 1
+        quote = largest_remainder({k: v / somma for k, v in totali.items()}, min(n_total, somma))
+    seeds = np.random.SeedSequence(config.project.seed).spawn(len(segments))
+    results: dict[str, SegmentSample] = {}
+    warnings: list[str] = []
+    mappe = []
+    for (name, seg), seed in zip(segments.items(), seeds, strict=True):
+        rng = np.random.default_rng(seed)
+        contatti = letti[name]
+        if contatti.n == 0:
+            raise QuotaError(f"{name}: nessun record utilizzabile in {contatti.path}")
+        size = seg.size
+        if quote is not None:
+            size = min(quote[name], contatti.n)
+        seg_eff = seg.model_copy(update={"size": size}) if size != seg.size else seg
+        costruite = build_contacts_units(name, seg_eff, contatti, individui, tables, rng)
+        avvisi = list(costruite.warnings)
+        scarti = len(contatti.rejected)
+        if scarti:
+            avvisi.append(f"{name}: {scarti} record scartati dall'anagrafica (vedi rapporto)")
+        if contatti.duplicates:
+            avvisi.append(f"{name}: {contatti.duplicates} righe duplicate ignorate")
+        n = costruite.units.height
+        results[name] = SegmentSample(
+            name=name,
+            source=CONTACTS_SOURCE,
+            n=n,
+            population_total=float(contatti.n),
+            targets=[],
+            draw=empty_draw(n),
+            weights=unit_weights(n),
+            units=costruite.units,
+            warnings=avvisi,
+        )
+        warnings.extend(avvisi)
+        mappe.append(costruite.private_map)
+    tutte = _complete_columns(pl.concat([r.units for r in results.values()], how="diagonal"))
+    return SampleResult(
+        project=config.project.name,
+        seed=config.project.seed,
+        segments=results,
+        units=tutte,
+        ipf_iterations=individui.ipf.iterations if individui is not None else 0,
+        ipf_max_rel_error=individui.ipf.max_rel_error if individui is not None else 0.0,
+        warnings=warnings,
+        private_map=pl.concat(mappe) if mappe else None,
     )

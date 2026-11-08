@@ -33,6 +33,7 @@ PERSONA_LABELS = {
 }
 PROVENANCE_NOTES = {
     "campione": "dal campione per quote (ISTAT via IPF)",
+    "anagrafica": "dal file di anagrafiche del committente",
     "istat": "estratto da una distribuzione ISTAT condizionata al profilo",
     "istat_proxy": "distribuzione ISTAT di un gruppo vicino",
     "ipotesi": "priori dichiarati in YAML, nessuna fonte statistica (IPOTESI)",

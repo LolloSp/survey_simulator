@@ -94,7 +94,20 @@ ISTAT_IMPRESE = DataSource(
     size_class_bounds=cat.SIZE_CLASS_BOUNDS,
 )
 
-SOURCES: dict[str, DataSource] = {s.name: s for s in (ISTAT_INDIVIDUI, ISTAT_IMPRESE)}
+# Anagrafica del committente (M13): nessuna variabile di quota né filtro; l'unità
+# (individuo o impresa) è decisa record per record, qui vale solo come etichetta.
+LISTA_CLIENTI = DataSource(
+    name="lista_clienti",
+    unit="individui",
+    quota_variables={},
+    filters={},
+    respondent_roles=cat.RESPONDENT_ROLES,
+    size_class_bounds=dict(cat.SIZE_CLASS_BOUNDS),
+)
+
+SOURCES: dict[str, DataSource] = {
+    s.name: s for s in (ISTAT_INDIVIDUI, ISTAT_IMPRESE, LISTA_CLIENTI)
+}
 
 
 class UnknownSourceError(KeyError):

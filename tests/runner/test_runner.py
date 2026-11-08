@@ -79,7 +79,7 @@ def test_piano_within_e_between(tmp_path: Path) -> None:
 
 def test_stima_costi_e_budget(tmp_path: Path, tables: IstatTables) -> None:
     loaded = config_finta(tmp_path)
-    persone, _q, mqs, _ = prepare(loaded, data_dir=PROCESSED.parent, pilot=True, tables=tables)
+    persone, _q, mqs, _t, _s = prepare(loaded, data_dir=PROCESSED.parent, pilot=True, tables=tables)
     piano = build_plan(loaded.config, persone)
     stima = estimate_cost(loaded.config, piano, persone, mqs, default_pricing(0.92))
     assert stima.interviews == 12 * 3 * 3 and stima.calls > stima.interviews

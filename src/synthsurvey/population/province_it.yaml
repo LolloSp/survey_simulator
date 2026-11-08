@@ -1,0 +1,133 @@
+# Province italiane: sigla automobilistica, nome, regione (slug di categories.REGIONS),
+# codice ISTAT della provincia (prime tre cifre del codice ISTAT del comune).
+# Fonte: ISTAT, "Codici statistici delle unità amministrative territoriali".
+# Le province soppresse della Sardegna (104-107) restano per i codici comune
+# storici ancora presenti nelle anagrafiche; gli alias coprono sigle vecchie.
+version: 1
+provinces:
+  TO: {name: Torino, region: piemonte, code: "001"}
+  VC: {name: Vercelli, region: piemonte, code: "002"}
+  "NO": {name: Novara, region: piemonte, code: "003"}
+  CN: {name: Cuneo, region: piemonte, code: "004"}
+  AT: {name: Asti, region: piemonte, code: "005"}
+  AL: {name: Alessandria, region: piemonte, code: "006"}
+  BI: {name: Biella, region: piemonte, code: "096"}
+  VB: {name: Verbano-Cusio-Ossola, region: piemonte, code: "103"}
+  AO: {name: Valle d'Aosta, region: valle_daosta, code: "007"}
+  IM: {name: Imperia, region: liguria, code: "008"}
+  SV: {name: Savona, region: liguria, code: "009"}
+  GE: {name: Genova, region: liguria, code: "010"}
+  SP: {name: La Spezia, region: liguria, code: "011"}
+  VA: {name: Varese, region: lombardia, code: "012"}
+  CO: {name: Como, region: lombardia, code: "013"}
+  SO: {name: Sondrio, region: lombardia, code: "014"}
+  MI: {name: Milano, region: lombardia, code: "015"}
+  BG: {name: Bergamo, region: lombardia, code: "016"}
+  BS: {name: Brescia, region: lombardia, code: "017"}
+  PV: {name: Pavia, region: lombardia, code: "018"}
+  CR: {name: Cremona, region: lombardia, code: "019"}
+  MN: {name: Mantova, region: lombardia, code: "020"}
+  LC: {name: Lecco, region: lombardia, code: "097"}
+  LO: {name: Lodi, region: lombardia, code: "098"}
+  MB: {name: Monza e della Brianza, region: lombardia, code: "108"}
+  BZ: {name: Bolzano, region: trentino_alto_adige, code: "021"}
+  TN: {name: Trento, region: trentino_alto_adige, code: "022"}
+  VR: {name: Verona, region: veneto, code: "023"}
+  VI: {name: Vicenza, region: veneto, code: "024"}
+  BL: {name: Belluno, region: veneto, code: "025"}
+  TV: {name: Treviso, region: veneto, code: "026"}
+  VE: {name: Venezia, region: veneto, code: "027"}
+  PD: {name: Padova, region: veneto, code: "028"}
+  RO: {name: Rovigo, region: veneto, code: "029"}
+  UD: {name: Udine, region: friuli_venezia_giulia, code: "030"}
+  GO: {name: Gorizia, region: friuli_venezia_giulia, code: "031"}
+  TS: {name: Trieste, region: friuli_venezia_giulia, code: "032"}
+  PN: {name: Pordenone, region: friuli_venezia_giulia, code: "093"}
+  PC: {name: Piacenza, region: emilia_romagna, code: "033"}
+  PR: {name: Parma, region: emilia_romagna, code: "034"}
+  RE: {name: Reggio nell'Emilia, region: emilia_romagna, code: "035"}
+  MO: {name: Modena, region: emilia_romagna, code: "036"}
+  BO: {name: Bologna, region: emilia_romagna, code: "037"}
+  FE: {name: Ferrara, region: emilia_romagna, code: "038"}
+  RA: {name: Ravenna, region: emilia_romagna, code: "039"}
+  FC: {name: Forlì-Cesena, region: emilia_romagna, code: "040"}
+  RN: {name: Rimini, region: emilia_romagna, code: "099"}
+  MS: {name: Massa-Carrara, region: toscana, code: "045"}
+  LU: {name: Lucca, region: toscana, code: "046"}
+  PT: {name: Pistoia, region: toscana, code: "047"}
+  FI: {name: Firenze, region: toscana, code: "048"}
+  LI: {name: Livorno, region: toscana, code: "049"}
+  PI: {name: Pisa, region: toscana, code: "050"}
+  AR: {name: Arezzo, region: toscana, code: "051"}
+  SI: {name: Siena, region: toscana, code: "052"}
+  GR: {name: Grosseto, region: toscana, code: "053"}
+  PO: {name: Prato, region: toscana, code: "100"}
+  PG: {name: Perugia, region: umbria, code: "054"}
+  TR: {name: Terni, region: umbria, code: "055"}
+  PU: {name: Pesaro e Urbino, region: marche, code: "041"}
+  AN: {name: Ancona, region: marche, code: "042"}
+  MC: {name: Macerata, region: marche, code: "043"}
+  AP: {name: Ascoli Piceno, region: marche, code: "044"}
+  FM: {name: Fermo, region: marche, code: "109"}
+  VT: {name: Viterbo, region: lazio, code: "056"}
+  RI: {name: Rieti, region: lazio, code: "057"}
+  RM: {name: Roma, region: lazio, code: "058"}
+  LT: {name: Latina, region: lazio, code: "059"}
+  FR: {name: Frosinone, region: lazio, code: "060"}
+  AQ: {name: L'Aquila, region: abruzzo, code: "066"}
+  TE: {name: Teramo, region: abruzzo, code: "067"}
+  PE: {name: Pescara, region: abruzzo, code: "068"}
+  CH: {name: Chieti, region: abruzzo, code: "069"}
+  CB: {name: Campobasso, region: molise, code: "070"}
+  IS: {name: Isernia, region: molise, code: "094"}
+  CE: {name: Caserta, region: campania, code: "061"}
+  BN: {name: Benevento, region: campania, code: "062"}
+  NA: {name: Napoli, region: campania, code: "063"}
+  AV: {name: Avellino, region: campania, code: "064"}
+  SA: {name: Salerno, region: campania, code: "065"}
+  FG: {name: Foggia, region: puglia, code: "071"}
+  BA: {name: Bari, region: puglia, code: "072"}
+  TA: {name: Taranto, region: puglia, code: "073"}
+  BR: {name: Brindisi, region: puglia, code: "074"}
+  LE: {name: Lecce, region: puglia, code: "075"}
+  BT: {name: Barletta-Andria-Trani, region: puglia, code: "110"}
+  PZ: {name: Potenza, region: basilicata, code: "076"}
+  MT: {name: Matera, region: basilicata, code: "077"}
+  CS: {name: Cosenza, region: calabria, code: "078"}
+  CZ: {name: Catanzaro, region: calabria, code: "079"}
+  RC: {name: Reggio Calabria, region: calabria, code: "080"}
+  KR: {name: Crotone, region: calabria, code: "101"}
+  VV: {name: Vibo Valentia, region: calabria, code: "102"}
+  TP: {name: Trapani, region: sicilia, code: "081"}
+  PA: {name: Palermo, region: sicilia, code: "082"}
+  ME: {name: Messina, region: sicilia, code: "083"}
+  AG: {name: Agrigento, region: sicilia, code: "084"}
+  CL: {name: Caltanissetta, region: sicilia, code: "085"}
+  EN: {name: Enna, region: sicilia, code: "086"}
+  CT: {name: Catania, region: sicilia, code: "087"}
+  RG: {name: Ragusa, region: sicilia, code: "088"}
+  SR: {name: Siracusa, region: sicilia, code: "089"}
+  SS: {name: Sassari, region: sardegna, code: "090"}
+  NU: {name: Nuoro, region: sardegna, code: "091"}
+  CA: {name: Cagliari, region: sardegna, code: "092"}
+  OR: {name: Oristano, region: sardegna, code: "095"}
+  SU: {name: Sud Sardegna, region: sardegna, code: "111"}
+# Codici provincia storici (province soppresse) -> sigla attuale della regione.
+legacy_codes:
+  "104": SS   # Olbia-Tempio
+  "105": NU   # Ogliastra
+  "106": SU   # Medio Campidano
+  "107": SU   # Carbonia-Iglesias
+# Sigle o nomi alternativi incontrati nelle anagrafiche.
+aliases:
+  ROMA: RM
+  FO: FC
+  PS: PU
+  MONZA: MB
+  "MONZA E BRIANZA": MB
+  "REGGIO EMILIA": RE
+  "FORLI": FC
+  "FORLI'": FC
+  "PESARO": PU
+  "BOLZANO/BOZEN": BZ
+  "AOSTA": AO

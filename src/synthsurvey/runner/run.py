@@ -36,7 +36,7 @@ from synthsurvey.personas.build import build_personas
 from synthsurvey.personas.narrative import template_hash as persona_template_hash
 from synthsurvey.personas.schema import Persona
 from synthsurvey.population.istat.manifest import read_manifest as read_data_manifest
-from synthsurvey.population.sample import build_sample
+from synthsurvey.population.sample import SampleResult, build_sample
 from synthsurvey.population.tables import IstatTables, load_tables
 from synthsurvey.questionnaire.loader import load_questionnaire
 from synthsurvey.questionnaire.modes import Mode, ModeQuestionnaire, adapt
@@ -95,7 +95,7 @@ def prepare(
     data_dir: Path,
     pilot: bool,
     tables: IstatTables | None = None,
-) -> tuple[list[Persona], Questionnaire, dict[Mode, ModeQuestionnaire], IstatTables]:
+) -> tuple[list[Persona], Questionnaire, dict[Mode, ModeQuestionnaire], IstatTables, SampleResult]:
     """Persone e questionario pronti per il piano (nessuna chiamata LLM)."""
     cfg = loaded.config
     processed = data_dir / "processed"
@@ -105,7 +105,31 @@ def prepare(
     personas = build_personas(sample, cfg, tables, processed_dir=processed).personas
     questionnaire = load_questionnaire(cfg.questionnaire.path, cfg).questionnaire
     mqs = {Mode(m.value): adapt(questionnaire, Mode(m.value)) for m in cfg.modes.enabled}
-    return personas, questionnaire, mqs, tables
+    return personas, questionnaire, mqs, tables, sample
+
+
+def write_private_map(run_dir: Path, personas: list[Persona], sample: Any) -> Path | None:
+    """Anagrafiche: scrive `private/contacts_map.csv` (persona -> record), fuori dagli output."""
+    mappa = getattr(sample, "private_map", None)
+    if mappa is None or mappa.height == 0:
+        return None
+    import polars as pl
+
+    persone = pl.DataFrame(
+        {"unit_id": [p.unit_id for p in personas], "persona_id": [p.persona_id for p in personas]}
+    )
+    cartella = run_dir / "private"
+    cartella.mkdir(parents=True, exist_ok=True)
+    path = cartella / "contacts_map.csv"
+    mappa.join(persone, on="unit_id", how="left").select(
+        ["persona_id", "unit_id", "record_id", "row"]
+    ).write_csv(path)
+    (cartella / "LEGGIMI.txt").write_text(
+        "Corrispondenza fra persone sintetiche e record dell'anagrafica del committente.\n"
+        "Contiene identificativi dei clienti: non condividere questa cartella.\n",
+        encoding="utf-8",
+    )
+    return path
 
 
 def _manifest_base(
@@ -229,7 +253,7 @@ def execute_run(
     run_dir = cfg.output.dir / run_id
     if is_frozen(run_dir):
         raise FrozenError(f"run già congelato: {run_dir}")
-    personas, questionnaire, mqs, _tables = prepare(
+    personas, questionnaire, mqs, _tables, sample = prepare(
         loaded, data_dir=data_dir, pilot=pilot, tables=tables
     )
     plan = build_plan(cfg, personas)
@@ -271,6 +295,7 @@ def execute_run(
 
     formati = [f.value for f in cfg.output.formats]
     write_personas(personas, run_dir, formati)
+    write_private_map(run_dir, personas, sample)
     records = [r for res in results for r in res.records]
     write_frame(records_frame(records), run_dir / "responses_long", formati)
     n_trascrizioni = write_transcripts(results, run_dir)

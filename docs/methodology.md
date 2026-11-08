@@ -13,6 +13,7 @@ implementa (vedi Roadmap in [SPEC.md](SPEC.md)).
 8. Disegno, repliche, ensemble, congelamento (M9): in 7
 9. Output, codebook e report (M10): in 8
 10. Metriche di validazione ex post (M11): in 9
+11. Anagrafiche come campione (M13): in 10
 
 ## 1. Fonti ISTAT e versionamento delle tabelle
 
@@ -696,3 +697,57 @@ assenti, valgono 1.
 - Il test del criterio di M11 usa un dataset reale fittizio derivato dal
   simulato con rumore; la validazione vera richiede le interviste del
   caso di riferimento.
+
+## 10. Anagrafiche come campione
+
+### Dal file alle persone
+
+Con la sorgente `lista_clienti` il campione non è estratto da una
+popolazione sintetica: è l'elenco del committente. Ogni record valido
+diventa un'unità con peso 1, perché l'elenco è l'universo che interessa e
+non va riportato alla popolazione italiana. Il file non è mai uguale, quindi
+le colonne vengono riconosciute da sinonimi (sesso, età o data di nascita,
+codice fiscale, regione, provincia, codice ISTAT del comune, partita IVA,
+codice ATECO, addetti, ruolo, tipologia cliente) e, dove il riconoscimento
+fallisce, da una mappatura esplicita in configurazione.
+
+Dal record si ricavano solo gli attributi utili: sesso ed età dalle colonne
+o, in loro assenza, dal codice fiscale (anno, mese, giorno con l'offset di
+40 per le donne); la regione dalla provincia o dalle prime tre cifre del
+codice ISTAT del comune, con la tabella delle province del pacchetto; per
+le imprese il settore dalla divisione ATECO e la classe dimensionale dagli
+addetti. L'unità (individuo o impresa) viene dalla tipologia cliente o
+dalla partita IVA; un'impresa con codice fiscale di persona è una ditta
+individuale o un professionista, e il rispondente ha sesso ed età noti.
+I record si deduplicano per codice cliente, codice fiscale o partita IVA:
+un cliente con più forniture è una persona sola.
+
+### ISTAT completa
+
+Ciò che il file non dice viene estratto dalle stesse distribuzioni di M3 e
+M4, condizionate a ciò che il file dice: istruzione e condizione
+professionale dalla congiunta IPF per regione, sesso e gruppo d'età;
+settore e classe dimensionale mancanti dalle imprese attive della regione;
+reddito, atteggiamenti e stile di risposta come per le altre persone. La
+provenienza `anagrafica` si aggiunge a campione, ISTAT e ipotesi e compare
+nel codebook, così chi analizza sa quali tratti sono dati del cliente e
+quali inferenze.
+
+### Privacy
+
+Nomi, cognomi, codici fiscali, indirizzi, email e telefoni non vengono
+letti nel campione: il codice fiscale è usato solo per ricavare sesso ed
+età e poi scartato, i nomi delle persone sintetiche vengono dalle liste del
+pacchetto. L'unico legame con i record è `private/contacts_map.csv` nella
+cartella del run, con un avviso a non condividerlo; il rapporto
+dell'anagrafica riporta conteggi e motivi di scarto, mai valori.
+
+### Limiti
+
+- Un record con il solo comune e senza provincia né codice ISTAT viene
+  scartato: servirebbe la tabella dei comuni, da aggiungere se capita.
+- Le colonne di tipologia cliente hanno codifiche proprie di ogni azienda:
+  il riconoscimento copre le più comuni (B/C, azienda/privato, business/
+  consumer); negli altri casi la partita IVA decide.
+- Con peso 1 i risultati descrivono l'elenco, non il mercato: il report lo
+  dichiara nel codebook.

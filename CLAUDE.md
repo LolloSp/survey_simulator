@@ -16,6 +16,8 @@ Specifica completa: docs/SPEC.md. Leggila prima di ogni milestone.
 - Prompt degli agenti in file separati (src/synthsurvey/agents/prompts/),
   in italiano, versionati.
 - Chiavi API solo da variabili d'ambiente (.env non versionato).
+- Anagrafiche dei committenti: mai nomi, codici fiscali o contatti nei prompt,
+  negli output o nella conversazione; i file restano in data/raw (non versionata).
 - Se una scelta cambia durante il lavoro, aggiorna prima SPEC.md
   e poi il codice: il documento resta la fonte di verità.
 - Codice, commenti, docstring e messaggi della CLI in italiano;
@@ -38,6 +40,7 @@ Specifica completa: docs/SPEC.md. Leggila prima di ogni milestone.
 - uv run synthsurvey report <cartella del run> --out <altra cartella>  (rigenera gli output; nessuna chiamata)
 - uv run synthsurvey validate <cartella del run> --real <csv> --out <cartella>  (confronto con dati reali; nessuna chiamata)
 - uv run synthsurvey run --config configs/examples/mercato_100_ensemble.yaml --pilot --estimate-only  (ensemble a due provider)
+- uv run synthsurvey prepare --questionnaire <file> --contacts <file> --out progetti/<nome>  (anagrafica + questionario -> config; stima senza chiamate)
 - uv run python scripts/make_questionnaire_fixtures.py  (rigenera il Word di esempio e il PDF dei test)
 - uv run python scripts/istat_explore.py search <parola>  (ricognizione dataflow ISTAT)
 

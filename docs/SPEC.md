@@ -82,6 +82,21 @@ sample:
 questionnaire:
   path: questionnaires/mercato_v1.yaml
 
+# In alternativa ai segmenti ISTAT, il campione può essere un'anagrafica del
+# committente (M13): ISTAT completa ciò che il file non dice.
+# sample:
+#   total: null                  # null = tutti i record validi
+#   segments:
+#     clienti_privati:
+#       source: lista_clienti
+#       contacts:
+#         path: data/raw/anagrafica.xlsx
+#         unit: individui        # individui | imprese
+#         sheet: null            # primo foglio
+#         mapping: {}            # colonna canonica -> intestazione, se il riconoscimento fallisce
+#         keep: {IDTipologiaCliente: [C]}   # righe da tenere: colonna -> valori ammessi
+#       size: null               # sottocampione casuale dal seed, se indicato
+
 personas:
   priors_path: null            # YAML con i priori dei tratti senza fonte ISTAT (default nel pacchetto)
   include_names: true          # nome di battesimo nella narrativa
@@ -307,6 +322,7 @@ synthsurvey/
 │   └── methodology.md
 ├── configs/examples/         # config di esempio (100, 500, 1000)
 ├── questionnaires/examples/
+├── .claude/skills/synthsurvey-run/   # skill per condurre un run da una sessione di Claude Code (M13)
 ├── data/
 │   ├── raw/                  # estrazioni ISTAT (non versionate)
 │   └── processed/            # tabelle normalizzate + manifest fonti
@@ -345,6 +361,7 @@ Ogni milestone è un blocco consegnabile e testabile, pensato per una o poche se
 11. **M10 – Output e report.** Export long/wide, .sav, codebook, report HTML. *Fatto quando:* il dataset si apre in SPSS/R e il report mostra segmenti ed effetti di modalità.
 12. **M11 – Validazione.** Import dati reali, allineamento al disegno, metriche, report di confronto. *Fatto quando:* testato su un dataset reale di prova (anche fittizio).
 13. **M12 – Ensemble e rifinitura.** Secondo provider LLM, documentazione, esempi, release v0.1 su GitHub.
+14. **M13 – Anagrafiche e avvio da Claude Code.** Sorgente `lista_clienti`: il campione è l'anagrafica del committente (CSV o Excel con intestazioni variabili), ISTAT completa gli attributi mancanti; comando `synthsurvey prepare` che da questionario e anagrafica scrive la configurazione e stima il run; skill di progetto per guidare la sessione di Claude Code. *Fatto quando:* `prepare` su un'anagrafica reale produce una configurazione valida con il rapporto dei record scartati, `run --pilot` parte, e nessun dato personale del file (nomi, codici fiscali, contatti) compare nei prompt o negli output condivisibili.
 
 ## Lavorare con Claude Code
 
@@ -380,6 +397,7 @@ Specifica completa: docs/SPEC.md. Leggila prima di ogni milestone.
 - uv run synthsurvey freeze <cartella del run> [--verify]
 - uv run synthsurvey report <cartella del run> [--out <cartella>] [--formats parquet,csv,sav]
 - uv run synthsurvey validate <cartella del run> --real <csv> [--out <cartella>]
+- uv run synthsurvey prepare --questionnaire <file> --contacts <file> --out <cartella>
 ```
 
 **Come impostare ogni sessione**
@@ -417,6 +435,7 @@ Specifica completa: docs/SPEC.md. Leggila prima di ogni milestone.
 - Output (M10): il dataset largo ha una riga per persona × modalità × replica × modello; singole come codice 1..k nell'ordine canonico, multiple come variabili 0/1 per opzione (`<id>_<n>`), griglie come `<id>_<item>`, aperte come testo con `<id>_status`; mancanti con codici negativi (-1 non applicabile, -2 non risposta, -3 non so, -4 abbandono) dichiarati come missing nel .sav. Il report HTML usa grafici SVG inline (nessuna libreria grafica), etichetta ogni pagina come SIMULATA e include esito per modalità, distribuzioni pesate, effetti di modalità rispetto al CAWI, confronto fra segmenti, stabilità fra repliche, straightlining nelle griglie, incongruenze non verbali e costi. `synthsurvey run` produce già tutti gli output; `synthsurvey report` li rigenera e, per un run congelato, richiede `--out` verso un'altra cartella.
 - Validazione (M11): i dati reali arrivano in CSV lungo (`respondent_id`, `mode`, `question_id`, `answer_code`, facoltativi `item_id`, `segment`, `weight`; stesse convenzioni di codifica del dataset lungo simulato, righe assenti = non applicabile) o largo (variabili con i nomi del dataset largo simulato). Il confronto usa solo le modalità presenti in entrambi; le altre sono etichettate come non validate. Metriche: Jensen-Shannon in base 2 e variazione totale per variabile codificata, media o quota della risposta prevalente con intervallo di confidenza al 95% calcolato sul campione reale (normale), correlazione di Pearson fra valori simulati e reali (quote e medie separate), accordo di segno e correlazione delle differenze fra sottogruppi (segmento, classe d'età, area, sesso, dimensione, istruzione, dove presenti in entrambi) e fra modalità. Il rapporto è in Markdown e JSON, in `<run>/validation/` o in `--out` se il run è congelato.
 - Secondo provider ed ensemble (M12): l'adapter OpenAI usa Chat Completions con `response_format` `json_schema` in modalità `strict` (stessi schemi dell'adapter Anthropic: tutti i campi obbligatori, `additionalProperties: false`), `reasoning_effort` per i modelli che ragionano (serie `o` e `gpt-5`) e `temperature` solo per gli altri e solo se indicata; la chiave arriva da `OPENAI_API_KEY`. I token letti dalla cache automatica di OpenAI sono scalati dai token in ingresso e prezzati a parte. Con più modelli in `engine.models` il runner esegue l'intero piano per ciascuno e il report aggiunge la sezione ensemble: per ogni variabile il valore per modello e la divergenza (massimo meno minimo), ordinata dalla più alta, come indicatore delle domande fragili. Qualunque modello del provider `fake` ha prezzo zero.
+- Anagrafiche (M13): il file del committente non è mai uguale, quindi le colonne vengono riconosciute da sinonimi italiani e inglesi (sesso, età o data di nascita, codice fiscale, regione, provincia, codice ISTAT del comune, CAP, partita IVA, ragione sociale, codice ATECO, addetti, ruolo, tipologia cliente) con una mappatura esplicita in configurazione quando serve. Età e sesso, se assenti, si ricavano dal codice fiscale, che poi viene scartato; la regione dalla provincia (sigla o nome) o dalle prime tre cifre del codice ISTAT del comune, tramite la tabella `population/province_it.yaml`. L'unità (individuo o impresa) viene dalla colonna di tipologia cliente se c'è, altrimenti dalla presenza della partita IVA; un'impresa con codice fiscale di persona ha il rispondente già noto per sesso ed età. I record vengono deduplicati per codice cliente, codice fiscale o partita IVA. Istruzione, condizione professionale, reddito e atteggiamenti vengono dalle distribuzioni ISTAT condizionate a regione, sesso ed età; il settore dal codice ATECO (divisione), la classe dimensionale dagli addetti o, se assenti, dalla distribuzione ASIA per regione e settore. La provenienza `anagrafica` si aggiunge a campione, ISTAT e ipotesi. I pesi valgono 1: l'anagrafica è l'universo. **Privacy**: nomi, codici fiscali, indirizzi e contatti non entrano mai nel campione, nei prompt o negli output; le persone usano nomi sintetici; la corrispondenza persona-record sta in `<run>/private/contacts_map.csv`, da non condividere.
 - Persone (M4): la European Social Survey è CC BY-NC-SA (solo uso non commerciale) e non viene usata; atteggiamenti da Aspetti della vita quotidiana, reddito da EU-SILC aggregata, imprese dal Censimento permanente delle imprese, tutti ISTAT. I tratti senza fonte (prezzo, marca, rischio, novità) e lo stile di risposta sono priori dichiarati in YAML, sostituibili da config, marcati "ipotesi" in persona, narrativa e codebook. Nomi di battesimo da lista curata, disattivabili (`personas.include_names`).
 
 **Questioni aperte**

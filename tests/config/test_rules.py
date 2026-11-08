@@ -223,7 +223,7 @@ def test_stima_pilota(base: dict[str, Any]) -> None:
 
 
 def test_registro_sorgenti() -> None:
-    assert set(SOURCES) == {"istat_individui", "istat_imprese"}
+    assert set(SOURCES) == {"istat_individui", "istat_imprese", "lista_clienti"}
     assert get_source("istat_imprese").unit == "imprese"
     with pytest.raises(UnknownSourceError, match="sconosciuta"):
         get_source("nope")

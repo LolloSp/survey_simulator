@@ -18,6 +18,7 @@ class Provenance(StrEnum):
     """Da dove viene un attributo: il report deve distinguere dati e ipotesi."""
 
     CAMPIONE = "campione"  # dal campione di M3 (ISTAT via IPF e quote)
+    ANAGRAFICA = "anagrafica"  # dal file di anagrafiche del committente (M13)
     ISTAT = "istat"  # estratto da una distribuzione ISTAT condizionata al profilo
     ISTAT_PROXY = "istat_proxy"  # distribuzione ISTAT di un gruppo vicino (es. microimprese)
     IPOTESI = "ipotesi"  # priori dichiarati in YAML, nessuna fonte statistica

@@ -10,7 +10,13 @@ from dataclasses import dataclass
 from enum import StrEnum
 from math import floor
 
-from synthsurvey.config.schema import Allocation, Design, SegmentConfig, SynthSurveyConfig
+from synthsurvey.config.schema import (
+    LISTA_CLIENTI,
+    Allocation,
+    Design,
+    SegmentConfig,
+    SynthSurveyConfig,
+)
 from synthsurvey.config.sources import SOURCES, CategoricalFilter, DataSource, RangeFilter
 
 MIN_CASI_PER_CELLA = 3
@@ -54,6 +60,9 @@ def segment_sizes(config: SynthSurveyConfig) -> dict[str, int]:
     """
     sample = config.sample
     nomi = list(sample.segments)
+    if sample.total is None:
+        # Anagrafiche: la dimensione è nota solo leggendo il file; size se indicata.
+        return {n: (s.size or 0) for n, s in sample.segments.items()}
     if sample.allocation is Allocation.PROPORTIONAL:
         base = sample.total // len(nomi)
         sizes = dict.fromkeys(nomi, base)
@@ -78,10 +87,49 @@ def segment_sizes(config: SynthSurveyConfig) -> dict[str, int]:
 Rule = Callable[[SynthSurveyConfig], list[Issue]]
 
 
+def is_contacts_config(config: SynthSurveyConfig) -> bool:
+    """Vero se il campione viene da anagrafiche (tutti i segmenti lista_clienti)."""
+    return all(s.source == LISTA_CLIENTI for s in config.sample.segments.values())
+
+
+def rule_contacts_consistency(config: SynthSurveyConfig) -> list[Issue]:
+    """Anagrafiche e sorgenti ISTAT non si mescolano; con le anagrafiche total resta null."""
+    segs = config.sample.segments
+    liste = [n for n, s in segs.items() if s.source == LISTA_CLIENTI]
+    if not liste:
+        if config.sample.total is None:
+            return [_err("sample.total", "obbligatorio con le sorgenti ISTAT")]
+        return []
+    issues: list[Issue] = []
+    if len(liste) != len(segs):
+        issues.append(
+            _err(
+                "sample.segments",
+                "non mescolare lista_clienti con le sorgenti ISTAT: usare configurazioni separate",
+            )
+        )
+    if config.sample.total is not None:
+        issues.append(
+            _warn(
+                "sample.total",
+                "ignorato con lista_clienti: il campione sono i record validi "
+                "(usare size nel segmento per un sottocampione)",
+            )
+        )
+    for n in liste:
+        if segs[n].share is not None:
+            issues.append(_err(f"sample.segments.{n}.share", "non ammessa con lista_clienti"))
+        if segs[n].oversample:
+            issues.append(_err(f"sample.segments.{n}.oversample", "non ammesso con lista_clienti"))
+    return issues
+
+
 def rule_segment_allocation(config: SynthSurveyConfig) -> list[Issue]:
     """Quote che sommano a 1 oppure dimensioni che sommano al totale, senza mescolarle."""
     sample = config.sample
     segs = sample.segments
+    if is_contacts_config(config) or sample.total is None:
+        return []
     con_share = [n for n, s in segs.items() if s.share is not None]
     con_size = [n for n, s in segs.items() if s.size is not None]
     doppi = [n for n, s in segs.items() if s.share is not None and s.size is not None]
@@ -212,7 +260,7 @@ def _check_segment_against_source(name: str, seg: SegmentConfig, source: DataSou
                 )
 
     if seg.respondent_role is not None:
-        if source.unit != "imprese":
+        if source.unit != "imprese" and not source.respondent_roles:
             issues.append(
                 _err(f"{loc}.respondent_role", "ammesso solo per segmenti con sorgente imprese")
             )
@@ -348,7 +396,7 @@ def rule_temperature_unsupported(config: SynthSurveyConfig) -> list[Issue]:
 
 def rule_pilot_size(config: SynthSurveyConfig) -> list[Issue]:
     """Il pilota non può essere più grande del campione."""
-    if config.run.pilot_size > config.sample.total:
+    if config.sample.total is not None and config.run.pilot_size > config.sample.total:
         return [
             _err(
                 "run.pilot_size",
@@ -359,6 +407,7 @@ def rule_pilot_size(config: SynthSurveyConfig) -> list[Issue]:
 
 
 RULES: tuple[Rule, ...] = (
+    rule_contacts_consistency,
     rule_segment_allocation,
     rule_segments_match_sources,
     rule_impossible_combinations,
@@ -399,7 +448,10 @@ def estimate_interviews(config: SynthSurveyConfig) -> InterviewEstimate:
     La stima in euro richiede i prezzi dei modelli e la lunghezza del
     questionario: arriva con il livello LLM (M6) e il runner (M9).
     """
-    personas = config.run.pilot_size if config.run.pilot else config.sample.total
+    totale = config.sample.total
+    if totale is None:
+        totale = sum(segment_sizes(config).values())  # 0 se le anagrafiche non hanno size
+    personas = config.run.pilot_size if config.run.pilot else totale
     modes = len(config.modes.enabled) if config.modes.design is Design.WITHIN_SUBJECT else 1
     return InterviewEstimate(
         personas=personas,

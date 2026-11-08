@@ -204,6 +204,11 @@ class AttributeSampler:
             k: Provenance.CAMPIONE
             for k in ("region", "macro_area", "sex", "age", "age_band", "education", "employment")
         }
+        if unit.get("source") == "lista_clienti":
+            # Anagrafica (M13): territorio, sesso ed età dal file; il resto da ISTAT.
+            for k in ("region", "macro_area", "sex", "age", "age_band"):
+                prov[k] = Provenance.ANAGRAFICA
+            prov["education"] = prov["employment"] = Provenance.ISTAT
         out: dict[str, Any] = {}
         out["income_quintile"] = self.income_quintile(edu, emp, region, rng)
         prov["income_quintile"] = Provenance.ISTAT
@@ -235,8 +240,18 @@ class AttributeSampler:
         prov: dict[str, Provenance] = {
             k: Provenance.CAMPIONE for k in ("region", "macro_area", "sector", "size_class")
         }
+        da_anagrafica = unit.get("source") == "lista_clienti"
+        if da_anagrafica:
+            prov["region"] = prov["macro_area"] = Provenance.ANAGRAFICA
+            prov["sector"] = Provenance.ANAGRAFICA if unit.get("sector_known") else Provenance.ISTAT
+            prov["size_class"] = (
+                Provenance.ANAGRAFICA if unit.get("size_known") else Provenance.ISTAT
+            )
         out: dict[str, Any] = {}
         quote = dict(self.priors.respondent_roles[size_class])
+        ruolo_noto = unit.get("respondent_role_known")
+        if da_anagrafica and ruolo_noto in quote:
+            quote = {str(ruolo_noto): 1.0}
         if allowed_roles:
             quote = {r: q for r, q in quote.items() if r in allowed_roles}
             if not quote:
@@ -255,6 +270,14 @@ class AttributeSampler:
         a_lo, a_hi = fr.age_range[ruolo]
         out["age"] = int(rng.integers(a_lo, a_hi + 1))
         prov["sex"] = prov["age"] = Provenance.IPOTESI
+        if da_anagrafica and unit.get("sex") in ("m", "f"):
+            out["sex"] = str(unit["sex"])
+            prov["sex"] = Provenance.ANAGRAFICA
+        if da_anagrafica and unit.get("age") not in (None, ""):
+            out["age"] = int(unit["age"])
+            prov["age"] = Provenance.ANAGRAFICA
+        if da_anagrafica and ruolo_noto in self.priors.respondent_roles[size_class]:
+            prov["respondent_role"] = Provenance.ANAGRAFICA
         out["education"] = self.education_for_firm_respondent(out["sex"], out["age"], rng)
         prov["education"] = Provenance.ISTAT
         out["employment"] = "occupato"

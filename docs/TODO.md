@@ -47,6 +47,10 @@ decisione umana. Una riga per voce; si cancella quando è chiusa.
   da aggiornare se i listini sono cambiati).
 - [ ] **Release v0.1.0 su GitHub**: creare la release dal tag `v0.1.0` con il testo
   di `CHANGELOG.md`.
+- [ ] **M13, prepare sull'anagrafica vera con il modello reale**: con la chiave in `.env`
+  lanciare `prepare` sul file in `data/raw/` e sul questionario del caso, leggere
+  `contacts_report.json` (scarti e motivi) e il rapporto d'importazione, poi `run --pilot`.
+  Verificare che le narrative delle imprese con rispondente noto siano coerenti.
 - [ ] **M5, questionario reale**: caricare il questionario già pronto del
   caso di riferimento in `questionnaires/` e verificare che le tre versioni
   per modalità siano esportabili per revisione (criterio di M5).
