@@ -526,7 +526,7 @@ def questionnaire_import(
     import asyncio
     from typing import cast
 
-    from synthsurvey.llm import LLMError, make_pool
+    from synthsurvey.llm import AwaitingAnswersError, LLMError, make_pool
     from synthsurvey.llm.client import Effort
     from synthsurvey.questionnaire import (
         ExtractionError,
@@ -568,6 +568,9 @@ def questionnaire_import(
                 max_rounds=rounds,
             )
         )
+    except AwaitingAnswersError:
+        _avviso_sessione(cfg, 1)
+        raise typer.Exit(code=5) from None
     except LLMError as exc:
         typer.secho(f"Errore LLM: {exc}", fg=typer.colors.RED, err=True)
         raise typer.Exit(code=1) from None
