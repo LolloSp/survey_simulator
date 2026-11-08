@@ -424,6 +424,7 @@ Specifica completa: docs/SPEC.md. Leggila prima di ogni milestone.
 
 - Il sistema simula sempre tutte e tre le modalità (CAWI, CATI, CAPI), indipendentemente dal disegno delle interviste reali.
 - Provider e modelli LLM: si parte confrontandone alcuni nel pilota, poi si affina la scelta con i casi reali. L'architettura multi-provider resta obbligatoria.
+- Modalità operativa (8 novembre 2026): nessun credito API; il modello è la sessione di Claude Code tramite il provider `session` (M14). Gli adapter Anthropic e OpenAI restano nel codice e nei test per un eventuale ritorno alle API.
 - Motore ibrido: rinviato a dopo la raccolta dei dati reali.
 - Interfaccia v1: solo riga di comando.
 - Distribuzione: prodotto proprietario in repository privato, per uso commerciale.

@@ -5,7 +5,7 @@ rispondenti coerente con i dati ISTAT e gli sottopone un questionario in tre
 modalità (CAWI, CATI, CAPI) tramite agenti LLM, producendo un dataset con pesi,
 paradati e codebook.
 
-Specifica completa: [docs/SPEC.md](docs/SPEC.md). Stato: **v0.1.1, M13 anagrafiche e avvio da Claude Code** (prove dal vivo e revisioni in `docs/TODO.md`).
+Specifica completa: [docs/SPEC.md](docs/SPEC.md). Stato: **v0.1.2, M0-M14 implementate**; modalità operativa: provider `session` (la sessione di Claude Code risponde), nessuna API a pagamento. Voci aperte in `docs/TODO.md`.
 
 ## Avvio rapido
 
