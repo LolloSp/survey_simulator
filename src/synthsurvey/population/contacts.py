@@ -431,7 +431,9 @@ class ContactsResult:
         motivi: dict[str, int] = {}
         for _r, m in self.rejected:
             motivi[m] = motivi.get(m, 0) + 1
-        per_unit = dict(self.records.group_by("unit").len().iter_rows()) if self.n else {}
+        per_unit = (
+            dict(self.records.group_by("unit").len().sort("unit").iter_rows()) if self.n else {}
+        )
         return {
             "path": str(self.path),
             "columns": self.columns,

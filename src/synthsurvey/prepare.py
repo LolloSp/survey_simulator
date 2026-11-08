@@ -194,8 +194,10 @@ def prepare(
             "Allineare applies_to nel questionario o indicare uno YAML già coerente."
         ) from exc
     avvisi.extend(f"questionario: {w}" for w in caricato.warnings)
-    segmenti = {k: int(v) for k, v in contacts.report()["by_unit"].items()}
-    segmenti = {SEGMENT_NAMES.get(k, k): v for k, v in segmenti.items()}
+    per_unit = contacts.report()["by_unit"]
+    segmenti = {
+        nome: int(per_unit[unit]) for unit, nome in SEGMENT_NAMES.items() if unit in per_unit
+    }
     result = PrepareResult(
         out_dir=out_dir,
         config_path=config_path,
