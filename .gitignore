@@ -18,6 +18,9 @@ dist/
 data/raw/*
 !data/raw/.gitkeep
 runs/
+# Questionari del committente: dati di input, non si versionano; restano gli esempi
+questionnaires/*
+!questionnaires/examples/
 
 # Editor e sistema
 .idea/

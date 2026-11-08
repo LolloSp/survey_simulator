@@ -76,6 +76,7 @@ def build_codebook(
         if a not in PERSONA_COLUMNS
     ]
     variabili = []
+    domande = {q.id: q for q in questionnaire.questions}
     for v in variables:
         voce: dict[str, Any] = {
             "name": v.name,
@@ -88,6 +89,11 @@ def build_codebook(
         }
         if v.kind not in ("open",):
             voce["missing"] = {str(k): lab for k, lab in MISSING_LABELS.items()}
+        domanda = domande.get(v.question_id)
+        if domanda is not None and domanda.probe:
+            voce["probe"] = domanda.probe
+        if domanda is not None and domanda.coding_note:
+            voce["coding_note"] = domanda.coding_note
         variabili.append(voce)
     return {
         "run_id": run_id,

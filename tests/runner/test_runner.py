@@ -12,7 +12,7 @@ import yaml
 from synthsurvey.config import LoadedConfig, load_config
 from synthsurvey.llm import FakeLLMClient, LLMPool, default_pricing
 from synthsurvey.population.tables import IstatTables, load_tables
-from synthsurvey.questionnaire import Mode
+from synthsurvey.questionnaire import Mode, adapt, load_questionnaire, parse_questionnaire
 from synthsurvey.runner import (
     BudgetError,
     FrozenError,
@@ -29,7 +29,7 @@ from synthsurvey.runner import (
 )
 from synthsurvey.runner import plan as plan_module
 from tests.config.conftest import ESEMPI_DIR
-from tests.interview.conftest import make_persona
+from tests.interview.conftest import ESEMPIO, make_persona
 
 PROCESSED = Path(__file__).resolve().parents[2] / "data" / "processed"
 QUESTIONARIO = ESEMPI_DIR.parent.parent / "questionnaires" / "examples" / "mercato_v1.yaml"
@@ -222,3 +222,20 @@ def test_config_frozen_congela_subito(tmp_path: Path, tables: IstatTables) -> No
     )
     assert result.manifest["frozen"] is True and is_frozen(result.run_dir)
     assert len(result.results) == 12
+
+
+def test_stima_conta_i_rilanci_da_copione() -> None:
+    base = load_questionnaire(ESEMPIO).questionnaire
+    raw = base.model_dump(mode="python")
+    for s in raw["sections"]:
+        for q in s["questions"]:
+            if q["id"] == "q7":
+                q["probe"] = "E l'energia, dove sta in questa lista?"
+    con = parse_questionnaire(raw)
+    for mode in (Mode.CATI, Mode.CAPI):
+        c0, i0, o0 = plan_module.estimate_interview_tokens(adapt(base, mode), 800, mode)
+        c1, i1, o1 = plan_module.estimate_interview_tokens(adapt(con, mode), 800, mode)
+        assert c1 == c0 + 1 and i1 > i0 and o1 > o0
+    c0, _, _ = plan_module.estimate_interview_tokens(adapt(base, Mode.CAWI), 800, Mode.CAWI)
+    c1, _, _ = plan_module.estimate_interview_tokens(adapt(con, Mode.CAWI), 800, Mode.CAWI)
+    assert c1 == c0, "in CAWI il rilancio non si applica"

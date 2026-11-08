@@ -70,6 +70,8 @@ class Question(StrictModel):
     randomize: bool = False
     fixed_last: list[str] = Field(default_factory=list)
     page: int | None = Field(default=None, ge=1)
+    probe: str | None = None  # rilancio da copione, letto una sola volta in CATI/CAPI
+    coding_note: str | None = None  # istruzione per l'analisi, mai letta al rispondente
 
     @field_validator("options")
     @classmethod
@@ -147,6 +149,12 @@ class Question(StrictModel):
                 raise ValueError(
                     f"fixed_last con voci non presenti in options: {', '.join(ignote)}"
                 )
+        if self.probe is not None and not self.probe.strip():
+            raise ValueError("probe vuoto: omettere se la domanda non ha un rilancio")
+        if self.probe is not None and t == QuestionType.GRID:
+            raise ValueError("probe non ammesso per grid")
+        if self.coding_note is not None and not self.coding_note.strip():
+            raise ValueError("coding_note vuoto: omettere")
         return self
 
     @property

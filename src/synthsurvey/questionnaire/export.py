@@ -111,6 +111,12 @@ def to_markdown(mq: ModeQuestionnaire) -> str:
         if q.interviewer_note:
             righe.append(f"> Intervistatore: {q.interviewer_note}")
             righe.append("")
+        if q.probe:
+            righe.append(f"> Rilancio (una sola volta, dopo la risposta spontanea): «{q.probe}»")
+            righe.append("")
+        if q.coding_note:
+            righe.append(f"> Per l'analisi: {q.coding_note}")
+            righe.append("")
     return "\n".join(righe).rstrip() + "\n"
 
 

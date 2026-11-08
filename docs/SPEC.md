@@ -169,6 +169,10 @@ output:
 
 Il questionario sorgente è unico; il sistema genera le versioni per modalità (griglie spezzate al telefono, opzioni lette, cartellini). Le versioni generate vanno riviste a mano prima del congelamento.
 
+**Rilanci da copione**
+
+Le tracce qualitative prevedono spesso un rilancio per domanda («Un solo rilancio»): una frase che l'intervistatore dice dopo la risposta spontanea per far emergere ciò che il rispondente non ha citato da solo. La domanda lo dichiara con `probe`. In CATI e CAPI l'intervistatore lo legge una sola volta, dopo la prima risposta e prima di ogni altro intervento; la risposta spontanea resta in `answer_text`, quella dopo il rilancio va in `probe_text`, così l'analisi può distinguere ciò che è stato citato spontaneamente. In CAWI non c'è interlocutore e il rilancio non viene applicato. Il campo `coding_note` («Cosa annoti») è un'istruzione per chi analizza: finisce nel codebook, mai nei prompt.
+
 **Segnali non verbali**
 
 Ogni risposta in CATI e CAPI è accompagnata da segnali non verbali simulati, per cogliere la distanza tra ciò che la persona dice e ciò che pensa davvero. Un intervistatore umano lo farebbe d'istinto: "ho provato a cambiare operatore" detto con esitazione racconta una storia diversa.
@@ -253,6 +257,11 @@ sections:
         min: 0
         max: 5000
         unit: euro
+      - id: q7
+        text: "Cosa le porta via più tempo nella gestione dell'attività?"
+        type: open
+        probe: "E l'energia, dove sta in questa lista?"   # rilancio da copione, solo CATI/CAPI
+        coding_note: "Energia citata spontaneamente: sì/no"  # per l'analisi, mai letta
 ```
 
 Il questionario è un **dato di input** che cambia a ogni progetto: il codice non ne conosce il contenuto e gli agenti lo leggono a runtime nella versione adattata alla modalità. `show_if` usa un linguaggio di espressioni valutato senza `eval`: confronti con risposte precedenti (`q1 <= 5`, `q2 == "Prezzo"`, `q3 in ["a", "b"]`, `q4 contains "x"` per le multiple, `q5.a >= 4` per gli item di griglia), `and`, `or`, `not`, parentesi e `answered(q)`. Una risposta assente o "non so" rende falso ogni confronto che la riguarda.
@@ -267,6 +276,7 @@ Il questionario è un **dato di input** che cambia a ogni progetto: il codice no
 | "Non so" (`dont_know`) | opzione mostrata in coda | non letto, accettato se spontaneo | non letto, accettato se spontaneo |
 | Randomizzazione | per intervista, se `randomize` e `engine.randomize_option_order` | idem, sulle opzioni lette | idem |
 | Domande sensibili | nessuna nota | nota all'intervistatore | nota all'intervistatore |
+| Rilancio (`probe`) | non applicato (nessun interlocutore) | letto una sola volta dopo la risposta spontanea; poi l'intervistatore può solo accettare o chiarire | idem |
 
 Le versioni generate si esportano in YAML e Markdown per la revisione manuale prima del congelamento.
 
@@ -283,6 +293,7 @@ Campi: `persona_id`, `segment`, attributi demografici, attributi impresa (per le
 | question\_id, answer\_code, answer\_text | Risposta codificata e testo libero |
 | option\_order | Ordine delle opzioni presentato |
 | clarification\_requested, item\_nonresponse, nonverbal\_emitted, nonverbal\_observed, incongruence | Paradati per domanda; segnali non verbali emessi dal rispondente, annotati dall'intervistatore e incongruenze |
+| probe, probe\_text | Rilancio avvenuto (da copione o deciso dall'intervistatore) e risposta data dopo il rilancio |
 | tokens\_in, tokens\_out, latency\_ms | Costi e tempi tecnici |
 
 **Contenuto di ogni cartella di run**
@@ -441,6 +452,7 @@ Specifica completa: docs/SPEC.md. Leggila prima di ogni milestone.
 - Secondo provider ed ensemble (M12): l'adapter OpenAI usa Chat Completions con `response_format` `json_schema` in modalità `strict` (stessi schemi dell'adapter Anthropic: tutti i campi obbligatori, `additionalProperties: false`), `reasoning_effort` per i modelli che ragionano (serie `o` e `gpt-5`) e `temperature` solo per gli altri e solo se indicata; la chiave arriva da `OPENAI_API_KEY`. I token letti dalla cache automatica di OpenAI sono scalati dai token in ingresso e prezzati a parte. Con più modelli in `engine.models` il runner esegue l'intero piano per ciascuno e il report aggiunge la sezione ensemble: per ogni variabile il valore per modello e la divergenza (massimo meno minimo), ordinata dalla più alta, come indicatore delle domande fragili. Qualunque modello del provider `fake` ha prezzo zero.
 - Anagrafiche (M13): il file del committente non è mai uguale, quindi le colonne vengono riconosciute da sinonimi italiani e inglesi (sesso, età o data di nascita, codice fiscale, regione, provincia, codice ISTAT del comune, CAP, partita IVA, ragione sociale, codice ATECO, addetti, ruolo, tipologia cliente) con una mappatura esplicita in configurazione quando serve. Età e sesso, se assenti, si ricavano dal codice fiscale, che poi viene scartato; la regione dalla provincia (sigla o nome) o dalle prime tre cifre del codice ISTAT del comune, tramite la tabella `population/province_it.yaml`. L'unità (individuo o impresa) viene dalla colonna di tipologia cliente se c'è, altrimenti dalla presenza della partita IVA; un'impresa con codice fiscale di persona ha il rispondente già noto per sesso ed età. I record vengono deduplicati per codice cliente, codice fiscale o partita IVA. Istruzione, condizione professionale, reddito e atteggiamenti vengono dalle distribuzioni ISTAT condizionate a regione, sesso ed età; il settore dal codice ATECO (divisione), la classe dimensionale dagli addetti o, se assenti, dalla distribuzione ASIA per regione e settore. La provenienza `anagrafica` si aggiunge a campione, ISTAT e ipotesi. I pesi valgono 1: l'anagrafica è l'universo. **Privacy**: nomi, codici fiscali, indirizzi e contatti non entrano mai nel campione, nei prompt o negli output; le persone usano nomi sintetici; la corrispondenza persona-record sta in `<run>/private/contacts_map.csv`, da non condividere.
 - Provider `session` (M14): per piloti senza credito API il modello è la sessione di Claude Code. L'adapter non chiama nessuna API: scrive ogni richiesta senza risposta in `<cache_dir>/session/pending/<impronta>.json` (system, messaggi, schema, metadati) e solleva `AwaitingAnswersError`; il runner e `interview preview` sospendono le interviste in attesa, registrano lo stato `paused` e indicano quante richieste aspettano. Le risposte si depositano con `synthsurvey session answer <file json>` (impronta -> oggetto conforme allo schema, validato) in `session/answers/`; al rilancio dello stesso comando le interviste riprendono dal passo successivo. Ogni passo sequenziale (pagina CAWI, domanda CATI/CAPI) richiede un giro. Il modello si chiama `session` e ha prezzo zero; i record riportano `model = session`. È uno strumento per decine di interviste, non per i run completi: niente concorrenza reale, niente prompt caching, e la qualità dipende da chi risponde nella sessione.
+- Rilanci da copione (8 novembre 2026): il questionario reale del caso di riferimento è una traccia qualitativa con un rilancio e una nota di codifica per domanda. La domanda ha due campi facoltativi: `probe`, letto dall'intervistatore una sola volta dopo la risposta spontanea in CATI e CAPI (non in CAWI, non sulle griglie), e `coding_note`, istruzione per l'analisi riportata nel codebook. Il record ha `probe_text` con la risposta dopo il rilancio; `answer_text` resta la risposta spontanea. Dopo un rilancio da copione l'agente intervistatore non approfondisce più: accetta o chiarisce.
 - Persone (M4): la European Social Survey è CC BY-NC-SA (solo uso non commerciale) e non viene usata; atteggiamenti da Aspetti della vita quotidiana, reddito da EU-SILC aggregata, imprese dal Censimento permanente delle imprese, tutti ISTAT. I tratti senza fonte (prezzo, marca, rischio, novità) e lo stile di risposta sono priori dichiarati in YAML, sostituibili da config, marcati "ipotesi" in persona, narrativa e codebook. Nomi di battesimo da lista curata, disattivabili (`personas.include_names`).
 
 **Questioni aperte**

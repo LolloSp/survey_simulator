@@ -1,6 +1,7 @@
 """Versioni per modalità, ordine delle opzioni, esportazione e CLI."""
 
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import pytest
@@ -17,11 +18,12 @@ from synthsurvey.questionnaire import (
     adapt_all,
     export,
     option_order,
+    parse_questionnaire,
     to_markdown,
     to_yaml,
 )
 from tests.config.conftest import ESEMPI_DIR
-from tests.questionnaire.conftest import ESEMPIO
+from tests.questionnaire.conftest import ESEMPIO, domanda
 
 
 def test_conteggi_per_modalita(esempio: Questionnaire) -> None:
@@ -190,3 +192,24 @@ def test_cli_validate_ed_export(tmp_path: Path) -> None:
 def test_versione_cati_senza_dont_know(esempio: Questionnaire) -> None:
     with pytest.raises(KeyError):
         adapt(esempio, Mode.CATI).question("q5")
+
+
+def test_rilancio_solo_a_voce(raw: dict[str, Any]) -> None:
+    q7 = domanda(raw, "q7")
+    q7["probe"] = "E l'energia, dove sta in questa lista?"
+    q7["coding_note"] = "Energia citata: sì/no"
+    q = parse_questionnaire(raw)
+    cawi, cati, capi = (adapt(q, m) for m in (Mode.CAWI, Mode.CATI, Mode.CAPI))
+    assert cawi.question("q7").probe is None, "senza interlocutore il rilancio non si applica"
+    assert cawi.question("q7").coding_note == "Energia citata: sì/no"
+    assert cati.question("q7").probe == "E l'energia, dove sta in questa lista?"
+    assert capi.question("q7").probe == "E l'energia, dove sta in questa lista?"
+    assert cati.question("q1").probe is None
+    md = to_markdown(cati)
+    assert "> Rilancio (una sola volta, dopo la risposta spontanea): «E l'energia" in md
+    assert "> Per l'analisi: Energia citata: sì/no" in md
+    assert "Rilancio" not in to_markdown(cawi)
+    esportato = yaml.safe_load(to_yaml(capi))
+    per_id = {d["id"]: d for d in esportato["questions"]}
+    assert per_id["q7"]["probe"] == "E l'energia, dove sta in questa lista?"
+    assert per_id["q1"]["probe"] is None

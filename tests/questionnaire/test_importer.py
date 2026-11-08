@@ -23,7 +23,12 @@ from synthsurvey.questionnaire import (
     validate_raw,
 )
 from tests.config.conftest import config_base
-from tests.questionnaire.draft_example import bozza, bozza_rotta, bozza_tipo_incoerente
+from tests.questionnaire.draft_example import (
+    bozza,
+    bozza_rotta,
+    bozza_tipo_incoerente,
+    domanda,
+)
 
 TESTO = "D1. Quanto è soddisfatto?\nScala 1-10\nD2. Perché? (solo voti 1-5)\n"
 
@@ -281,3 +286,30 @@ async def test_rapporto_non_valido_e_rifiuto(config: Any) -> None:
     md_r = render_report(rifiuto)
     assert "**rifiutato**" in md_r and "## Questionario trascritto" not in md_r
     assert "## Errori residui" not in md_r
+
+
+def test_bozza_con_rilancio_e_nota_di_codifica(config: Any) -> None:
+    b = bozza()
+    b["sections"][0]["questions"].append(
+        domanda(
+            id="d9",
+            source_ref="D9",
+            text="Cosa le porta via più tempo nella gestione dell'attività?",
+            type="open",
+            probe="E l'energia, dove sta in questa lista?",
+            coding_note="Energia citata spontaneamente: sì/no",
+            page=2,
+        )
+    )
+    raw = draft_to_raw(ImportDraft.model_validate(b))
+    d9 = raw["sections"][0]["questions"][-1]
+    assert d9["probe"] == "E l'energia, dove sta in questa lista?"
+    assert d9["coding_note"] == "Energia citata spontaneamente: sì/no"
+    assert "probe" not in raw["sections"][0]["questions"][0], "assente se null"
+    q = parse_questionnaire(raw)
+    assert q.question("d9").probe == "E l'energia, dove sta in questa lista?"
+    schema = draft_schema()
+    assert {"probe", "coding_note"} <= set(schema["$defs"]["DraftQuestion"]["properties"])
+    assert "`probe`" in render_system_prompt(config) and "`coding_note`" in render_system_prompt(
+        config
+    )

@@ -125,3 +125,18 @@ def test_avviso_segmento_senza_domande(raw: dict[str, Any], tmp_path: Path) -> N
     path.write_text(yaml.safe_dump(raw, allow_unicode=True), encoding="utf-8")
     loaded = load_questionnaire(path, cfg)
     assert loaded.warnings == ["nessuna domanda si applica al segmento pmi"]
+
+
+def test_rilancio_e_nota_di_codifica(raw: dict[str, Any]) -> None:
+    q7 = domanda(raw, "q7")
+    q7["probe"] = "E l'energia, dove sta in questa lista?"
+    q7["coding_note"] = "Energia citata spontaneamente: sì/no"
+    q = parse_questionnaire(raw)
+    assert q.question("q7").probe == "E l'energia, dove sta in questa lista?"
+    assert q.question("q7").coding_note == "Energia citata spontaneamente: sì/no"
+    assert q.question("q1").probe is None and q.question("q1").coding_note is None
+    q7["probe"] = "  "
+    assert any("probe vuoto" in e for e in errori(raw))
+    q7["probe"] = "Rilancio"
+    domanda(raw, "q5")["probe"] = "Per ogni riga?"
+    assert any("probe non ammesso per grid" in e for e in errori(raw))

@@ -119,9 +119,12 @@ def estimate_interview_tokens(
         storia = min(i, 8) * (testo_domanda + OUTPUT_TOKENS_DIALOGUE)
         tok_in += system + testo_domanda + storia
     extra = int(n * INTERVIEWER_SHARE)
-    calls = n + 2 * extra
+    # Rilanci da copione: una chiamata certa in più al rispondente per ogni domanda con probe.
+    rilanci = sum(1 for q in mq.questions if q.probe)
+    calls = n + rilanci + 2 * extra
     tok_in += extra * (INTERVIEWER_INPUT_TOKENS + system + testo_domanda + OUTPUT_TOKENS_DIALOGUE)
-    tok_out = n * OUTPUT_TOKENS_DIALOGUE + extra * (
+    tok_in += rilanci * (system + 2 * testo_domanda + OUTPUT_TOKENS_DIALOGUE)
+    tok_out = (n + rilanci) * OUTPUT_TOKENS_DIALOGUE + extra * (
         INTERVIEWER_OUTPUT_TOKENS + OUTPUT_TOKENS_DIALOGUE
     )
     return calls, tok_in, tok_out

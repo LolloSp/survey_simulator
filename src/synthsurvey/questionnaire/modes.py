@@ -59,6 +59,8 @@ class ModeQuestion:
     numeric_min: float | None = None
     numeric_max: float | None = None
     unit: str | None = None
+    probe: str | None = None  # rilancio da copione: solo CATI e CAPI
+    coding_note: str | None = None  # per l'analisi, in tutte le modalità
 
 
 @dataclass(frozen=True)
@@ -119,6 +121,8 @@ def _base(q: Question, mode: Mode, text: str, **over: object) -> ModeQuestion:
         "numeric_min": q.min,
         "numeric_max": q.max,
         "unit": q.unit,
+        "probe": q.probe if spoken else None,
+        "coding_note": q.coding_note,
     }
     fields.update(over)
     return ModeQuestion(**fields)  # type: ignore[arg-type]

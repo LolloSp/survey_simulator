@@ -49,6 +49,7 @@ class AnswerRecord:
     nonverbal_observed: dict[str, Any] | None = None
     incongruence: bool | None = None
     probe: bool = False
+    probe_text: str | None = None  # risposta data dopo il rilancio (da copione o dell'agente)
     tokens_in: int = 0
     tokens_out: int = 0
     latency_ms: int = 0

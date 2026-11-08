@@ -525,6 +525,13 @@ dopo il suo intervento il rispondente parla di nuovo e la seconda risposta
 è quella definitiva. Così la maggior parte delle domande costa una
 chiamata e nessuna più di tre.
 
+Se la domanda dichiara un rilancio da copione (`probe`, tipico delle
+tracce qualitative), l'intervistatore lo legge una sola volta subito dopo
+la risposta spontanea, senza chiamare l'agente intervistatore; la risposta
+spontanea resta in `answer_text` e quella dopo il rilancio in `probe_text`.
+L'agente intervistatore interviene poi solo per accettare o chiarire, mai
+per approfondire di nuovo. In CAWI il rilancio non si applica.
+
 ### Segnali non verbali
 
 Vocabolario fisso: esitazione, incertezza, entusiasmo, disinteresse,

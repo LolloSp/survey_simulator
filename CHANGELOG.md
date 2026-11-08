@@ -4,6 +4,12 @@ Tutte le modifiche rilevanti del progetto. Il formato segue
 [Keep a Changelog](https://keepachangelog.com/it/1.1.0/); le versioni
 seguono il versionamento semantico.
 
+## [0.1.3] - 2026-11-08
+
+### Aggiunto
+
+- Rilanci da copione: campi `probe` e `coding_note` sulla domanda; in CATI e CAPI l'intervistatore legge il rilancio una volta dopo la risposta spontanea, la risposta successiva va in `probe_text`; export, importazione e codebook li riportano.
+
 ## [0.1.2] - 2026-11-08
 
 ### Aggiunto

@@ -6,10 +6,15 @@ Per ogni domanda:
    opzioni nell'ordine deciso dal seed, cartellino nel CAPI);
 2. il rispondente (modello) risponde con la battuta a voce, la risposta
    codificata, l'eventuale richiesta di chiarimento e i segnali non verbali;
-3. l'intervistatore (modello) interviene solo se serve: chiarimento chiesto,
+3. se la domanda ha un rilancio da copione (`probe`), l'intervistatore lo
+   legge una sola volta, senza chiamare il modello, e il rispondente parla di
+   nuovo: la risposta spontanea resta nel record, quella dopo il rilancio va
+   in `probe_text`;
+4. l'intervistatore (modello) interviene solo se serve: chiarimento chiesto,
    risposta non codificabile, o segnali osservati forti. Può chiarire o
-   approfondire una volta, e annota le incongruenze fra segnali e parole;
-4. dopo un chiarimento o un approfondimento il rispondente parla di nuovo e
+   approfondire una volta (mai dopo un rilancio da copione), e annota le
+   incongruenze fra segnali e parole;
+5. dopo un chiarimento o un approfondimento il rispondente parla di nuovo e
    la sua seconda risposta è quella definitiva.
 
 Nella maggior parte delle domande basta una chiamata. L'intervistatore vede
@@ -120,6 +125,7 @@ def _interviewer_brief(
     value: AnswerValue,
     clarification: str | None,
     observed: dict[str, Any] | None,
+    probed: str | None = None,
 ) -> str:
     ammesse: str
     if mq.options:
@@ -143,6 +149,11 @@ def _interviewer_brief(
     if clarification:
         righe.append(f"Ha chiesto un chiarimento: «{clarification}»")
     righe.append(f"Segnali percepiti: {describe_observed(observed)}")
+    if probed:
+        righe.append(
+            f"Rilancio da copione già letto: «{probed}». Non approfondire di nuovo: "
+            "accettare o chiarire."
+        )
     righe.append("Decidi se accettare, chiarire o approfondire.")
     return "\n".join(righe)
 
@@ -232,10 +243,46 @@ async def run_dialogue(
         )
         incongruence: bool | None = None
         probe = False
+        probe_text: str | None = None
+        detto = spoken
+        scambio_rilancio: list[Message] = []
+        if mq.probe:
+            # Rilancio da copione: letto una sola volta, subito dopo la risposta spontanea.
+            probe = True
+            result.transcript.append(Turn("intervistatore", mq.probe, question_id=mq.id))
+            messages = [*messages, Message("assistant", response.text), Message("user", mq.probe)]
+            response_p = await _ask(messages, schema, f"q:{mq.id}:p")
+            if not response_p.refused:
+                spoken_p, value_p, chiede_p, clar_p, emitted_p = _parse_respondent(
+                    response_p, mq, presented, nonverbal
+                )
+                if emitted_p is not None:
+                    emitted, observed = emitted_p, observe(mode, emitted_p)
+                result.transcript.append(
+                    Turn(
+                        "rispondente",
+                        spoken_p or "(silenzio)",
+                        question_id=mq.id,
+                        signals=observed,
+                    )
+                )
+                probe_text = text_value(value_p) or spoken_p or None
+                detto = f"{spoken} Dopo il rilancio: «{spoken_p}»"
+                if value is None and value_p is not None:
+                    value = value_p
+                if chiede_p:
+                    chiede, clar = True, clar_p
+                scambio_rilancio = [
+                    Message("assistant", response.text),
+                    Message("user", mq.probe),
+                ]
+                response = response_p
         non_codificabile = value is None and not chiede
         forte = max_intensity(observed) >= PROBE_THRESHOLD
         if chiede or non_codificabile or forte:
-            brief = _interviewer_brief(mq, utterance, presented, spoken, value, clar, observed)
+            brief = _interviewer_brief(
+                mq, utterance, presented, detto, value, clar, observed, probed=mq.probe
+            )
             request_i = LLMRequest(
                 system=system_i,
                 messages=(Message("user", brief),),
@@ -251,6 +298,8 @@ async def run_dialogue(
             action = parsed_i.get("action")
             if action not in INTERVIEWER_ACTIONS:
                 action = "clarify" if chiede else "accept"
+            if mq.probe and action == "probe":
+                action = "accept"  # il rilancio da copione è già stato fatto
             if nonverbal and isinstance(parsed_i.get("incongruence"), bool):
                 incongruence = bool(parsed_i["incongruence"])
             battuta = parsed_i.get("utterance")
@@ -258,7 +307,7 @@ async def run_dialogue(
             if action in ("clarify", "probe") and (battuta or chiede):
                 if not battuta:
                     battuta = "Le rileggo la domanda. " + utterance
-                probe = action == "probe"
+                probe = probe or action == "probe"
                 result.transcript.append(Turn("intervistatore", battuta, question_id=mq.id))
                 messages = [
                     *messages,
@@ -272,6 +321,8 @@ async def run_dialogue(
                     )
                     if value2 is not None:
                         value = value2
+                    if action == "probe":
+                        probe_text = text_value(value2) or spoken2 or None
                     if emitted2 is not None:
                         emitted, observed = emitted2, observe(mode, emitted2)
                     result.transcript.append(
@@ -283,7 +334,9 @@ async def run_dialogue(
                         )
                     )
                     response = response2
-        history.extend([Message("user", utterance), Message("assistant", response.text)])
+        history.extend(
+            [Message("user", utterance), *scambio_rilancio, Message("assistant", response.text)]
+        )
         position = _record(
             result,
             q,
@@ -294,6 +347,7 @@ async def run_dialogue(
             response,
             clarification=chiede,
             probe=probe,
+            probe_text=probe_text,
             emitted=emitted,
             observed=observed,
             incongruence=incongruence,
@@ -322,6 +376,7 @@ def _record(
     nonresponse: bool = False,
     clarification: bool = False,
     probe: bool = False,
+    probe_text: str | None = None,
     emitted: dict[str, Any] | None = None,
     observed: dict[str, Any] | None = None,
     incongruence: bool | None = None,
@@ -336,6 +391,7 @@ def _record(
         "nonverbal_observed": observed,
         "incongruence": incongruence,
         "probe": probe,
+        "probe_text": probe_text,
         "tokens_in": response.usage.input_tokens,
         "tokens_out": response.usage.output_tokens,
         "latency_ms": response.latency_ms,

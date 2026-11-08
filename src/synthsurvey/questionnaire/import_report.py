@@ -63,6 +63,10 @@ def _riga_domanda(q: dict[str, Any], refs: dict[str, str]) -> str:
         extra.append("random")
     if q.get("applies_to"):
         extra.append("solo " + ", ".join(q["applies_to"]))
+    if q.get("probe"):
+        extra.append("rilancio")
+    if q.get("coding_note"):
+        extra.append("nota di codifica")
     celle = [
         q.get("id", "?"),
         refs.get(q.get("id", ""), ""),

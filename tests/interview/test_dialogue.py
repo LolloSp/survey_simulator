@@ -360,3 +360,80 @@ async def test_run_interview_instrada_cati_e_capi(
         )
         assert result.spec.mode is mode and result.outcome.completed
         assert all(r.mode == mode.value for r in result.records)
+
+
+RILANCIO = "E l'energia, dove sta in questa lista?"
+
+
+def con_rilancio(questionario: Questionnaire) -> Questionnaire:
+    """Copia del questionario di esempio con un rilancio da copione sulla domanda aperta q7."""
+    raw = questionario.model_dump(mode="python")
+    for s in raw["sections"]:
+        for q in s["questions"]:
+            if q["id"] == "q7":
+                q["probe"] = RILANCIO
+                q["coding_note"] = "Energia citata spontaneamente: sì/no"
+    return parse_questionnaire(raw)
+
+
+async def test_rilancio_da_copione(
+    questionario: Questionnaire, config: SynthSurveyConfig, persona: Persona
+) -> None:
+    q = con_rilancio(questionario)
+
+    def responder(r: LLMRequest) -> dict[str, Any]:
+        assert not is_interviewer(r), "il rilancio da copione non chiama l'agente intervistatore"
+        if step(r) == "q:q7:a":
+            return respondent_reply(
+                r, answer="Più chiarezza in bolletta.", spoken="Più chiarezza in bolletta."
+            )
+        if step(r) == "q:q7:p":
+            assert r.messages[-1].content == RILANCIO and r.messages[-2].role == "assistant"
+            return respondent_reply(
+                r,
+                answer="L'energia pesa, ma non è la prima cosa.",
+                spoken="Eh, l'energia pesa, ma non è la prima cosa.",
+            )
+        return respondent_reply(r)
+
+    result = await run_dialogue(spec(persona), q, adapt(q, Mode.CATI), pool(responder), config)
+    q7 = by_question(result)[("q7", None)]
+    assert q7.status is AnswerStatus.ANSWERED
+    assert q7.answer_text == "Più chiarezza in bolletta.", "la risposta spontanea resta"
+    assert q7.probe and q7.probe_text == "L'energia pesa, ma non è la prima cosa."
+    turni = [t for t in result.transcript if t.question_id == "q7"]
+    assert [t.speaker for t in turni] == [
+        "intervistatore",
+        "rispondente",
+        "intervistatore",
+        "rispondente",
+    ]
+    assert turni[2].text == RILANCIO and turni[3].text.startswith("Eh, l'energia")
+    answered = sum(1 for r in result.records if r.status is AnswerStatus.ANSWERED)
+    assert result.outcome.calls == answered + 1, "una sola chiamata in più per il rilancio"
+    senza = [r for r in result.records if r.question_id != "q7"]
+    assert all(not r.probe and r.probe_text is None for r in senza)
+
+
+async def test_dopo_il_rilancio_niente_approfondimento(
+    questionario: Questionnaire, config: SynthSurveyConfig, persona: Persona
+) -> None:
+    q = con_rilancio(questionario)
+    chiamate_i = 0
+
+    def responder(r: LLMRequest) -> dict[str, Any]:
+        nonlocal chiamate_i
+        if is_interviewer(r):
+            chiamate_i += 1
+            assert "Rilancio da copione già letto" in r.messages[0].content
+            return interviewer_reply("probe", utterance="Vuole aggiungere altro?")
+        if step(r) in ("q:q7:a", "q:q7:p"):
+            return respondent_reply(r, answer="", spoken="Mah.")
+        return respondent_reply(r)
+
+    result = await run_dialogue(spec(persona), q, adapt(q, Mode.CAPI), pool(responder), config)
+    q7 = by_question(result)[("q7", None)]
+    assert q7.status is AnswerStatus.NONRESPONSE and q7.probe and q7.probe_text == "Mah."
+    assert chiamate_i == 1
+    turni = [t for t in result.transcript if t.question_id == "q7"]
+    assert len(turni) == 4, "l'approfondimento dell'agente dopo il rilancio diventa accettazione"

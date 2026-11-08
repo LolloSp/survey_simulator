@@ -64,6 +64,12 @@ decisione umana. Una riga per voce; si cancella quando è chiusa.
   (amministratore con 4 addetti, due titolari con 5 e 6). Limite noto: l'anagrafica non
   porta il titolo di studio, che l'ISTAT completa in modo plausibile ma uniforme.
 
-- [ ] **M5, questionario reale**: caricare il questionario già pronto del
-  caso di riferimento in `questionnaires/` e verificare che le tre versioni
-  per modalità siano esportabili per revisione (criterio di M5).
+- [x] **M5, questionario reale** (8 novembre 2026): `Gerarchia Messaggi.xlsx` importato via
+  sessione con `prepare` insieme all'anagrafica (progetto in `runs/progetti/gerarchia_messaggi`,
+  12 interviste stimate): traccia qualitativa di 7 domande aperte per consumatori e imprese,
+  con rilancio e nota di codifica per domanda. YAML valido al primo giro, tre versioni per
+  modalità esportate in `runs/progetti/gerarchia_messaggi/export/`. Il questionario del
+  committente è un dato di input e non si versiona: `questionnaires/` è ignorata tranne
+  `examples/`.
+
+- [x] **Rilanci dell'intervistatore** (8 novembre 2026, deciso da Lorenzo): aggiunti `probe` e `coding_note` alla domanda, rilancio da copione nel dialogo CATI/CAPI, `probe_text` nel record; il questionario reale li usa su tutte le 7 domande. Il segmento `privati` resta: il questionario è per consumatori e imprese, quindi senza `applies_to`.

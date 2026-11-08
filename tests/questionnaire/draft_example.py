@@ -24,6 +24,8 @@ def domanda(**kw: Any) -> dict[str, Any]:
         "randomize": False,
         "fixed_last": [],
         "page": None,
+        "probe": None,
+        "coding_note": None,
     }
     base.update(kw)
     return base

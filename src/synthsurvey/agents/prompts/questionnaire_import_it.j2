@@ -35,6 +35,8 @@ Ogni domanda ha:
   Usa `applies_to` solo quando il documento lo indica (blocco "solo imprese", "solo chi ha risposto per conto dell'azienda", ecc.).
 - `page`: numero di pagina per la versione web, a partire da 1 e crescente. Se il documento indica le pagine o le schermate usale; altrimenti raggruppa le domande per argomento, da una a tre domande per pagina, senza mai separare una domanda dal filtro che la governa. Una griglia sta da sola in una pagina.
 - `show_if`: condizione di visualizzazione, oppure null.
+- `probe`: il rilancio che il documento prevede per quella domanda («Un solo rilancio», «se non cita X chiedere...»): il testo della frase che l'intervistatore dice, senza virgolette tipografiche, oppure null. Nelle interviste a voce viene letto una sola volta dopo la risposta spontanea; non va nel testo della domanda.
+- `coding_note`: l'istruzione di annotazione o codifica per chi analizza («Cosa annoti», «registrare sì/no»), oppure null. Non viene mai letta al rispondente.
 
 ## Routing: tradurre le istruzioni di salto
 

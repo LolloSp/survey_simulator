@@ -88,6 +88,8 @@ class DraftQuestion(_Draft):
     randomize: bool
     fixed_last: list[str]
     page: int | None
+    probe: str | None
+    coding_note: str | None
 
 
 class DraftSection(_Draft):
@@ -196,6 +198,10 @@ def draft_to_raw(draft: ImportDraft) -> dict[str, Any]:
                 d["fixed_last"] = list(q.fixed_last)
             if q.page is not None:
                 d["page"] = q.page
+            if q.probe:
+                d["probe"] = q.probe
+            if q.coding_note:
+                d["coding_note"] = q.coding_note
             domande.append(d)
         sez: dict[str, Any] = {"id": s.id}
         if s.title:

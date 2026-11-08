@@ -37,6 +37,7 @@ LONG_SCHEMA: dict[str, type[pl.DataType]] = {
     "nonverbal_observed": pl.String,
     "incongruence": pl.Boolean,
     "probe": pl.Boolean,
+    "probe_text": pl.String,
     "tokens_in": pl.Int64,
     "tokens_out": pl.Int64,
     "latency_ms": pl.Int64,
