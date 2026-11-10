@@ -1,12 +1,12 @@
-"""`synthsurvey prepare` (M13): da questionario e anagrafica alla configurazione, poi il run."""
+"""`survey-simulator prepare` (M13): da questionario e anagrafica alla configurazione e al run."""
 
 from pathlib import Path
 
 import yaml
 from typer.testing import CliRunner
 
-from synthsurvey.cli import app
-from synthsurvey.config import load_config
+from survey_simulator.cli import app
+from survey_simulator.config import load_config
 from tests.config.conftest import ESEMPI_DIR
 from tests.population.test_contacts import scrivi_xlsx
 

@@ -3,9 +3,9 @@
 import polars as pl
 import pytest
 
-from synthsurvey.population import categories as cat
-from synthsurvey.population.istat import normalize as nz
-from synthsurvey.population.istat.normalize import NormalizeError
+from survey_simulator.population import categories as cat
+from survey_simulator.population.istat import normalize as nz
+from survey_simulator.population.istat.normalize import NormalizeError
 from tests.population.conftest import REGIONI_FIXTURE, fixture_text
 
 POP = "22_289_DF_DCIS_POPRES1_1"

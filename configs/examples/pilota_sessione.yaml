@@ -1,5 +1,5 @@
 # Pilota senza API (M14): il modello è la sessione di Claude Code, che risponde
-# alle richieste in attesa con `synthsurvey session answer`. Una replica, 10 persone.
+# alle richieste in attesa con `survey-simulator session answer`. Una replica, 10 persone.
 # Uso: interview preview --config <questo file> --mode cawi, poi session list / answer,
 # poi di nuovo interview preview, finché non resta nulla in attesa.
 project:

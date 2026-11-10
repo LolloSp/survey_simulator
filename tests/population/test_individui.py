@@ -6,9 +6,9 @@ import numpy as np
 import polars as pl
 import pytest
 
-from synthsurvey.population import individui as ind
-from synthsurvey.population.imprese import build_imprese
-from synthsurvey.population.tables import IstatTables, TablesError, load_tables
+from survey_simulator.population import individui as ind
+from survey_simulator.population.imprese import build_imprese
+from survey_simulator.population.tables import IstatTables, TablesError, load_tables
 
 PROCESSED = Path(__file__).resolve().parents[2] / "data" / "processed"
 

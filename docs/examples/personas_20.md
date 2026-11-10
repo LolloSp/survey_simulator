@@ -1,5 +1,5 @@
 # Persone di esempio (20, caso di riferimento mercato_100, seed 20261105)
-Generate con `synthsurvey personas preview --config configs/examples/mercato_100.yaml --n 20`.
+Generate con `survey-simulator personas preview --config configs/examples/mercato_100.yaml --n 20`.
 Da revisionare a mano: ogni persona mostra profilo strutturato, provenienze implicite nel codebook e narrativa.
 Rigenerate l'8 novembre 2026 dopo la revisione (nessun occupato oltre i 79 anni).
 

@@ -5,9 +5,9 @@ from typing import Any
 
 import pytest
 
-from synthsurvey.config import SynthSurveyConfig, parse_config
-from synthsurvey.personas.schema import Attitudes, Firm, Persona, Provenance, ResponseStyle
-from synthsurvey.questionnaire import Questionnaire, load_questionnaire
+from survey_simulator.config import SurveySimulatorConfig, parse_config
+from survey_simulator.personas.schema import Attitudes, Firm, Persona, Provenance, ResponseStyle
+from survey_simulator.questionnaire import Questionnaire, load_questionnaire
 from tests.config.conftest import config_base
 
 ESEMPIO = Path(__file__).resolve().parents[2] / "questionnaires" / "examples" / "mercato_v1.yaml"
@@ -79,7 +79,7 @@ def questionario() -> Questionnaire:
 
 
 @pytest.fixture
-def config() -> SynthSurveyConfig:
+def config() -> SurveySimulatorConfig:
     raw: dict[str, Any] = config_base()
     raw["engine"]["models"] = [{"provider": "fake", "model": "fake-1"}]
     return parse_config(raw)

@@ -5,7 +5,7 @@ from pathlib import Path
 import httpx
 import pytest
 
-from synthsurvey.population.istat import SdmxClient, SdmxError
+from survey_simulator.population.istat import SdmxClient, SdmxError
 from tests.population.conftest import MakeClient
 
 FLOW = "22_289_DF_DCIS_POPRES1_1"

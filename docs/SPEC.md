@@ -2,6 +2,8 @@
 
 Nov 5, 2026 · @Lorenzo Spanu
 
+**Nome.** Il progetto si chiama `survey_simulator` (fino alla v0.1.4 si chiamava `synthsurvey`; rinominato il 10 novembre 2026). Il pacchetto Python è `survey_simulator`, il comando da terminale `survey-simulator`, il repository GitHub `LolloSp/survey_simulator`. Il manifest dei run scrive la versione del pacchetto in `survey_simulator_version`; i run prodotti prima della rinomina restano validi e riportano `synthsurvey_version`, chiave che nessun comando legge.
+
 ## Visione e ambito
 
 Il prodotto genera un campione sintetico di rispondenti italiani a partire dai dati ISTAT e gli sottopone un questionario in tre modalità: form online (CAWI), telefono (CATI) e di persona (CAPI). Ogni rispondente è un agente LLM con un profilo coerente con la popolazione reale. L'output è un dataset analizzabile con pesi, paradati e codebook.
@@ -303,7 +305,7 @@ Campi: `persona_id`, `segment`, attributi demografici, attributi impresa (per le
 - `responses_wide.csv` e `.sav` (una riga per persona × modalità × replica), con pesi.
 - `codebook.json` (e opzionalmente DDI), `transcripts/` con i dialoghi CATI e CAPI.
 - `report.html`: distribuzioni, confronto tra segmenti, effetti di modalità, stabilità tra repliche.
-- `interviste.html`: pagina autonoma (un file, nessuna dipendenza esterna, funziona offline) per leggere interviste e risposte. Sempre prodotta, insieme al report, a fine run e da `synthsurvey report`. Contiene:
+- `interviste.html`: pagina autonoma (un file, nessuna dipendenza esterna, funziona offline) per leggere interviste e risposte. Sempre prodotta, insieme al report, a fine run e da `survey-simulator report`. Contiene:
   - riepilogo: persone per segmento, interviste completate, risposte, risposte ai rilanci; avviso che i dati sono simulati;
   - vista **per domanda**: testo, rilancio da copione e `coding_note`; una riga per persona con la risposta in ogni modalità affiancata e, sotto, la risposta al rilancio; incongruenze segnalate;
   - vista **per persona**: profilo (`narrative`, segmento, età, regione, impresa) e le interviste delle varie modalità affiancate, domanda per domanda;
@@ -332,7 +334,7 @@ Python è la scelta naturale: ecosistema statistico maturo, SDK per tutti i prin
 **Struttura del repository**
 
 ```
-synthsurvey/
+survey_simulator/
 ├── README.md
 ├── CLAUDE.md                 # istruzioni per Claude Code
 ├── docs/
@@ -340,11 +342,11 @@ synthsurvey/
 │   └── methodology.md
 ├── configs/examples/         # config di esempio (100, 500, 1000)
 ├── questionnaires/examples/
-├── .claude/skills/synthsurvey-run/   # skill per condurre un run da una sessione di Claude Code (M13)
+├── .claude/skills/survey-simulator-run/   # skill per condurre un run da una sessione di Claude Code (M13)
 ├── data/
 │   ├── raw/                  # estrazioni ISTAT (non versionate)
 │   └── processed/            # tabelle normalizzate + manifest fonti
-├── src/synthsurvey/
+├── src/survey_simulator/
 │   ├── config/               # schema e validazione YAML
 │   ├── population/           # loader ISTAT, IPF, estrazione per quote, pesi
 │   ├── personas/             # attributi, atteggiamenti, stile, narrativa
@@ -359,27 +361,27 @@ synthsurvey/
 └── tests/
 ```
 
-Comandi CLI previsti: `synthsurvey config validate <file>`, `synthsurvey data fetch`, `synthsurvey sample preview`, `synthsurvey run --pilot`, `synthsurvey run`, `synthsurvey freeze`, `synthsurvey report`, `synthsurvey validate --real <file>`.
+Comandi CLI previsti: `survey-simulator config validate <file>`, `survey-simulator data fetch`, `survey-simulator sample preview`, `survey-simulator run --pilot`, `survey-simulator run`, `survey-simulator freeze`, `survey-simulator report`, `survey-simulator validate --real <file>`.
 
 ## Roadmap per milestone
 
 Ogni milestone è un blocco consegnabile e testabile, pensato per una o poche sessioni di Claude Code. Non si passa alla successiva finché i criteri di completamento non sono soddisfatti.
 
-1. **M0 – Scheletro del progetto.** Repo, pyproject, CLI vuota, CI, CLAUDE.md, SPEC.md. *Fatto quando:* `synthsurvey --help` funziona e la CI è verde.
+1. **M0 – Scheletro del progetto.** Repo, pyproject, CLI vuota, CI, CLAUDE.md, SPEC.md. *Fatto quando:* `survey-simulator --help` funziona e la CI è verde.
 2. **M1 – Configurazione.** Schema Pydantic del YAML, validazione, messaggi d'errore chiari, config di esempio. *Fatto quando:* config valide e non valide sono coperte da test.
 3. **M2 – Dati ISTAT.** Loader per le tabelle consumer e imprese, normalizzazione, manifest delle fonti. *Fatto quando:* le tabelle sono riproducibili da script e versionate con hash.
 4. **M3 – Popolazione e campione.** IPF, estrazione per quote, sovracampionamento, pesi, controllo celle piccole, `sample preview`. *Fatto quando:* i marginali del campione rispettano le quote e i pesi ricostruiscono i marginali ISTAT.
 5. **M4 – Persone.** Atteggiamenti, stile di risposta, narrativa in italiano. *Fatto quando:* 20 persone di esempio sono revisionate a mano e coerenti.
 6. **M5 – Questionario.** Parser, routing con `show_if`, adattamento automatico per modalità. *Fatto quando:* un questionario reale nel formato strutturato viene caricato e le tre versioni sono esportabili per revisione.
 7. **M6 – Livello LLM.** Client astratto, primo adapter, cache, retry, conteggio costi. *Fatto quando:* i test girano con un client finto, senza chiamate reali.
-    - **M6b – Importazione del questionario.** Comando `synthsurvey questionnaire import <file>`: estrazione del testo da Word, PDF, Excel o testo con librerie dedicate; un agente importatore (prompt in `agents/prompts/`) produce lo YAML strutturato con output vincolato allo schema di M5, compreso il routing dedotto dalle istruzioni di salto; validazione automatica con nuovo giro dell'agente sugli errori; rapporto di importazione in Markdown con le incertezze da rivedere. La revisione umana resta obbligatoria prima del congelamento. *Fatto quando:* un questionario reale in Word o PDF produce uno YAML valido con un rapporto revisionabile.
+    - **M6b – Importazione del questionario.** Comando `survey-simulator questionnaire import <file>`: estrazione del testo da Word, PDF, Excel o testo con librerie dedicate; un agente importatore (prompt in `agents/prompts/`) produce lo YAML strutturato con output vincolato allo schema di M5, compreso il routing dedotto dalle istruzioni di salto; validazione automatica con nuovo giro dell'agente sugli errori; rapporto di importazione in Markdown con le incertezze da rivedere. La revisione umana resta obbligatoria prima del congelamento. *Fatto quando:* un questionario reale in Word o PDF produce uno YAML valido con un rapporto revisionabile.
 8. **M7 – Modalità CAWI.** Agente rispondente, una pagina alla volta, randomizzazione delle opzioni. *Fatto quando:* un pilota da 10 persone produce risposte valide.
 9. **M8 – Modalità CATI e CAPI.** Agente intervistatore, dialogo, cartellini, trascrizioni. *Fatto quando:* le stesse 10 persone completano entrambe le modalità.
 10. **M9 – Runner.** Disegno within/between, repliche, concorrenza, stima costi, budget, congelamento. *Fatto quando:* un run da 100 × 3 modalità × 3 repliche completa e può essere congelato.
 11. **M10 – Output e report.** Export long/wide, .sav, codebook, report HTML. *Fatto quando:* il dataset si apre in SPSS/R e il report mostra segmenti ed effetti di modalità. Aggiunta dell'8 novembre 2026: la pagina `interviste.html` per leggere interviste e risposte, prodotta sempre accanto al report.
 12. **M11 – Validazione.** Import dati reali, allineamento al disegno, metriche, report di confronto. *Fatto quando:* testato su un dataset reale di prova (anche fittizio).
 13. **M12 – Ensemble e rifinitura.** Secondo provider LLM, documentazione, esempi, release v0.1 su GitHub.
-14. **M13 – Anagrafiche e avvio da Claude Code.** Sorgente `lista_clienti`: il campione è l'anagrafica del committente (CSV o Excel con intestazioni variabili), ISTAT completa gli attributi mancanti; comando `synthsurvey prepare` che da questionario e anagrafica scrive la configurazione e stima il run; skill di progetto per guidare la sessione di Claude Code. *Fatto quando:* `prepare` su un'anagrafica reale produce una configurazione valida con il rapporto dei record scartati, `run --pilot` parte, e nessun dato personale del file (nomi, codici fiscali, contatti) compare nei prompt o negli output condivisibili.
+14. **M13 – Anagrafiche e avvio da Claude Code.** Sorgente `lista_clienti`: il campione è l'anagrafica del committente (CSV o Excel con intestazioni variabili), ISTAT completa gli attributi mancanti; comando `survey-simulator prepare` che da questionario e anagrafica scrive la configurazione e stima il run; skill di progetto per guidare la sessione di Claude Code. *Fatto quando:* `prepare` su un'anagrafica reale produce una configurazione valida con il rapporto dei record scartati, `run --pilot` parte, e nessun dato personale del file (nomi, codici fiscali, contatti) compare nei prompt o negli output condivisibili.
 15. **M14 – Provider sessione.** Adapter `session` con cassetta delle richieste su file, comandi `session list` e `session answer`, sospensione e ripresa dei run. *Fatto quando:* un pilota CAWI da 10 persone viene completato rispondendo dalla sessione di Claude Code e produce output validi.
 
 ## Lavorare con Claude Code
@@ -389,7 +391,7 @@ Il modo più efficace è salvare questo documento come `docs/SPEC.md` nel repo e
 **Contenuto suggerito per CLAUDE.md**
 
 ```markdown
-# synthsurvey
+# survey_simulator
 
 Simulatore di indagini su popolazione sintetica italiana.
 Specifica completa: docs/SPEC.md. Leggila prima di ogni milestone.
@@ -402,22 +404,22 @@ Specifica completa: docs/SPEC.md. Leggila prima di ogni milestone.
   mai chiamate reali.
 - Riproducibilità: ogni casualità passa dal seed della config.
 - Un run congelato non si modifica mai.
-- Prompt degli agenti in file separati (src/synthsurvey/agents/prompts/),
+- Prompt degli agenti in file separati (src/survey_simulator/agents/prompts/),
   in italiano, versionati.
 - Chiavi API solo da variabili d'ambiente (.env non versionato).
 
 ## Comandi
 - uv run pytest
 - uv run ruff check . && uv run mypy src
-- uv run synthsurvey --help
-- uv run synthsurvey questionnaire import <file> --config <config> --out <yaml>
-- uv run synthsurvey interview preview --config <config> --mode cawi --n 10 --out <dir>
-- uv run synthsurvey run --config <config> [--pilot] [--estimate-only] [--run-id <nome>]
-- uv run synthsurvey freeze <cartella del run> [--verify]
-- uv run synthsurvey report <cartella del run> [--out <cartella>] [--formats parquet,csv,sav]
-- uv run synthsurvey validate <cartella del run> --real <csv> [--out <cartella>]
-- uv run synthsurvey prepare --questionnaire <file> --contacts <file> --out <cartella>
-- uv run synthsurvey session list --config <config>  /  session answer <risposte.json> --config <config>
+- uv run survey-simulator --help
+- uv run survey-simulator questionnaire import <file> --config <config> --out <yaml>
+- uv run survey-simulator interview preview --config <config> --mode cawi --n 10 --out <dir>
+- uv run survey-simulator run --config <config> [--pilot] [--estimate-only] [--run-id <nome>]
+- uv run survey-simulator freeze <cartella del run> [--verify]
+- uv run survey-simulator report <cartella del run> [--out <cartella>] [--formats parquet,csv,sav]
+- uv run survey-simulator validate <cartella del run> --real <csv> [--out <cartella>]
+- uv run survey-simulator prepare --questionnaire <file> --contacts <file> --out <cartella>
+- uv run survey-simulator session list --config <config>  /  session answer <risposte.json> --config <config>
 ```
 
 **Come impostare ogni sessione**
@@ -453,12 +455,12 @@ Specifica completa: docs/SPEC.md. Leggila prima di ogni milestone.
 - Importazione del questionario (M6b): il modello non scrive direttamente lo YAML di M5 ma una bozza con schema JSON adatto all'output strutturato (tutti i campi espliciti, etichette di scala come lista di coppie, nessun vincolo numerico o di pattern); la bozza è convertita e validata con il parser di M5 e gli errori tornano al modello per al massimo due giri di correzione. L'import usa `effort: high` e 16.000 token di uscita di default, indipendenti dall'`engine` delle interviste. Una bozza ancora non valida viene salvata come `.draft.yaml` con il rapporto degli errori. Niente OCR: un PDF scansionato viene rifiutato.
 - Interviste CAWI (M7): una chiamata per pagina con schema JSON che elenca le domande visibili; le pagine precedenti restano nella conversazione per la coerenza. Le domande di una pagina che dipendono da altre della stessa pagina sono presentate in un gruppo successivo. Il rispondente può abbandonare (`abandon`) e le domande non raggiunte restano con stato `abandoned`; le domande saltate dal routing o dal segmento hanno stato `not_applicable`. Le risposte fuori schema (valori non ammessi, numeri fuori limite) diventano non risposta con `item_nonresponse`. Il codice di risposta è l'indice nell'ordine canonico delle opzioni, l'ordine presentato è registrato in `option_order`. Il generatore dell'intervista deriva da `SeedSequence([seed, 7, indice persona, modalità, replica])`.
 - Interviste CATI e CAPI (M8): per ogni domanda una chiamata al rispondente, che restituisce battuta a voce, risposta codificata, eventuale richiesta di chiarimento e blocco dei segnali non verbali (sei segnali con intensità 0-3, linguaggio del corpo, nota). L'agente intervistatore (prompt `interviewer_it.j2`) viene chiamato solo se serve: chiarimento chiesto, risposta non codificabile o segnale osservato di intensità almeno 2; può accettare, chiarire o approfondire una volta, e annota l'incongruenza fra segnali e parole. Al telefono l'intervistatore osserva solo i segnali paraverbali, di persona anche il corpo; il blocco emesso resta registrato per intero come "verità" simulata. Il contesto del rispondente conserva gli ultimi otto scambi. Non è previsto l'abbandono nelle interviste con intervistatore.
-- Runner (M9): la cartella del run è `<output.dir>/<run_id>` con `run_id` di default `<progetto>-<data e ora UTC>[-pilota]`. La stima di costo è prudente (prezzo pieno, senza cache, contesto crescente) e blocca il run prima di qualsiasi chiamata se supera `run.budget_max_eur`; durante il run la spesa reale viene confrontata con il budget prima di ogni intervista e, se lo supera, le interviste non iniziate vengono saltate con stato `budget_exceeded`. Nel disegno between-subject l'assegnazione alle modalità usa i resti più grandi e il ramo 9 del seed. `run.frozen: true` congela la cartella alla fine del run; `synthsurvey freeze` la congela dopo e `--verify` ne controlla gli hash. Un run congelato non può essere riscritto con lo stesso `run_id`. La cache delle risposte rende riavviabile un run interrotto senza pagare due volte.
-- Output (M10): il dataset largo ha una riga per persona × modalità × replica × modello; singole come codice 1..k nell'ordine canonico, multiple come variabili 0/1 per opzione (`<id>_<n>`), griglie come `<id>_<item>`, aperte come testo con `<id>_status`; mancanti con codici negativi (-1 non applicabile, -2 non risposta, -3 non so, -4 abbandono) dichiarati come missing nel .sav. Il report HTML usa grafici SVG inline (nessuna libreria grafica), etichetta ogni pagina come SIMULATA e include esito per modalità, distribuzioni pesate, effetti di modalità rispetto al CAWI, confronto fra segmenti, stabilità fra repliche, straightlining nelle griglie, incongruenze non verbali e costi. `synthsurvey run` produce già tutti gli output; `synthsurvey report` li rigenera e, per un run congelato, richiede `--out` verso un'altra cartella.
+- Runner (M9): la cartella del run è `<output.dir>/<run_id>` con `run_id` di default `<progetto>-<data e ora UTC>[-pilota]`. La stima di costo è prudente (prezzo pieno, senza cache, contesto crescente) e blocca il run prima di qualsiasi chiamata se supera `run.budget_max_eur`; durante il run la spesa reale viene confrontata con il budget prima di ogni intervista e, se lo supera, le interviste non iniziate vengono saltate con stato `budget_exceeded`. Nel disegno between-subject l'assegnazione alle modalità usa i resti più grandi e il ramo 9 del seed. `run.frozen: true` congela la cartella alla fine del run; `survey-simulator freeze` la congela dopo e `--verify` ne controlla gli hash. Un run congelato non può essere riscritto con lo stesso `run_id`. La cache delle risposte rende riavviabile un run interrotto senza pagare due volte.
+- Output (M10): il dataset largo ha una riga per persona × modalità × replica × modello; singole come codice 1..k nell'ordine canonico, multiple come variabili 0/1 per opzione (`<id>_<n>`), griglie come `<id>_<item>`, aperte come testo con `<id>_status`; mancanti con codici negativi (-1 non applicabile, -2 non risposta, -3 non so, -4 abbandono) dichiarati come missing nel .sav. Il report HTML usa grafici SVG inline (nessuna libreria grafica), etichetta ogni pagina come SIMULATA e include esito per modalità, distribuzioni pesate, effetti di modalità rispetto al CAWI, confronto fra segmenti, stabilità fra repliche, straightlining nelle griglie, incongruenze non verbali e costi. `survey-simulator run` produce già tutti gli output; `survey-simulator report` li rigenera e, per un run congelato, richiede `--out` verso un'altra cartella.
 - Validazione (M11): i dati reali arrivano in CSV lungo (`respondent_id`, `mode`, `question_id`, `answer_code`, facoltativi `item_id`, `segment`, `weight`; stesse convenzioni di codifica del dataset lungo simulato, righe assenti = non applicabile) o largo (variabili con i nomi del dataset largo simulato). Il confronto usa solo le modalità presenti in entrambi; le altre sono etichettate come non validate. Metriche: Jensen-Shannon in base 2 e variazione totale per variabile codificata, media o quota della risposta prevalente con intervallo di confidenza al 95% calcolato sul campione reale (normale), correlazione di Pearson fra valori simulati e reali (quote e medie separate), accordo di segno e correlazione delle differenze fra sottogruppi (segmento, classe d'età, area, sesso, dimensione, istruzione, dove presenti in entrambi) e fra modalità. Il rapporto è in Markdown e JSON, in `<run>/validation/` o in `--out` se il run è congelato.
 - Secondo provider ed ensemble (M12): l'adapter OpenAI usa Chat Completions con `response_format` `json_schema` in modalità `strict` (stessi schemi dell'adapter Anthropic: tutti i campi obbligatori, `additionalProperties: false`), `reasoning_effort` per i modelli che ragionano (serie `o` e `gpt-5`) e `temperature` solo per gli altri e solo se indicata; la chiave arriva da `OPENAI_API_KEY`. I token letti dalla cache automatica di OpenAI sono scalati dai token in ingresso e prezzati a parte. Con più modelli in `engine.models` il runner esegue l'intero piano per ciascuno e il report aggiunge la sezione ensemble: per ogni variabile il valore per modello e la divergenza (massimo meno minimo), ordinata dalla più alta, come indicatore delle domande fragili. Qualunque modello del provider `fake` ha prezzo zero.
 - Anagrafiche (M13): il file del committente non è mai uguale, quindi le colonne vengono riconosciute da sinonimi italiani e inglesi (sesso, età o data di nascita, codice fiscale, regione, provincia, codice ISTAT del comune, CAP, partita IVA, ragione sociale, codice ATECO, addetti, ruolo, tipologia cliente) con una mappatura esplicita in configurazione quando serve. Età e sesso, se assenti, si ricavano dal codice fiscale, che poi viene scartato; la regione dalla provincia (sigla o nome) o dalle prime tre cifre del codice ISTAT del comune, tramite la tabella `population/province_it.yaml`. L'unità (individuo o impresa) viene dalla colonna di tipologia cliente se c'è, altrimenti dalla presenza della partita IVA; un'impresa con codice fiscale di persona ha il rispondente già noto per sesso ed età. I record vengono deduplicati per codice cliente, codice fiscale o partita IVA. Istruzione, condizione professionale, reddito e atteggiamenti vengono dalle distribuzioni ISTAT condizionate a regione, sesso ed età; il settore dal codice ATECO (divisione), la classe dimensionale dagli addetti o, se assenti, dalla distribuzione ASIA per regione e settore. La provenienza `anagrafica` si aggiunge a campione, ISTAT e ipotesi. I pesi valgono 1: l'anagrafica è l'universo. **Privacy**: nomi, codici fiscali, indirizzi e contatti non entrano mai nel campione, nei prompt o negli output; le persone usano nomi sintetici; la corrispondenza persona-record sta in `<run>/private/contacts_map.csv`, da non condividere.
-- Provider `session` (M14): per piloti senza credito API il modello è la sessione di Claude Code. L'adapter non chiama nessuna API: scrive ogni richiesta senza risposta in `<cache_dir>/session/pending/<impronta>.json` (system, messaggi, schema, metadati) e solleva `AwaitingAnswersError`; il runner e `interview preview` sospendono le interviste in attesa, registrano lo stato `paused` e indicano quante richieste aspettano. Le risposte si depositano con `synthsurvey session answer <file json>` (impronta -> oggetto conforme allo schema, validato) in `session/answers/`; al rilancio dello stesso comando le interviste riprendono dal passo successivo. Ogni passo sequenziale (pagina CAWI, domanda CATI/CAPI) richiede un giro. Il modello si chiama `session` e ha prezzo zero; i record riportano `model = session`. È uno strumento per decine di interviste, non per i run completi: niente concorrenza reale, niente prompt caching, e la qualità dipende da chi risponde nella sessione.
+- Provider `session` (M14): per piloti senza credito API il modello è la sessione di Claude Code. L'adapter non chiama nessuna API: scrive ogni richiesta senza risposta in `<cache_dir>/session/pending/<impronta>.json` (system, messaggi, schema, metadati) e solleva `AwaitingAnswersError`; il runner e `interview preview` sospendono le interviste in attesa, registrano lo stato `paused` e indicano quante richieste aspettano. Le risposte si depositano con `survey-simulator session answer <file json>` (impronta -> oggetto conforme allo schema, validato) in `session/answers/`; al rilancio dello stesso comando le interviste riprendono dal passo successivo. Ogni passo sequenziale (pagina CAWI, domanda CATI/CAPI) richiede un giro. Il modello si chiama `session` e ha prezzo zero; i record riportano `model = session`. È uno strumento per decine di interviste, non per i run completi: niente concorrenza reale, niente prompt caching, e la qualità dipende da chi risponde nella sessione.
 - Rilanci da copione (8 novembre 2026): il questionario reale del caso di riferimento è una traccia qualitativa con un rilancio e una nota di codifica per domanda. La domanda ha due campi facoltativi: `probe`, letto dall'intervistatore una sola volta dopo la risposta spontanea in CATI e CAPI (non in CAWI, non sulle griglie), e `coding_note`, istruzione per l'analisi riportata nel codebook. Il record ha `probe_text` con la risposta dopo il rilancio; `answer_text` resta la risposta spontanea. Dopo un rilancio da copione l'agente intervistatore non approfondisce più: accetta o chiarisce.
 - Persone (M4): la European Social Survey è CC BY-NC-SA (solo uso non commerciale) e non viene usata; atteggiamenti da Aspetti della vita quotidiana, reddito da EU-SILC aggregata, imprese dal Censimento permanente delle imprese, tutti ISTAT. I tratti senza fonte (prezzo, marca, rischio, novità) e lo stile di risposta sono priori dichiarati in YAML, sostituibili da config, marcati "ipotesi" in persona, narrativa e codebook. Nomi di battesimo da lista curata, disattivabili (`personas.include_names`).
 

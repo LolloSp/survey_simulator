@@ -8,7 +8,7 @@ from typing import Any
 import pytest
 import yaml
 
-from synthsurvey.config import LoadedConfig, load_config
+from survey_simulator.config import LoadedConfig, load_config
 
 ESEMPI_DIR = Path(__file__).resolve().parents[2] / "configs" / "examples"
 ESEMPI = sorted(ESEMPI_DIR.glob("*.yaml"))

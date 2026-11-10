@@ -7,8 +7,8 @@ import httpx
 import openai
 import pytest
 
-from synthsurvey.llm import LLMError, LLMRequest, Message, SchemaError
-from synthsurvey.llm.openai_client import OpenAIClient, supports_reasoning_effort
+from survey_simulator.llm import LLMError, LLMRequest, Message, SchemaError
+from survey_simulator.llm.openai_client import OpenAIClient, supports_reasoning_effort
 
 SCHEMA = {
     "type": "object",
@@ -141,8 +141,8 @@ async def test_errori_del_provider_tradotti() -> None:
 
 
 def test_registry_costruisce_il_client_openai(monkeypatch: pytest.MonkeyPatch) -> None:
-    from synthsurvey.config import parse_config
-    from synthsurvey.llm import make_client
+    from survey_simulator.config import parse_config
+    from survey_simulator.llm import make_client
     from tests.config.conftest import config_base
 
     monkeypatch.setenv("OPENAI_API_KEY", "sk-test")

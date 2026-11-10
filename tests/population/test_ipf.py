@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from synthsurvey.population.ipf import ConditionalConstraint, MarginConstraint, aggregate, ipf
+from survey_simulator.population.ipf import ConditionalConstraint, MarginConstraint, aggregate, ipf
 
 
 def test_due_dimensioni_soluzione_nota() -> None:

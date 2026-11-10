@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from synthsurvey.llm import (
+from survey_simulator.llm import (
     FakeLLMClient,
     LLMError,
     LLMRequest,

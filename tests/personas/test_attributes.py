@@ -6,15 +6,15 @@ import numpy as np
 import polars as pl
 import pytest
 
-from synthsurvey.personas import Names, Priors
-from synthsurvey.personas.attributes import (
+from survey_simulator.personas import Names, Priors
+from survey_simulator.personas.attributes import (
     AttributeSampler,
     ProfileError,
     avq_age_class,
     lfs_age_class,
 )
-from synthsurvey.personas.schema import BetaPrior
-from synthsurvey.population.tables import IstatTables
+from survey_simulator.personas.schema import BetaPrior
+from survey_simulator.population.tables import IstatTables
 
 
 @pytest.fixture(scope="module")

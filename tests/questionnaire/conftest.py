@@ -7,7 +7,7 @@ from typing import Any
 import pytest
 import yaml
 
-from synthsurvey.questionnaire import Questionnaire, load_questionnaire
+from survey_simulator.questionnaire import Questionnaire, load_questionnaire
 
 ESEMPIO = Path(__file__).resolve().parents[2] / "questionnaires" / "examples" / "mercato_v1.yaml"
 

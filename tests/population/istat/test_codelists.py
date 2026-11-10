@@ -2,8 +2,8 @@
 
 import pytest
 
-from synthsurvey.population import categories as cat
-from synthsurvey.population.istat import codelists as cl
+from survey_simulator.population import categories as cat
+from survey_simulator.population.istat import codelists as cl
 
 
 def test_regioni_complete_e_univoche() -> None:

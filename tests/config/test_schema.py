@@ -4,7 +4,7 @@ from typing import Any
 
 import pytest
 
-from synthsurvey.config import ConfigError, parse_config
+from survey_simulator.config import ConfigError, parse_config
 
 
 def errori(base: dict[str, Any]) -> list[str]:

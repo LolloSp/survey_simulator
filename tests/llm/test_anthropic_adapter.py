@@ -7,8 +7,8 @@ import anthropic
 import httpx2 as httpx
 import pytest
 
-from synthsurvey.llm import LLMError, LLMRequest, Message, SchemaError
-from synthsurvey.llm.anthropic_client import FALLBACK_BETA, AnthropicClient
+from survey_simulator.llm import LLMError, LLMRequest, Message, SchemaError
+from survey_simulator.llm.anthropic_client import FALLBACK_BETA, AnthropicClient
 
 SCHEMA = {
     "type": "object",

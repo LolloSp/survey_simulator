@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from synthsurvey.config import Design, estimate_interviews, load_config, segment_sizes
+from survey_simulator.config import Design, estimate_interviews, load_config, segment_sizes
 from tests.config.conftest import ESEMPI, ESEMPI_DIR
 
 

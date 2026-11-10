@@ -26,4 +26,4 @@ jobs:
       - name: Test
         run: uv run pytest
       - name: CLI
-        run: uv run synthsurvey --help
+        run: uv run survey-simulator --help

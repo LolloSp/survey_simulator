@@ -8,12 +8,12 @@ import polars as pl
 import pytest
 from typer.testing import CliRunner
 
-from synthsurvey.cli import app
-from synthsurvey.config import load_config, parse_config
-from synthsurvey.population.individui import age_group_of
-from synthsurvey.population.istat.codelists import age_band
-from synthsurvey.population.sample import UNIT_COLUMNS, SampleResult, build_sample
-from synthsurvey.population.tables import IstatTables, load_tables
+from survey_simulator.cli import app
+from survey_simulator.config import load_config, parse_config
+from survey_simulator.population.individui import age_group_of
+from survey_simulator.population.istat.codelists import age_band
+from survey_simulator.population.sample import UNIT_COLUMNS, SampleResult, build_sample
+from survey_simulator.population.tables import IstatTables, load_tables
 from tests.config.conftest import ESEMPI_DIR, config_base
 
 PROCESSED = Path(__file__).resolve().parents[2] / "data" / "processed"

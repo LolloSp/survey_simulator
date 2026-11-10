@@ -6,13 +6,13 @@ from typing import Any
 import polars as pl
 import pytest
 
-from synthsurvey.config import parse_config
-from synthsurvey.config.schema import SegmentConfig
-from synthsurvey.config.sources import get_source
-from synthsurvey.population import quotas as q
-from synthsurvey.population.imprese import build_imprese
-from synthsurvey.population.individui import IndividuiPopulation, build_individui
-from synthsurvey.population.tables import IstatTables, load_tables
+from survey_simulator.config import parse_config
+from survey_simulator.config.schema import SegmentConfig
+from survey_simulator.config.sources import get_source
+from survey_simulator.population import quotas as q
+from survey_simulator.population.imprese import build_imprese
+from survey_simulator.population.individui import IndividuiPopulation, build_individui
+from survey_simulator.population.tables import IstatTables, load_tables
 from tests.config.conftest import config_base
 
 PROCESSED = Path(__file__).resolve().parents[2] / "data" / "processed"

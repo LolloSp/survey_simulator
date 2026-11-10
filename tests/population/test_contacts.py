@@ -10,10 +10,10 @@ import pytest
 import yaml
 from openpyxl import Workbook
 
-from synthsurvey.config import load_config
-from synthsurvey.personas import build_personas
-from synthsurvey.personas.schema import Provenance
-from synthsurvey.population.contacts import (
+from survey_simulator.config import load_config
+from survey_simulator.personas import build_personas
+from survey_simulator.personas.schema import Provenance
+from survey_simulator.population.contacts import (
     ContactsError,
     detect_columns,
     from_fiscal_code,
@@ -27,8 +27,8 @@ from synthsurvey.population.contacts import (
     size_class_from_employees,
     unit_of,
 )
-from synthsurvey.population.sample import build_sample
-from synthsurvey.population.tables import IstatTables, load_tables
+from survey_simulator.population.sample import build_sample
+from survey_simulator.population.tables import IstatTables, load_tables
 from tests.config.conftest import ESEMPI_DIR
 
 PROCESSED = Path(__file__).resolve().parents[2] / "data" / "processed"
@@ -370,7 +370,7 @@ def test_regole_config_anagrafiche(tmp_path: Path) -> None:
     raw["sample"]["total"] = 100
     raw["sample"]["segments"]["consumer"]["share"] = 0.5
     path.write_text(yaml.safe_dump(raw, allow_unicode=True), encoding="utf-8")
-    from synthsurvey.config import ConfigError
+    from survey_simulator.config import ConfigError
 
     with pytest.raises(ConfigError) as info:
         load_config(path)

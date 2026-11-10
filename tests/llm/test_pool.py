@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from synthsurvey.config import load_config, parse_config
-from synthsurvey.llm import (
+from survey_simulator.config import load_config, parse_config
+from survey_simulator.llm import (
     FakeLLMClient,
     LLMError,
     LLMPool,
@@ -18,7 +18,7 @@ from synthsurvey.llm import (
     make_client,
     make_pool,
 )
-from synthsurvey.llm.anthropic_client import AnthropicClient
+from survey_simulator.llm.anthropic_client import AnthropicClient
 from tests.config.conftest import ESEMPI_DIR, config_base
 
 
@@ -120,7 +120,7 @@ def test_provider_sconosciuto_e_temperatura_ignorata() -> None:
     raw = config_base()
     raw["engine"]["temperature"] = 0.8
     raw["engine"]["models"] = [{"provider": "anthropic", "model": "claude-opus-5-5"}]
-    from synthsurvey.config import validate_config
+    from survey_simulator.config import validate_config
 
     avvisi = validate_config(parse_config(raw))
     assert any(a.location == "engine.temperature" for a in avvisi)

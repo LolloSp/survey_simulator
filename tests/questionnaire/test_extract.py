@@ -7,8 +7,8 @@ from docx import Document
 from openpyxl import Workbook
 from pypdf import PdfWriter
 
-from synthsurvey.questionnaire import ExtractionError, extract_text
-from synthsurvey.questionnaire.extract import FORMATS, MAX_CHARS, _tidy
+from survey_simulator.questionnaire import ExtractionError, extract_text
+from survey_simulator.questionnaire.extract import FORMATS, MAX_CHARS, _tidy
 
 ROOT = Path(__file__).resolve().parents[2]
 DOCX = ROOT / "questionnaires" / "examples" / "mercato_v1.docx"

@@ -6,7 +6,7 @@ from pathlib import Path
 import yaml
 from typer.testing import CliRunner
 
-from synthsurvey.cli import app
+from survey_simulator.cli import app
 from tests.config.conftest import ESEMPI_DIR
 
 runner = CliRunner()

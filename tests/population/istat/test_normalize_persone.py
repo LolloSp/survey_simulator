@@ -3,10 +3,10 @@
 import polars as pl
 import pytest
 
-from synthsurvey.population import categories as cat
-from synthsurvey.population.istat import codelists_persone as cp
-from synthsurvey.population.istat import normalize_persone as npz
-from synthsurvey.population.istat.normalize import NormalizeError
+from survey_simulator.population import categories as cat
+from survey_simulator.population.istat import codelists_persone as cp
+from survey_simulator.population.istat import normalize_persone as npz
+from survey_simulator.population.istat.normalize import NormalizeError
 from tests.population.conftest import REGIONI_FIXTURE, fixture_text
 
 TRUST = "83_63_DF_DCCV_AVQ_PERSONE_124"

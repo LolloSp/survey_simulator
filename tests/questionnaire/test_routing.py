@@ -4,7 +4,7 @@ from typing import Any
 
 import pytest
 
-from synthsurvey.questionnaire import (
+from survey_simulator.questionnaire import (
     DONT_KNOW_CODE,
     Questionnaire,
     RoutingError,
@@ -15,7 +15,7 @@ from synthsurvey.questionnaire import (
     route,
     validate_show_if,
 )
-from synthsurvey.questionnaire.routing import references, tokenize
+from survey_simulator.questionnaire.routing import references, tokenize
 from tests.questionnaire.conftest import domanda
 
 

@@ -3,7 +3,7 @@
 import jsonschema
 import pytest
 
-from synthsurvey.interview import (
+from survey_simulator.interview import (
     AnswerStatus,
     code_value,
     describe_value,
@@ -13,7 +13,13 @@ from synthsurvey.interview import (
     text_value,
     value_schema,
 )
-from synthsurvey.questionnaire import DONT_KNOW_CODE, DONT_KNOW_LABEL, Mode, Questionnaire, adapt
+from survey_simulator.questionnaire import (
+    DONT_KNOW_CODE,
+    DONT_KNOW_LABEL,
+    Mode,
+    Questionnaire,
+    adapt,
+)
 
 
 def test_codifica_singola_multipla_scala_numerica_aperta(questionario: Questionnaire) -> None:

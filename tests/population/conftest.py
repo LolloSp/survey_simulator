@@ -6,7 +6,7 @@ from pathlib import Path
 import httpx
 import pytest
 
-from synthsurvey.population.istat import SdmxClient
+from survey_simulator.population.istat import SdmxClient
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 REGIONI_FIXTURE: tuple[str, ...] = ("ITC1", "ITG2")

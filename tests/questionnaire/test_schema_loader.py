@@ -6,8 +6,8 @@ from typing import Any
 import pytest
 import yaml
 
-from synthsurvey.config import load_config
-from synthsurvey.questionnaire import (
+from survey_simulator.config import load_config
+from survey_simulator.questionnaire import (
     Questionnaire,
     QuestionnaireError,
     QuestionType,

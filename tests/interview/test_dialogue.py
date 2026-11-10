@@ -4,25 +4,25 @@ from typing import Any
 
 import jsonschema
 
-from synthsurvey.config import SynthSurveyConfig, parse_config
-from synthsurvey.interview import (
+from survey_simulator.config import SurveySimulatorConfig, parse_config
+from survey_simulator.interview import (
     SIGNALS,
     AnswerStatus,
     InterviewSpec,
     run_dialogue,
     run_interview,
 )
-from synthsurvey.interview.dialogue import INTERVIEWER_SCHEMA, spoken_question
-from synthsurvey.llm import FakeLLMClient, LLMPool, LLMRequest, fill_schema
-from synthsurvey.personas.schema import Persona
-from synthsurvey.questionnaire import (
+from survey_simulator.interview.dialogue import INTERVIEWER_SCHEMA, spoken_question
+from survey_simulator.llm import FakeLLMClient, LLMPool, LLMRequest, fill_schema
+from survey_simulator.personas.schema import Persona
+from survey_simulator.questionnaire import (
     DONT_KNOW_LABEL,
     Mode,
     Questionnaire,
     adapt,
     parse_questionnaire,
 )
-from synthsurvey.questionnaire.modes import option_order
+from survey_simulator.questionnaire.modes import option_order
 from tests.config.conftest import config_base
 
 INTERVIEWER_MARK = "intervistatore professionista"
@@ -90,7 +90,7 @@ def step(r: LLMRequest) -> str:
 
 
 async def test_cati_base(
-    questionario: Questionnaire, config: SynthSurveyConfig, persona: Persona
+    questionario: Questionnaire, config: SurveySimulatorConfig, persona: Persona
 ) -> None:
     p = pool()
     mq = adapt(questionario, Mode.CATI)
@@ -122,7 +122,7 @@ async def test_cati_base(
 
 
 async def test_capi_griglia_intera_e_cartellini(
-    questionario: Questionnaire, config: SynthSurveyConfig, persona: Persona
+    questionario: Questionnaire, config: SurveySimulatorConfig, persona: Persona
 ) -> None:
     p = pool()
     client = p.client
@@ -146,7 +146,7 @@ async def test_capi_griglia_intera_e_cartellini(
 
 
 async def test_chiarimento(
-    questionario: Questionnaire, config: SynthSurveyConfig, persona: Persona
+    questionario: Questionnaire, config: SurveySimulatorConfig, persona: Persona
 ) -> None:
     def responder(r: LLMRequest) -> dict[str, Any]:
         if is_interviewer(r):
@@ -180,7 +180,7 @@ async def test_chiarimento(
 
 
 async def test_approfondimento_su_segnali_forti(
-    questionario: Questionnaire, config: SynthSurveyConfig, persona: Persona
+    questionario: Questionnaire, config: SurveySimulatorConfig, persona: Persona
 ) -> None:
     def responder(r: LLMRequest) -> dict[str, Any]:
         if is_interviewer(r):
@@ -211,7 +211,7 @@ async def test_approfondimento_su_segnali_forti(
 
 
 async def test_intervistatore_accetta_con_incongruenza(
-    questionario: Questionnaire, config: SynthSurveyConfig, persona: Persona
+    questionario: Questionnaire, config: SurveySimulatorConfig, persona: Persona
 ) -> None:
     def responder(r: LLMRequest) -> dict[str, Any]:
         if is_interviewer(r):
@@ -232,7 +232,7 @@ async def test_intervistatore_accetta_con_incongruenza(
 
 
 async def test_risposta_non_codificabile(
-    questionario: Questionnaire, config: SynthSurveyConfig, persona: Persona
+    questionario: Questionnaire, config: SurveySimulatorConfig, persona: Persona
 ) -> None:
     def responder(r: LLMRequest) -> dict[str, Any]:
         if is_interviewer(r):
@@ -258,7 +258,7 @@ async def test_risposta_non_codificabile(
 
 
 async def test_non_so_spontaneo(
-    questionario: Questionnaire, config: SynthSurveyConfig, persona: Persona
+    questionario: Questionnaire, config: SurveySimulatorConfig, persona: Persona
 ) -> None:
     def responder(r: LLMRequest) -> dict[str, Any]:
         assert not is_interviewer(r), "il non so spontaneo si accetta senza intervistatore"
@@ -296,7 +296,7 @@ async def test_segnali_disattivati(questionario: Questionnaire, persona: Persona
 
 
 async def test_rifiuto(
-    questionario: Questionnaire, config: SynthSurveyConfig, persona: Persona
+    questionario: Questionnaire, config: SurveySimulatorConfig, persona: Persona
 ) -> None:
     result = await run_dialogue(
         spec(persona), questionario, adapt(questionario, Mode.CATI), pool(refuse=True), config
@@ -308,7 +308,7 @@ async def test_rifiuto(
     assert any("rifiuto" in w for w in result.outcome.warnings)
 
 
-async def test_contesto_limitato(config: SynthSurveyConfig, persona: Persona) -> None:
+async def test_contesto_limitato(config: SurveySimulatorConfig, persona: Persona) -> None:
     raw = {
         "id": "lungo",
         "sections": [
@@ -331,7 +331,7 @@ async def test_contesto_limitato(config: SynthSurveyConfig, persona: Persona) ->
 
 
 async def test_lettura_con_opzioni_mescolate(
-    questionario: Questionnaire, config: SynthSurveyConfig, persona: Persona
+    questionario: Questionnaire, config: SurveySimulatorConfig, persona: Persona
 ) -> None:
     mq = adapt(questionario, Mode.CATI)
     q2 = mq.question("q2")
@@ -352,7 +352,7 @@ def test_schema_intervistatore_valido() -> None:
 
 
 async def test_run_interview_instrada_cati_e_capi(
-    questionario: Questionnaire, config: SynthSurveyConfig, persona: Persona
+    questionario: Questionnaire, config: SurveySimulatorConfig, persona: Persona
 ) -> None:
     for mode in (Mode.CATI, Mode.CAPI):
         result = await run_interview(
@@ -377,7 +377,7 @@ def con_rilancio(questionario: Questionnaire) -> Questionnaire:
 
 
 async def test_rilancio_da_copione(
-    questionario: Questionnaire, config: SynthSurveyConfig, persona: Persona
+    questionario: Questionnaire, config: SurveySimulatorConfig, persona: Persona
 ) -> None:
     q = con_rilancio(questionario)
 
@@ -416,7 +416,7 @@ async def test_rilancio_da_copione(
 
 
 async def test_dopo_il_rilancio_niente_approfondimento(
-    questionario: Questionnaire, config: SynthSurveyConfig, persona: Persona
+    questionario: Questionnaire, config: SurveySimulatorConfig, persona: Persona
 ) -> None:
     q = con_rilancio(questionario)
     chiamate_i = 0

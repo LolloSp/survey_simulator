@@ -2,8 +2,8 @@
 
 from typer.testing import CliRunner
 
-from synthsurvey import __version__
-from synthsurvey.cli import app
+from survey_simulator import __version__
+from survey_simulator.cli import app
 
 runner = CliRunner()
 
@@ -11,7 +11,7 @@ runner = CliRunner()
 def test_help_funziona() -> None:
     result = runner.invoke(app, ["--help"])
     assert result.exit_code == 0
-    assert "synthsurvey" in result.output
+    assert "survey-simulator" in result.output
     for comando in ("data", "sample", "run", "freeze", "report", "validate"):
         assert comando in result.output
 
@@ -23,12 +23,12 @@ def test_version() -> None:
 
 
 def test_modulo_eseguibile() -> None:
-    """`python -m synthsurvey` deve essere equivalente al comando `synthsurvey`."""
+    """`python -m survey_simulator` deve essere equivalente al comando `survey_simulator`."""
     import subprocess
     import sys
 
     result = subprocess.run(
-        [sys.executable, "-m", "synthsurvey", "--version"],
+        [sys.executable, "-m", "survey_simulator", "--version"],
         capture_output=True,
         text=True,
         check=False,
@@ -102,7 +102,7 @@ def test_data_fetch_offline_con_cache(tmp_path, monkeypatch) -> None:
 
     import httpx
 
-    import synthsurvey.population.istat as istat
+    import survey_simulator.population.istat as istat
     from tests.population.conftest import REGIONI_FIXTURE, dataflow_from_url, fixture_text
 
     nome = "firms_region_sector_size"
@@ -169,7 +169,7 @@ def _config_finta(tmp_path, responder=None, monkeypatch=None):
     path = tmp_path / "config.yaml"
     path.write_text(yaml.safe_dump(raw, allow_unicode=True), encoding="utf-8")
     if responder is not None and monkeypatch is not None:
-        from synthsurvey.llm import FakeLLMClient, registry
+        from survey_simulator.llm import FakeLLMClient, registry
 
         monkeypatch.setattr(
             registry, "make_client", lambda spec, cfg: FakeLLMClient(spec.model, responder)

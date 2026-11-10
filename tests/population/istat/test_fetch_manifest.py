@@ -8,7 +8,7 @@ import httpx
 import polars as pl
 import pytest
 
-from synthsurvey.population.istat import (
+from survey_simulator.population.istat import (
     MANIFEST_NAME,
     TABLES,
     SdmxError,

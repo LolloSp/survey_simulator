@@ -4,12 +4,12 @@ from typing import Any
 
 import jsonschema
 
-from synthsurvey.config import SynthSurveyConfig
-from synthsurvey.interview import AnswerStatus, InterviewSpec, run_cawi, run_interview
-from synthsurvey.interview.cawi import split_groups
-from synthsurvey.llm import FakeLLMClient, LLMPool, LLMRequest, fill_schema
-from synthsurvey.personas.schema import Persona
-from synthsurvey.questionnaire import Mode, Questionnaire, adapt, parse_questionnaire
+from survey_simulator.config import SurveySimulatorConfig
+from survey_simulator.interview import AnswerStatus, InterviewSpec, run_cawi, run_interview
+from survey_simulator.interview.cawi import split_groups
+from survey_simulator.llm import FakeLLMClient, LLMPool, LLMRequest, fill_schema
+from survey_simulator.personas.schema import Persona
+from survey_simulator.questionnaire import Mode, Questionnaire, adapt, parse_questionnaire
 from tests.interview.conftest import make_persona
 
 
@@ -46,7 +46,7 @@ def by_question(result: Any) -> dict[tuple[str, str | None], Any]:
 
 
 async def test_pilota_predefinito_risponde_a_tutto(
-    questionario: Questionnaire, config: SynthSurveyConfig, persona: Persona
+    questionario: Questionnaire, config: SurveySimulatorConfig, persona: Persona
 ) -> None:
     p = pool(risposte)
     mq = adapt(questionario, Mode.CAWI)
@@ -81,7 +81,7 @@ async def test_pilota_predefinito_risponde_a_tutto(
 
 
 async def test_richieste_al_modello(
-    questionario: Questionnaire, config: SynthSurveyConfig, persona: Persona
+    questionario: Questionnaire, config: SurveySimulatorConfig, persona: Persona
 ) -> None:
     p = pool(risposte)
     client = p.client
@@ -105,7 +105,7 @@ async def test_richieste_al_modello(
 
 
 async def test_routing_nasconde_le_domande(
-    questionario: Questionnaire, config: SynthSurveyConfig, persona: Persona
+    questionario: Questionnaire, config: SurveySimulatorConfig, persona: Persona
 ) -> None:
     p = pool(lambda r: risposte(r, q1=9, q3="No"))
     result = await run_cawi(spec(persona), questionario, adapt(questionario, Mode.CAWI), p, config)
@@ -117,7 +117,7 @@ async def test_routing_nasconde_le_domande(
 
 
 async def test_segmento_pmi_vede_le_sue_domande(
-    questionario: Questionnaire, config: SynthSurveyConfig
+    questionario: Questionnaire, config: SurveySimulatorConfig
 ) -> None:
     pmi = make_persona("p_00002", "pmi")
     p = pool(risposte)
@@ -128,7 +128,9 @@ async def test_segmento_pmi_vede_le_sue_domande(
     assert rec[("q8", None)].segment == "pmi"
 
 
-async def test_dipendenza_nella_stessa_pagina(config: SynthSurveyConfig, persona: Persona) -> None:
+async def test_dipendenza_nella_stessa_pagina(
+    config: SurveySimulatorConfig, persona: Persona
+) -> None:
     raw = {
         "id": "pagina",
         "sections": [
@@ -162,7 +164,7 @@ async def test_dipendenza_nella_stessa_pagina(config: SynthSurveyConfig, persona
 
 
 async def test_abbandono(
-    questionario: Questionnaire, config: SynthSurveyConfig, persona: Persona
+    questionario: Questionnaire, config: SurveySimulatorConfig, persona: Persona
 ) -> None:
     def responder(r: LLMRequest) -> dict[str, Any]:
         out = risposte(r)
@@ -184,7 +186,7 @@ async def test_abbandono(
 
 
 async def test_rifiuto_e_risposta_non_valida(
-    questionario: Questionnaire, config: SynthSurveyConfig, persona: Persona
+    questionario: Questionnaire, config: SurveySimulatorConfig, persona: Persona
 ) -> None:
     rifiuta = pool(refuse=True)
     result = await run_cawi(
@@ -206,7 +208,7 @@ async def test_rifiuto_e_risposta_non_valida(
 
 
 async def test_valori_fuori_schema_diventano_non_risposta(
-    questionario: Questionnaire, config: SynthSurveyConfig, persona: Persona
+    questionario: Questionnaire, config: SurveySimulatorConfig, persona: Persona
 ) -> None:
     p = pool(lambda r: risposte(r, q1=99, q2="Inesistente", q6=-5))
     result = await run_cawi(spec(persona), questionario, adapt(questionario, Mode.CAWI), p, config)
@@ -217,7 +219,7 @@ async def test_valori_fuori_schema_diventano_non_risposta(
 
 
 async def test_ordine_opzioni_riproducibile(
-    questionario: Questionnaire, config: SynthSurveyConfig, persona: Persona
+    questionario: Questionnaire, config: SurveySimulatorConfig, persona: Persona
 ) -> None:
     mq = adapt(questionario, Mode.CAWI)
     a = await run_cawi(spec(persona), questionario, mq, pool(risposte), config)
@@ -240,7 +242,7 @@ async def test_ordine_opzioni_riproducibile(
 
 
 async def test_run_interview_instrada_per_modalita(
-    questionario: Questionnaire, config: SynthSurveyConfig, persona: Persona
+    questionario: Questionnaire, config: SurveySimulatorConfig, persona: Persona
 ) -> None:
     mq = adapt(questionario, Mode.CAWI)
     result = await run_interview(spec(persona), questionario, mq, pool(risposte), config)

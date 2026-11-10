@@ -4,8 +4,8 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from synthsurvey.cli import app
-from synthsurvey.runner import read_manifest
+from survey_simulator.cli import app
+from survey_simulator.runner import read_manifest
 from tests.test_cli_interview import _config_finta
 
 runner = CliRunner()

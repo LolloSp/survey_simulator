@@ -6,9 +6,9 @@ import pytest
 import yaml
 from pydantic import ValidationError
 
-from synthsurvey.personas import Names, Priors, load_names, load_priors
-from synthsurvey.personas.schema import PRIORS_DIR, level3
-from synthsurvey.population import categories as cat
+from survey_simulator.personas import Names, Priors, load_names, load_priors
+from survey_simulator.personas.schema import PRIORS_DIR, level3
+from survey_simulator.population import categories as cat
 
 
 def test_priori_di_default_validi(priors: Priors) -> None:

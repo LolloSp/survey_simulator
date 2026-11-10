@@ -5,8 +5,8 @@ from pathlib import Path
 import polars as pl
 import pytest
 
-from synthsurvey.population import categories as cat
-from synthsurvey.population.istat import TABLES, read_manifest, verify_manifest
+from survey_simulator.population import categories as cat
+from survey_simulator.population.istat import TABLES, read_manifest, verify_manifest
 
 PROCESSED = Path(__file__).resolve().parents[2] / "data" / "processed"
 RAW = PROCESSED.parent / "raw"

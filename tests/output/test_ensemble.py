@@ -6,10 +6,10 @@ from typing import Any
 import polars as pl
 import yaml
 
-from synthsurvey.config import load_config
-from synthsurvey.llm import FakeLLMClient, LLMPool, LLMRequest, default_pricing, fill_schema
-from synthsurvey.population.tables import load_tables
-from synthsurvey.runner import execute_run
+from survey_simulator.config import load_config
+from survey_simulator.llm import FakeLLMClient, LLMPool, LLMRequest, default_pricing, fill_schema
+from survey_simulator.population.tables import load_tables
+from survey_simulator.runner import execute_run
 from tests.config.conftest import ESEMPI_DIR
 
 PROCESSED = Path(__file__).resolve().parents[2] / "data" / "processed"

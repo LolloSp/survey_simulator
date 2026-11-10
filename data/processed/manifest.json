@@ -5,7 +5,7 @@
   "license": {
     "name": "Creative Commons Attribuzione 3.0 Italia (CC BY 3.0 IT)",
     "url": "https://creativecommons.org/licenses/by/3.0/it/",
-    "attribution": "Fonte: ISTAT (www.istat.it), elaborazione synthsurvey",
+    "attribution": "Fonte: ISTAT (www.istat.it), elaborazione survey_simulator",
     "note": "I dati aggregati pubblicati da ISTAT possono essere riprodotti, distribuiti e adattati anche per fini commerciali citando la fonte."
   },
   "tables": {

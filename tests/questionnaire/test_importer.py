@@ -8,9 +8,9 @@ import jsonschema
 import pytest
 import yaml
 
-from synthsurvey.config import parse_config
-from synthsurvey.llm import FakeLLMClient, LLMPool, LLMRequest
-from synthsurvey.questionnaire import (
+from survey_simulator.config import parse_config
+from survey_simulator.llm import FakeLLMClient, LLMPool, LLMRequest
+from survey_simulator.questionnaire import (
     ExtractedDocument,
     ImportDraft,
     draft_schema,
@@ -224,7 +224,7 @@ async def test_import_json_non_conforme_alla_bozza() -> None:
 
 
 async def test_import_riusa_la_cache(tmp_path: Path, config: Any) -> None:
-    from synthsurvey.llm import ResponseCache
+    from survey_simulator.llm import ResponseCache
 
     client = FakeLLMClient("fake-1", lambda r: bozza())
     p = LLMPool(client, cache=ResponseCache(tmp_path))

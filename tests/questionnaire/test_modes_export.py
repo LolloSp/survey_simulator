@@ -8,8 +8,8 @@ import pytest
 import yaml
 from typer.testing import CliRunner
 
-from synthsurvey.cli import app
-from synthsurvey.questionnaire import (
+from survey_simulator.cli import app
+from survey_simulator.questionnaire import (
     DONT_KNOW_LABEL,
     Mode,
     Questionnaire,

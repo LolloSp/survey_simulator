@@ -4,7 +4,7 @@ from typing import Any
 
 import pytest
 
-from synthsurvey.config import (
+from survey_simulator.config import (
     ConfigError,
     Level,
     estimate_interviews,
@@ -12,7 +12,7 @@ from synthsurvey.config import (
     segment_sizes,
     validate_config,
 )
-from synthsurvey.config.sources import SOURCES, UnknownSourceError, get_source
+from survey_simulator.config.sources import SOURCES, UnknownSourceError, get_source
 
 
 def errori(base: dict[str, Any]) -> list[str]:

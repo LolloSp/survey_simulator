@@ -10,10 +10,10 @@ import pytest
 import yaml
 from typer.testing import CliRunner
 
-from synthsurvey.cli import app
-from synthsurvey.config import load_config
-from synthsurvey.llm import FakeLLMClient, LLMPool, default_pricing
-from synthsurvey.output import (
+from survey_simulator.cli import app
+from survey_simulator.config import load_config
+from survey_simulator.llm import FakeLLMClient, LLMPool, default_pricing
+from survey_simulator.output import (
     MISSING,
     OutputError,
     build_wide,
@@ -25,9 +25,9 @@ from synthsurvey.output import (
     summarize,
     write_outputs,
 )
-from synthsurvey.personas.build import personas_frame
-from synthsurvey.population.tables import load_tables
-from synthsurvey.runner import FrozenError, execute_run, freeze_run
+from survey_simulator.personas.build import personas_frame
+from survey_simulator.population.tables import load_tables
+from survey_simulator.runner import FrozenError, execute_run, freeze_run
 from tests.config.conftest import ESEMPI_DIR
 
 PROCESSED = Path(__file__).resolve().parents[2] / "data" / "processed"
@@ -94,7 +94,7 @@ def test_dataset_largo(run_dir: Path) -> None:
 def test_sav_si_rilegge_con_etichette(run_dir: Path) -> None:
     df, meta = pyreadstat.read_sav(str(run_dir / "responses_wide.sav"), user_missing=True)
     assert len(df) == 72 and "q1" in df.columns and "weight" in df.columns
-    assert meta.file_label.startswith("synthsurvey: dati SIMULATI")
+    assert meta.file_label.startswith("survey_simulator: dati SIMULATI")
     etichette = dict(zip(meta.column_names, meta.column_labels, strict=True))
     assert etichette["q1"].startswith("Quanto è soddisfatto")
     assert etichette["q5_a"].endswith("[Le bollette sono facili da capire]")
@@ -163,7 +163,7 @@ def test_pagina_interviste(run_dir: Path) -> None:
 
 
 def test_segnali_non_verbali_della_pagina() -> None:
-    from synthsurvey.output.interviews import _nonverbal
+    from survey_simulator.output.interviews import _nonverbal
 
     livelli, pensiero = _nonverbal(
         json.dumps({"esitazione": 2, "entusiasmo": 0, "imbarazzo": 1, "body": {}, "note": "Uffa."})

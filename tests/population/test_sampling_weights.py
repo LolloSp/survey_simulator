@@ -6,13 +6,13 @@ import numpy as np
 import polars as pl
 import pytest
 
-from synthsurvey.config import parse_config
-from synthsurvey.config.sources import get_source
-from synthsurvey.population import quotas as q
-from synthsurvey.population.individui import IndividuiPopulation, build_individui
-from synthsurvey.population.sampling import draw_cells, expand_units
-from synthsurvey.population.tables import IstatTables, load_tables
-from synthsurvey.population.weights import rake_weights
+from survey_simulator.config import parse_config
+from survey_simulator.config.sources import get_source
+from survey_simulator.population import quotas as q
+from survey_simulator.population.individui import IndividuiPopulation, build_individui
+from survey_simulator.population.sampling import draw_cells, expand_units
+from survey_simulator.population.tables import IstatTables, load_tables
+from survey_simulator.population.weights import rake_weights
 from tests.config.conftest import config_base
 
 PROCESSED = Path(__file__).resolve().parents[2] / "data" / "processed"

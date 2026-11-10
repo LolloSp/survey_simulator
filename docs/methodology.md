@@ -21,13 +21,13 @@ implementa (vedi Roadmap in [SPEC.md](SPEC.md)).
 
 Tutte le tavole vengono estratte dall'API SDMX REST di ISTAT
 (`https://esploradati.istat.it/SDMXWS/rest`, agenzia `IT1`) in formato CSV
-SDMX. Il client (`synthsurvey.population.istat.sdmx`) salva ogni risposta
+SDMX. Il client (`survey_simulator.population.istat.sdmx`) salva ogni risposta
 grezza in `data/raw/<dataflow>/<hash-url>.csv` con un file di metadati
 accanto: la stessa richiesta non torna in rete e in modalità offline si usa
 solo la cache. I file grezzi non sono versionati; le tavole normalizzate in
 `data/processed/` sì, insieme a `manifest.json` che registra per ogni tavola
 dataflow, chiave, URL, periodo, data di estrazione e hash SHA-256 del grezzo e
-del normalizzato. `synthsurvey data status` ricalcola gli hash.
+del normalizzato. `survey-simulator data status` ricalcola gli hash.
 
 Lo script `scripts/istat_explore.py` serve a cercare dataflow, leggere
 dimensioni e codelist e sondare i dati: è lo strumento con cui sono stati
@@ -46,7 +46,7 @@ scelti i dataflow qui sotto e con cui si aggiungono sorgenti nuove.
 
 Le date sono coerenti fra loro: popolazione al 1° gennaio 2025, censimento al
 31 dicembre 2024, ASIA 2024. I periodi sono fissati in
-`synthsurvey.population.istat.tables`; cambiarli e rilanciare `data fetch`
+`survey_simulator.population.istat.tables`; cambiarli e rilanciare `data fetch`
 produce un nuovo manifest.
 
 ### Mappature dei codici
@@ -121,7 +121,7 @@ una tavola parziale.
 I dati aggregati ISTAT sono pubblicati con licenza Creative Commons
 Attribuzione 3.0 Italia, che ammette riproduzione, distribuzione e
 adattamento anche a fini commerciali citando la fonte. Il manifest riporta la
-dicitura da usare: "Fonte: ISTAT (www.istat.it), elaborazione synthsurvey".
+dicitura da usare: "Fonte: ISTAT (www.istat.it), elaborazione survey_simulator".
 
 ## 2. Generazione della popolazione: IPF, quote, pesi
 
@@ -137,7 +137,7 @@ la fascia d'età delle persone (18-24, 25-34, ...) e l'età puntuale si
 ricavano dopo.
 
 La congiunta è stimata con iterative proportional fitting
-(`synthsurvey.population.ipf`) con tre vincoli:
+(`survey_simulator.population.ipf`) con tre vincoli:
 
 1. regione × sesso × gruppo quinquennale: marginale assoluto dalla
    popolazione residente al 1° gennaio 2025, applicato per ultimo a ogni
@@ -326,7 +326,7 @@ del template, del file dei priori e delle tavole ISTAT usate.
 ### Formato sorgente
 
 Il questionario è un dato di input in YAML (schema in
-`synthsurvey.questionnaire.schema`): sezioni e domande con tipo (`single`,
+`survey_simulator.questionnaire.schema`): sezioni e domande con tipo (`single`,
 `multi`, `scale`, `grid`, `open`, `numeric`), opzioni, scala con etichette,
 item di griglia, limiti numerici, `applies_to`, `show_if`, `dont_know`,
 `randomize` con `fixed_last`, `page`. La validazione raccoglie tutti gli
@@ -373,14 +373,14 @@ mescola solo se la domanda è `randomize`, la config lo consente
 
 ### Revisione e congelamento
 
-`synthsurvey questionnaire export` scrive YAML e Markdown per modalità, da
+`survey-simulator questionnaire export` scrive YAML e Markdown per modalità, da
 rivedere a mano prima del congelamento; il file sorgente e le versioni
 esportate hanno un hash SHA-256 che il manifest del run registrerà in M9.
 
 ### Importazione del questionario grezzo (M6b)
 
-`synthsurvey questionnaire import <file>` parte da un documento Word, PDF,
-Excel o di testo. L'estrazione (`synthsurvey.questionnaire.extract`) è
+`survey-simulator questionnaire import <file>` parte da un documento Word, PDF,
+Excel o di testo. L'estrazione (`survey_simulator.questionnaire.extract`) è
 deliberatamente semplice: paragrafi, elenchi e tabelle nell'ordine del
 documento, marcatori di pagina per i PDF e di foglio per Excel, hash del
 file sorgente. Non c'è OCR: un PDF senza livello di testo viene rifiutato.
@@ -416,7 +416,7 @@ registrata in `docs/TODO.md` finché non è eseguita.
 ### Interfaccia
 
 Tutto il sistema parla con i provider attraverso `LLMClient`
-(`synthsurvey.llm`): una `LLMRequest` con system prompt, messaggi, schema
+(`survey_simulator.llm`): una `LLMRequest` con system prompt, messaggi, schema
 JSON facoltativo per la risposta strutturata, `max_tokens`, `effort` e una
 `variant`; una `LLMResponse` con testo, oggetto validato, token (ingresso,
 uscita, cache letta e scritta), modello, latenza, motivo di stop, rifiuto e
@@ -610,7 +610,7 @@ un run identico costa zero chiamate.
 `manifest.json` contiene la configurazione completa, gli hash del file di
 configurazione, del questionario, delle tavole ISTAT e dei prompt, i
 modelli, il seed, il piano, la stima, le statistiche dei pool e la spesa.
-`synthsurvey freeze` aggiunge l'hash di ogni file della cartella e
+`survey-simulator freeze` aggiunge l'hash di ogni file della cartella e
 `frozen: true`; da quel momento il runner rifiuta di riscrivere la
 cartella e `freeze --verify` segnala file modificati, mancanti o
 aggiunti. Ogni correzione genera un nuovo run.
@@ -669,7 +669,7 @@ verbali per domanda e segmento; costi e chiamate.
 
 ### Dati reali
 
-`synthsurvey validate <run> --real <csv>` accetta due formati. Il lungo ha
+`survey-simulator validate <run> --real <csv>` accetta due formati. Il lungo ha
 una riga per rispondente e domanda (`respondent_id`, `mode`, `question_id`,
 `answer_code`, facoltativi `item_id`, `segment`, `weight`), con le stesse
 convenzioni di codifica del simulato: indice 1..k per le singole, indici

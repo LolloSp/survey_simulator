@@ -8,9 +8,9 @@ import pytest
 import yaml
 from typer.testing import CliRunner
 
-from synthsurvey.cli import app
-from synthsurvey.config import load_config, parse_config
-from synthsurvey.llm import (
+from survey_simulator.cli import app
+from survey_simulator.config import load_config, parse_config
+from survey_simulator.llm import (
     AwaitingAnswersError,
     LLMError,
     LLMRequest,
@@ -22,8 +22,8 @@ from synthsurvey.llm import (
     pending_markdown,
     session_mailbox_dir,
 )
-from synthsurvey.population.tables import load_tables
-from synthsurvey.runner import execute_run, read_manifest
+from survey_simulator.population.tables import load_tables
+from survey_simulator.runner import execute_run, read_manifest
 from tests.config.conftest import ESEMPI_DIR, config_base
 
 PROCESSED = Path(__file__).resolve().parents[2] / "data" / "processed"
@@ -95,7 +95,7 @@ def test_registro_e_prezzo_zero(tmp_path: Path) -> None:
     client = make_client(cfg.engine.models[0], cfg)
     assert isinstance(client, SessionClient)
     assert session_mailbox_dir(cfg) == tmp_path / "cache" / "session"
-    from synthsurvey.llm import default_pricing
+    from survey_simulator.llm import default_pricing
 
     assert default_pricing().estimate_usd("session", 1000, 1000) == 0.0
 

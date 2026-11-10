@@ -9,11 +9,11 @@ import polars as pl
 import pytest
 import yaml
 
-from synthsurvey.config import LoadedConfig, load_config
-from synthsurvey.llm import FakeLLMClient, LLMPool, default_pricing
-from synthsurvey.population.tables import IstatTables, load_tables
-from synthsurvey.questionnaire import Mode, adapt, load_questionnaire, parse_questionnaire
-from synthsurvey.runner import (
+from survey_simulator.config import LoadedConfig, load_config
+from survey_simulator.llm import FakeLLMClient, LLMPool, default_pricing
+from survey_simulator.population.tables import IstatTables, load_tables
+from survey_simulator.questionnaire import Mode, adapt, load_questionnaire, parse_questionnaire
+from survey_simulator.runner import (
     BudgetError,
     FrozenError,
     assign_modes,
@@ -27,7 +27,7 @@ from synthsurvey.runner import (
     verify_frozen,
     write_manifest,
 )
-from synthsurvey.runner import plan as plan_module
+from survey_simulator.runner import plan as plan_module
 from tests.config.conftest import ESEMPI_DIR
 from tests.interview.conftest import ESEMPIO, make_persona
 
@@ -174,7 +174,7 @@ def test_budget_superato_durante_il_run(
     # La stima viene forzata entro il budget: la spesa reale (finta ma prezzata) lo supera.
     vera = plan_module.CostEstimate
     monkeypatch.setattr(
-        "synthsurvey.runner.run.estimate_cost",
+        "survey_simulator.runner.run.estimate_cost",
         lambda *a, **k: vera(1, 1, 1, 1, 0.0, 0.0, 0.002, {}),
     )
     pools = [LLMPool(FakeLLMClient("claude-haiku-5-5"), pricing=default_pricing(0.92))]

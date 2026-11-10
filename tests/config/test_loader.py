@@ -5,7 +5,7 @@ from typing import Any
 
 import pytest
 
-from synthsurvey.config import ConfigError, load_config, parse_config
+from survey_simulator.config import ConfigError, load_config, parse_config
 from tests.config.conftest import Carica, Scrivi
 
 

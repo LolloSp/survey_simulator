@@ -8,14 +8,14 @@ import pytest
 import yaml
 from typer.testing import CliRunner
 
-from synthsurvey.cli import app
-from synthsurvey.config import load_config
-from synthsurvey.llm import FakeLLMClient, LLMPool, default_pricing
-from synthsurvey.output import build_wide, load_run
-from synthsurvey.personas.build import personas_frame
-from synthsurvey.population.tables import load_tables
-from synthsurvey.runner import FrozenError, execute_run, freeze_run
-from synthsurvey.validation import (
+from survey_simulator.cli import app
+from survey_simulator.config import load_config
+from survey_simulator.llm import FakeLLMClient, LLMPool, default_pricing
+from survey_simulator.output import build_wide, load_run
+from survey_simulator.personas.build import personas_frame
+from survey_simulator.population.tables import load_tables
+from survey_simulator.runner import FrozenError, execute_run, freeze_run
+from survey_simulator.validation import (
     RealDataError,
     align,
     js_divergence,

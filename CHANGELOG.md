@@ -4,6 +4,13 @@ Tutte le modifiche rilevanti del progetto. Il formato segue
 [Keep a Changelog](https://keepachangelog.com/it/1.1.0/); le versioni
 seguono il versionamento semantico.
 
+## [0.2.0] - 2026-11-10
+
+### Cambiato
+
+- Il progetto si chiama `survey_simulator` (prima `synthsurvey`): pacchetto Python `survey_simulator`, comando da terminale `survey-simulator`, skill `survey-simulator-run`, repository `LolloSp/survey_simulator`. Il vecchio comando `synthsurvey` non esiste più: aggiornare script e abitudini.
+- Il manifest dei run scrive `survey_simulator_version` al posto di `synthsurvey_version`; i run già prodotti restano validi.
+
 ## [0.1.4] - 2026-11-08
 
 ### Aggiunto

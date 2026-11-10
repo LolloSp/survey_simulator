@@ -7,21 +7,21 @@ import polars as pl
 import pytest
 from typer.testing import CliRunner
 
-from synthsurvey.cli import app
-from synthsurvey.config import SynthSurveyConfig, load_config
-from synthsurvey.personas import PersonasResult, Provenance, build_personas, personas_markdown
-from synthsurvey.personas.coherence import hard_violations, sample_warnings
-from synthsurvey.personas.narrative import REGION_NAMES, render_narrative, template_hash
-from synthsurvey.population import categories as cat
-from synthsurvey.population.sample import SampleResult, build_sample
-from synthsurvey.population.tables import IstatTables
+from survey_simulator.cli import app
+from survey_simulator.config import SurveySimulatorConfig, load_config
+from survey_simulator.personas import PersonasResult, Provenance, build_personas, personas_markdown
+from survey_simulator.personas.coherence import hard_violations, sample_warnings
+from survey_simulator.personas.narrative import REGION_NAMES, render_narrative, template_hash
+from survey_simulator.population import categories as cat
+from survey_simulator.population.sample import SampleResult, build_sample
+from survey_simulator.population.tables import IstatTables
 from tests.config.conftest import ESEMPI_DIR
 from tests.personas.conftest import PROCESSED
 
 
 @pytest.fixture(scope="module")
 def result(
-    sample_100: SampleResult, config_100: SynthSurveyConfig, tables: IstatTables
+    sample_100: SampleResult, config_100: SurveySimulatorConfig, tables: IstatTables
 ) -> PersonasResult:
     return build_personas(sample_100, config_100, tables, processed_dir=PROCESSED)
 
@@ -68,7 +68,7 @@ def test_narrativa_contiene_i_fatti(result: PersonasResult) -> None:
 
 def test_determinismo(
     sample_100: SampleResult,
-    config_100: SynthSurveyConfig,
+    config_100: SurveySimulatorConfig,
     tables: IstatTables,
     result: PersonasResult,
 ) -> None:
@@ -83,7 +83,7 @@ def test_determinismo(
 
 
 def test_senza_nomi(
-    sample_100: SampleResult, config_100: SynthSurveyConfig, tables: IstatTables
+    sample_100: SampleResult, config_100: SurveySimulatorConfig, tables: IstatTables
 ) -> None:
     cfg = config_100.model_copy(
         update={"personas": config_100.personas.model_copy(update={"include_names": False})}
@@ -170,7 +170,7 @@ def test_cli_personas_preview(tmp_path: Path) -> None:
 
 
 def test_eufonia() -> None:
-    from synthsurvey.personas.narrative import eufonia
+    from survey_simulator.personas.narrative import eufonia
 
     assert eufonia("è diplomato e è in pensione") == "è diplomato ed è in pensione"
     assert eufonia("ha puntato a ampliare la gamma") == "ha puntato ad ampliare la gamma"
