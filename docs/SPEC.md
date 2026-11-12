@@ -2,7 +2,7 @@
 
 Nov 5, 2026 · @Lorenzo Spanu
 
-**Nome.** Il progetto si chiama `survey_simulator` (fino alla v0.1.4 si chiamava `synthsurvey`; rinominato il 10 novembre 2026). Il pacchetto Python è `survey_simulator`, il comando da terminale `survey-simulator`, il repository GitHub `LolloSp/survey_simulator`. Il manifest dei run scrive la versione del pacchetto in `survey_simulator_version`; i run prodotti prima della rinomina restano validi e riportano `synthsurvey_version`, chiave che nessun comando legge.
+**Nome.** Il progetto si chiama `survey_simulator` (fino alla v0.1.4 si chiamava `synthsurvey`; rinominato il 10 novembre 2026). Il pacchetto Python è `survey_simulator`, il comando da terminale `survey-simulator`, il repository GitHub `nine-to-one/survey-simulator` (trasferito il 12 novembre 2026 da `LolloSp/survey_simulator` all'organizzazione Nine To One, con il nome adeguato alla convenzione dell'organizzazione: minuscole e trattini; il vecchio indirizzo reindirizza). Il manifest dei run scrive la versione del pacchetto in `survey_simulator_version`; i run prodotti prima della rinomina restano validi e riportano `synthsurvey_version`, chiave che nessun comando legge.
 
 ## Visione e ambito
 

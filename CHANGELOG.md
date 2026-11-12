@@ -4,6 +4,12 @@ Tutte le modifiche rilevanti del progetto. Il formato segue
 [Keep a Changelog](https://keepachangelog.com/it/1.1.0/); le versioni
 seguono il versionamento semantico.
 
+## [Non rilasciato]
+
+### Cambiato
+
+- Il repository è passato all'organizzazione Nine To One: `nine-to-one/survey-simulator` (prima `LolloSp/survey_simulator`, che reindirizza). Pacchetto, comando e skill non cambiano. Aggiornare il remoto delle copie locali con `git remote set-url origin https://github.com/nine-to-one/survey-simulator.git`.
+
 ## [0.2.0] - 2026-11-10
 
 ### Cambiato
